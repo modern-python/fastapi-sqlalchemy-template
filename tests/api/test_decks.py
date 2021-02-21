@@ -58,11 +58,62 @@ def test_post_decks(
     )
     assert response.status_code == status_code
 
-    # get list
+    # get item
     if status_code == status.HTTP_200_OK:
         item_id = response.json()["id"]
-        response = client.get("/api/decks/")
+        response = client.get(f"/api/decks/{item_id}/")
         assert response.status_code == status.HTTP_200_OK
-        data = response.json()
-        assert "decks" in data
-        assert item_id in [x["id"] for x in data["decks"]]
+        result = response.json()
+        assert item_id == result["id"]
+        assert name == result["name"]
+        assert description == result["description"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "name,description,status_code",
+    [
+        (None, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
+        (test_data.deck2.name, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
+        ("test deck updated", False, status.HTTP_200_OK),
+        ("test deck updated", None, status.HTTP_200_OK),
+        (
+            test_data.deck.name,
+            "test deck description updated",
+            status.HTTP_200_OK,
+        ),
+        (
+            "test deck updated",
+            "test deck description updated",
+            status.HTTP_200_OK,
+        ),
+    ],
+)
+def test_patch_decks(
+    client: TestClient,
+    deck: models.Deck,
+    deck2: models.Deck,
+    name: str,
+    description: str,
+    status_code: int,
+):
+    # update deck
+    data = {"name": name}
+    if description is not False:
+        data["description"] = description
+    else:
+        description = deck.description
+    response = client.patch(
+        f"/api/decks/{deck.id}/",
+        json=data,
+    )
+    assert response.status_code == status_code
+
+    # get item
+    if status_code == status.HTTP_200_OK:
+        item_id = response.json()["id"]
+        response = client.get(f"/api/decks/{item_id}/")
+        assert response.status_code == status.HTTP_200_OK
+        result = response.json()
+        assert name == result["name"]
+        assert description == result["description"]

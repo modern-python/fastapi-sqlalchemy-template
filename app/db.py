@@ -51,6 +51,12 @@ class Base:
             info = e.orig.args
             m = re.findall(r"Key \((.*)\)=\(.*\) already exists|$", info[0])
             raise DatabaseValidationError(
-                f"{type(self).__name__} already exists", m[0] if m else None
+                f"{type(self).__name__} with this field value exists",
+                m[0] if m else None,
             )
         await db.refresh(self)
+
+    async def update(self, db, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        await self.save(db)

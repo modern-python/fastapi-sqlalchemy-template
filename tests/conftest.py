@@ -34,3 +34,10 @@ async def deck(db):
     instance = models.Deck(**test_data.deck.dict())
     await instance.save(db)
     return instance
+
+
+@pytest.fixture
+async def deck2(db):
+    instance = models.Deck(**test_data.deck2.dict())
+    await instance.save(db)
+    return instance
