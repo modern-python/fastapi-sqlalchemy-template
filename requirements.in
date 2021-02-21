@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+python-dotenv
+
+# DB
+alembic
+psycopg2-binary
+sqlalchemy>=1.4.0b2
+
+# Testing
+black
+isort
+pre-commit
+pylint
+pytest
+pytest-asyncio
+requests

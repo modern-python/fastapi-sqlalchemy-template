@@ -1,0 +1,9 @@
+.git*
+Dockerfile*
+dev_env
+etc
+run.sh
+docker-compose*
+devops
+Jenkinsfile*
+.gitlab-ci*
