@@ -36,14 +36,12 @@ def test_get_decks(client: TestClient, deck: models.Deck):
     "name,description,status_code",
     [
         (None, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
-        (test_data.deck.name, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
-        ("test deck 2", None, status.HTTP_200_OK),
-        ("test deck 2", "test deck description", status.HTTP_200_OK),
+        ("test deck", None, status.HTTP_200_OK),
+        ("test deck", "test deck description", status.HTTP_200_OK),
     ],
 )
 def test_post_decks(
     client: TestClient,
-    deck: models.Deck,
     name: str,
     description: str,
     status_code: int,
@@ -74,8 +72,6 @@ def test_post_decks(
     "name,description,status_code",
     [
         (None, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
-        (test_data.deck2.name, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
-        ("test deck updated", False, status.HTTP_200_OK),
         ("test deck updated", None, status.HTTP_200_OK),
         (
             test_data.deck.name,
@@ -89,23 +85,17 @@ def test_post_decks(
         ),
     ],
 )
-def test_patch_decks(
+def test_put_decks(
     client: TestClient,
     deck: models.Deck,
-    deck2: models.Deck,
     name: str,
     description: str,
     status_code: int,
 ):
     # update deck
-    data = {"name": name}
-    if description is not False:
-        data["description"] = description
-    else:
-        description = deck.description
-    response = client.patch(
+    response = client.put(
         f"/api/decks/{deck.id}/",
-        json=data,
+        json={"name": name, "description": description},
     )
     assert response.status_code == status_code
 

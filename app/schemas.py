@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel  # pylint: disable=E0611
+from pydantic import BaseModel, PositiveInt  # pylint: disable=E0611
 
 
 class Base(BaseModel):
@@ -8,8 +8,7 @@ class Base(BaseModel):
         orm_mode = True
 
 
-class Deck(Base):
-    id: Optional[int]
+class DeckBase(Base):
     name: str
     description: Optional[str] = None
 
@@ -17,5 +16,35 @@ class Deck(Base):
         orm_mode = True
 
 
+class DeckCreate(DeckBase):
+    pass
+
+
+class Deck(DeckBase):
+    id: PositiveInt
+
+
 class Decks(Base):
     decks: List[Deck]
+
+
+class CardBase(Base):
+    front: str
+    back: Optional[str] = None
+    hint: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class CardCreate(CardBase):
+    pass
+
+
+class Card(CardBase):
+    id: PositiveInt
+    deck_id: Optional[PositiveInt] = None
+
+
+class Cards(Base):
+    cards: List[Card]

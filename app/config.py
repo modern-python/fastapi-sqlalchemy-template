@@ -22,7 +22,7 @@ class Settings(BaseSettings):  # pylint: disable=too-few-public-methods
 
     DB_POOL_MIN_SIZE = 1
     DB_POOL_MAX_SIZE = 5
-    DB_ECHO = DEBUG
+    DB_ECHO = False
     DB_SSL: Optional[str] = None
     DB_RETRY_LIMIT = 5
     DB_RETRY_INTERVAL = 1

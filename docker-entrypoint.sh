@@ -24,6 +24,8 @@ case "$1" in
         pytest -s -vv tests/
         ;;
     pytest)
+        alembic downgrade base
+        alembic upgrade head
         pytest -s -vv -x tests/
         ;;
     *)

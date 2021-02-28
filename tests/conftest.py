@@ -1,32 +1,39 @@
 import pytest
-from alembic.config import main
 from fastapi.testclient import TestClient
+from sqlalchemy.exc import PendingRollbackError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import models, schemas
+from app import models
 from app.db import engine
+from app.deps import get_db
 from app.main import app
 from tests import test_data
 
 
 @pytest.fixture
-def client():
-    main(["--raiseerr", "downgrade", "base"])
-    main(["--raiseerr", "upgrade", "head"])
-
-    with TestClient(app) as client:
-        yield client
-
-    main(["--raiseerr", "downgrade", "base"])
+async def db():
+    session = AsyncSession(engine)
+    try:
+        async with session.begin_nested():
+            yield session
+    except PendingRollbackError:
+        pass
+    finally:
+        try:
+            await session.rollback()
+        except PendingRollbackError:
+            pass
+        await session.close()
 
 
 @pytest.fixture
-async def db(client):
-    session = AsyncSession(engine)
-    try:
-        yield session
-    finally:
-        await session.close()
+def client(db):
+    def _get_db():
+        return db
+
+    app.dependency_overrides[get_db] = _get_db
+    with TestClient(app) as client:
+        yield client
 
 
 @pytest.fixture
@@ -37,7 +44,14 @@ async def deck(db):
 
 
 @pytest.fixture
-async def deck2(db):
-    instance = models.Deck(**test_data.deck2.dict())
+async def card(db, deck: models.Deck):
+    instance = models.Card(**test_data.card.dict(), deck_id=deck.id)
+    await instance.save(db)
+    return instance
+
+
+@pytest.fixture
+async def card2(db, deck: models.Deck):
+    instance = models.Card(**test_data.card2.dict(), deck_id=deck.id)
     await instance.save(db)
     return instance

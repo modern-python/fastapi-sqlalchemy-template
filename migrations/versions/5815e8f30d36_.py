@@ -1,8 +1,8 @@
 """
 
-Revision ID: f4fd1004f073
+Revision ID: 5815e8f30d36
 Revises:
-Create Date: 2021-02-21 13:18:19.526249
+Create Date: 2021-02-28 13:12:53.971795
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f4fd1004f073'
+revision = '5815e8f30d36'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,8 +22,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_deck_id'), 'deck', ['id'], unique=False)
     op.create_table('card',
@@ -34,7 +33,7 @@ def upgrade():
     sa.Column('deck_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['deck_id'], ['deck.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('front')
+    sa.UniqueConstraint('deck_id', 'front', name='card_deck_id_front_uc')
     )
     op.create_index(op.f('ix_card_id'), 'card', ['id'], unique=False)
     op.create_table('test',
@@ -45,7 +44,7 @@ def upgrade():
     sa.Column('deck_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['deck_id'], ['deck.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('question')
+    sa.UniqueConstraint('deck_id', 'question', name='card_deck_id_question_uc')
     )
     op.create_index(op.f('ix_test_id'), 'test', ['id'], unique=False)
     # ### end Alembic commands ###
