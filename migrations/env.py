@@ -27,7 +27,7 @@ from app.config import settings
 from app.db import Base
 from app import models  # noqa
 
-config.set_main_option('sqlalchemy.url', str(settings.DB_DSN))
+config.set_main_option('sqlalchemy.url', str(settings.DB_DSN)+"?async_fallback=true")
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

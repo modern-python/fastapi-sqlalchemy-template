@@ -13,7 +13,7 @@ class Settings(BaseSettings):  # pylint: disable=too-few-public-methods
     SYSLOG_HOST = "127.0.0.1"
     SYSLOG_PORT = SYSLOG_UDP_PORT
 
-    DB_DRIVER = "postgresql"
+    DB_DRIVER = "postgresql+asyncpg"
     DB_HOST = "db"
     DB_PORT = 5432
     DB_USER = "postgres"

@@ -5,7 +5,8 @@ python-dotenv
 # DB
 alembic
 psycopg2-binary
-sqlalchemy>=1.4.0b2
+sqlalchemy
+asyncpg
 
 # Testing
 black

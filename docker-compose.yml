@@ -15,7 +15,6 @@ services:
     environment:
       - DEBUG=true
       - DB_ECHO=true
-      - DB_URL=postgres://postgres:password@db:5432/postgres
     command:
       ['start', '1']
 
@@ -23,6 +22,6 @@ services:
     image: postgres:13
     restart: always
     ports:
-      - "5432:5432"
+      - "5432"
     environment:
       - POSTGRES_PASSWORD=password

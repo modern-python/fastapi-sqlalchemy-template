@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.exc import PendingRollbackError
@@ -8,6 +10,14 @@ from app.db import engine
 from app.deps import get_db
 from app.main import app
 from tests import test_data
+
+
+@pytest.fixture(scope="session")
+def event_loop(request):
+    """Create an instance of the default event loop for each test case."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.fixture
