@@ -1,5 +1,4 @@
 from logging.handlers import SYSLOG_UDP_PORT
-from typing import Optional
 
 from pydantic import BaseSettings
 from sqlalchemy.engine.url import URL
@@ -20,13 +19,9 @@ class Settings(BaseSettings):  # pylint: disable=too-few-public-methods
     DB_PASSWORD = "password"
     DB_DATABASE = "postgres"
 
-    DB_POOL_MIN_SIZE = 1
-    DB_POOL_MAX_SIZE = 5
+    DB_POOL_SIZE = 5
+    DB_MAX_OVERFLOW = 0
     DB_ECHO = False
-    DB_SSL: Optional[str] = None
-    DB_RETRY_LIMIT = 5
-    DB_RETRY_INTERVAL = 1
-    DB_USE_CONNECTION_FOR_REQUEST = True
 
     @property
     def DB_DSN(self) -> URL:  # pylint: disable=invalid-name

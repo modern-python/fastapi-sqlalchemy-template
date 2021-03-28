@@ -5,13 +5,22 @@ from typing import Any, List, Optional
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import as_declarative, declared_attr
+from sqlalchemy.orm import as_declarative, declared_attr, sessionmaker
 
 from app.config import settings
+from app.utils.db import transaction
 
 
 logger = logging.getLogger(__name__)
-engine = create_async_engine(settings.DB_DSN)
+engine = create_async_engine(
+    settings.DB_DSN,
+    echo=settings.DB_ECHO,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW,
+)
+async_session = sessionmaker(
+    engine, expire_on_commit=False, class_=AsyncSession
+)
 
 
 class DatabaseValidationError(Exception):
@@ -28,11 +37,8 @@ class ObjectDoesNotExist(Exception):
 
 
 @as_declarative()
-class Base:
+class Base(object):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     @declared_attr
     def __tablename__(cls) -> str:  # pylint: disable=no-self-argument
@@ -71,23 +77,25 @@ class Base:
 
     @classmethod
     async def bulk_create(cls, db: AsyncSession, objects: List["Base"]):
-        db.add_all(objects)
         try:
-            await db.flush()
+            async with transaction(db):
+                db.add_all(objects)
+                await db.flush()
         except IntegrityError as e:
             cls._raise_validation_exception(e)
 
     @classmethod
     async def bulk_update(cls, db: AsyncSession, objects: List["Base"]):
-        ids = [x.id for x in objects if x.id]
-        await db.execute(sa.select(cls).where(cls.id.in_(ids)))
-        for x in objects:
-            try:
-                await db.merge(x)
-            except IntegrityError as e:
-                cls._raise_validation_exception(e, x.id)
         try:
-            await db.flush()
+            async with transaction(db):
+                ids = [x.id for x in objects if x.id]
+                await db.execute(sa.select(cls).where(cls.id.in_(ids)))
+                for x in objects:
+                    try:
+                        await db.merge(x)
+                    except IntegrityError as e:
+                        cls._raise_validation_exception(e, x.id)
+                await db.flush()
         except IntegrityError as e:
             cls._raise_validation_exception(e)
 
@@ -95,8 +103,13 @@ class Base:
         db.add(self)
         try:
             await db.flush()
-        except IntegrityError as e:
-            self._raise_validation_exception(e)
+        except Exception as e:
+            await db.rollback()
+            if isinstance(e, IntegrityError):
+                self._raise_validation_exception(e)
+            else:
+                raise e
+
         await db.refresh(self)
 
     async def update(self, db, **kwargs):

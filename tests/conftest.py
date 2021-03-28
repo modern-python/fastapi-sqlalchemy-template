@@ -2,7 +2,6 @@ import asyncio
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.exc import PendingRollbackError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import models
@@ -22,18 +21,17 @@ def event_loop(request):
 
 @pytest.fixture
 async def db():
-    session = AsyncSession(engine)
-    try:
-        async with session.begin_nested():
-            yield session
-    except PendingRollbackError:
-        pass
-    finally:
-        try:
-            await session.rollback()
-        except PendingRollbackError:
-            pass
-        await session.close()
+    # joining session into external transaction
+    # https://docs.sqlalchemy.org/en/14/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
+    connection = await engine.connect()
+    transaction = await connection.begin()
+    session = AsyncSession(bind=connection)
+
+    yield session
+
+    await session.close()
+    await transaction.rollback()
+    await connection.close()
 
 
 @pytest.fixture
