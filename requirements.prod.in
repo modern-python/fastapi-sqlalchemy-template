@@ -1,3 +1,5 @@
+-c constraints.txt
+
 fastapi
 uvicorn
 python-dotenv
@@ -7,12 +9,3 @@ alembic
 psycopg2-binary
 sqlalchemy
 asyncpg
-
-# Testing
-black
-isort
-pre-commit
-pylint
-pytest
-pytest-asyncio
-requests

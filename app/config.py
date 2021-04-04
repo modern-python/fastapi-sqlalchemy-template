@@ -1,30 +1,24 @@
-from logging.handlers import SYSLOG_UDP_PORT
-
 from pydantic import BaseSettings
 from sqlalchemy.engine.url import URL
 
 
-class Settings(BaseSettings):  # pylint: disable=too-few-public-methods
-    SERVICE_NAME = "FastApi"
-    DEBUG = False
+class Settings(BaseSettings):
+    SERVICE_NAME: str = "FastApi"
+    DEBUG: bool = False
 
-    LOG_LEVEL = "INFO"
-    SYSLOG_HOST = "127.0.0.1"
-    SYSLOG_PORT = SYSLOG_UDP_PORT
+    DB_DRIVER: str = "postgresql+asyncpg"
+    DB_HOST: str = "db"
+    DB_PORT: int = 5432
+    DB_USER: str = "postgres"
+    DB_PASSWORD: str = "password"
+    DB_DATABASE: str = "postgres"
 
-    DB_DRIVER = "postgresql+asyncpg"
-    DB_HOST = "db"
-    DB_PORT = 5432
-    DB_USER = "postgres"
-    DB_PASSWORD = "password"
-    DB_DATABASE = "postgres"
-
-    DB_POOL_SIZE = 5
-    DB_MAX_OVERFLOW = 0
-    DB_ECHO = False
+    DB_POOL_SIZE: int = 5
+    DB_MAX_OVERFLOW: int = 0
+    DB_ECHO: bool = False
 
     @property
-    def DB_DSN(self) -> URL:  # pylint: disable=invalid-name
+    def DB_DSN(self) -> URL:
         return URL.create(
             self.DB_DRIVER,
             self.DB_USER,
@@ -34,7 +28,7 @@ class Settings(BaseSettings):  # pylint: disable=too-few-public-methods
             self.DB_DATABASE,
         )
 
-    class Config:  # pylint: disable=too-few-public-methods
+    class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
 

@@ -6,13 +6,21 @@ from app.db import Base
 
 
 class Deck(Base):
+    __tablename__ = "deck"
+
     name = sa.Column(sa.String, nullable=False)
     description = sa.Column(sa.String, nullable=True)
-    cards = relationship("Card")
-    tests = relationship("Test")
+    # Lazy is workaround for async, use either "subquery" or "selectin"
+    # More info:
+    # - https://github.com/tiangolo/fastapi/pull/2331#issuecomment-801461215
+    # - https://github.com/tiangolo/fastapi/pull/2331#issuecomment-807528963
+    cards = relationship("Card", lazy="subquery")
+    tests = relationship("Test", lazy="subquery")
 
 
 class Card(Base):
+    __tablename__ = "card"
+
     front = sa.Column(sa.String, nullable=False)
     back = sa.Column(sa.String, nullable=True)
     hint = sa.Column(sa.String, nullable=True)
@@ -23,6 +31,8 @@ class Card(Base):
 
 
 class Test(Base):
+    __tablename__ = "test"
+
     question = sa.Column(sa.String, nullable=False)
     options = sa.Column(sa.String, nullable=True)
     hint = sa.Column(sa.String, nullable=True)

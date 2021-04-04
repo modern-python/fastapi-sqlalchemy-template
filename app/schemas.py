@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, PositiveInt  # pylint: disable=E0611
+from pydantic import BaseModel, PositiveInt
 
 
 class Base(BaseModel):

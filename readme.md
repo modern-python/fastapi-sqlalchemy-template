@@ -1,7 +1,7 @@
 Flash-Cards
 
-## Local development
+### After `git clone` run
 
 ```bash
-docker-compose run app ./docker-entrypoint.sh tests
+make help
 ```

@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Any, List, Optional
+from typing import Any, List, Optional, TypeVar
 
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
@@ -25,27 +25,25 @@ async_session = sessionmaker(
 
 class DatabaseValidationError(Exception):
     def __init__(
-        self, message: str, field: Optional[str] = None, object_id: int = None
+        self,
+        message: str,
+        field: Optional[str] = None,
+        object_id: Optional[int] = None,
     ) -> None:
         self.message = message
         self.field = field
         self.object = object_id
 
 
-class ObjectDoesNotExist(Exception):
-    pass
+T = TypeVar("T", bound="Base", covariant=True)
 
 
 @as_declarative()
-class Base(object):
+class Base:
     id = sa.Column(sa.Integer, primary_key=True, index=True)
 
-    @declared_attr
-    def __tablename__(cls) -> str:  # pylint: disable=no-self-argument
-        return cls.__name__.lower()  # pylint: disable=no-member
-
     @classmethod
-    async def all(cls, db: AsyncSession):
+    async def all(cls: T, db: AsyncSession) -> List[T]:
         db_execute = await db.execute(sa.select(cls))
         return db_execute.scalars().all()
 
@@ -57,11 +55,7 @@ class Base(object):
 
     @classmethod
     async def get_by_id(cls, db: AsyncSession, object_id: int):
-        db_execute = await db.execute(sa.select(cls).where(cls.id == object_id))
-        instance = db_execute.scalars().first()
-        if instance is None:
-            raise ObjectDoesNotExist
-        return instance
+        return await db.get(cls, object_id)
 
     @classmethod
     def _raise_validation_exception(
@@ -103,14 +97,8 @@ class Base(object):
         db.add(self)
         try:
             await db.flush()
-        except Exception as e:
-            await db.rollback()
-            if isinstance(e, IntegrityError):
-                self._raise_validation_exception(e)
-            else:
-                raise e
-
-        await db.refresh(self)
+        except IntegrityError as e:
+            self._raise_validation_exception(e)
 
     async def update(self, db, **kwargs):
         for k, v in kwargs.items():

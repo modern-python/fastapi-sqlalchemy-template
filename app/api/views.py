@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import parse_obj_as
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import Response
@@ -21,6 +21,8 @@ async def list_decks(db: AsyncSession = Depends(get_db)):
 @router.get("/decks/{deck_id}/", response_model=schemas.Deck)
 async def get_deck(deck_id: int, db: AsyncSession = Depends(get_db)):
     instance = await models.Deck.get_by_id(db, deck_id)
+    if not instance:
+        raise HTTPException(status_code=404, detail="Deck is not found")
     return schemas.Deck.from_orm(instance)
 
 
@@ -29,6 +31,8 @@ async def update_deck(
     deck_id: int, data: schemas.DeckCreate, db: AsyncSession = Depends(get_db)
 ):
     instance = await models.Deck.get_by_id(db, deck_id)
+    if not instance:
+        raise HTTPException(status_code=404, detail="Deck is not found")
     await instance.update(db, **data.dict())
     return schemas.Deck.from_orm(instance)
 
@@ -51,6 +55,8 @@ async def list_cards(deck_id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/cards/{card_id}/", response_model=schemas.Card)
 async def get_card(card_id: int, db: AsyncSession = Depends(get_db)):
     instance = await models.Card.get_by_id(db, card_id)
+    if not instance:
+        raise HTTPException(status_code=404, detail="Card is not found")
     return schemas.Card.from_orm(instance)
 
 
@@ -73,7 +79,7 @@ async def update_cards(
     data: List[schemas.Card],
     db: AsyncSession = Depends(get_db),
 ):
-    await models.Card.bulk_update(
+    cards = await models.Card.bulk_update(
         db,
         [
             models.Card(**card.dict(exclude={"deck_id"}), deck_id=deck_id)

@@ -4,9 +4,10 @@ RUN useradd --no-create-home --gid root runner
 
 WORKDIR /code
 
-COPY requirements.txt .
-
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY requirements.prod.txt .
+RUN pip3 install --no-cache-dir -r requirements.prod.txt
+COPY requirements.dev.txt .
+RUN pip3 install --no-cache-dir -r requirements.dev.txt
 
 COPY . .
 

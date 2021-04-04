@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from app import exceptions
 from app.api.views import router
 from app.config import settings
-from app.db import DatabaseValidationError, ObjectDoesNotExist
+from app.db import DatabaseValidationError
 
 
 def get_app() -> FastAPI:
@@ -14,9 +14,6 @@ def get_app() -> FastAPI:
     _app.add_exception_handler(
         DatabaseValidationError,
         exceptions.database_validation_exception_handler,
-    )
-    _app.add_exception_handler(
-        ObjectDoesNotExist, exceptions.object_does_not_exist_exception_handler
     )
 
     return _app

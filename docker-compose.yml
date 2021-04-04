@@ -16,7 +16,7 @@ services:
       - DEBUG=true
       - DB_ECHO=true
     command:
-      ['start', '1']
+      ['start', '8000']
 
   db:
     image: postgres:13

@@ -1,26 +1,27 @@
 #!/bin/bash
 set -e
 
-WORKERS=${2:-5}
+PORT=${2:-8000}
 
 case "$1" in
     init)
         alembic upgrade head
         ;;
     api)
-        exec uvicorn app.main:app --workers $WORKERS --host 0.0.0.0
+        exec uvicorn app.main:app --host 0.0.0.0 --port $PORT
         ;;
     start)
         alembic upgrade head
-        uvicorn app.main:app --workers $WORKERS --host 0.0.0.0 --reload
+        uvicorn app.main:app --host 0.0.0.0 --port $PORT --reload
         ;;
-    migrate)
+    migration)
         alembic revision --autogenerate -m "$3"
         ;;
     tests)
         isort -c --diff --settings-file .isort.cfg .
         black --config pyproject.toml --check .
         pylint --rcfile=.pylintrc --errors-only app
+        mypy .
         pytest -s -vv tests/
         ;;
     pytest)

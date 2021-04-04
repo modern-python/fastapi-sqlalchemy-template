@@ -25,7 +25,7 @@ async def db():
     # https://docs.sqlalchemy.org/en/14/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
     connection = await engine.connect()
     transaction = await connection.begin()
-    session = AsyncSession(bind=connection)
+    session = AsyncSession(bind=connection, expire_on_commit=False)
 
     yield session
 
