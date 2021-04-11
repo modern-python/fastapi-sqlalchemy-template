@@ -2,15 +2,15 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from app import models
-from tests import test_data
+from app.apps.decks import models
+from tests.decks.conftest import get_deck_data
 
 
 @pytest.mark.asyncio
 def test_get_decks_empty(client: TestClient):
     response = client.get("/api/decks/")
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["decks"]) == 0
+    assert len(response.json()["items"]) == 0
 
     response = client.get("/api/decks/0/")
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -21,8 +21,8 @@ def test_get_decks(client: TestClient, deck: models.Deck):
     response = client.get("/api/decks/")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
-    assert len(data["decks"]) == 1
-    for k, v in data["decks"][0].items():
+    assert len(data["items"]) == 1
+    for k, v in data["items"][0].items():
         assert v == getattr(deck, k)
 
     response = client.get(f"/api/decks/{deck.id}")
@@ -74,7 +74,7 @@ def test_post_decks(
         (None, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
         ("test deck updated", None, status.HTTP_200_OK),
         (
-            test_data.deck.name,
+            get_deck_data()["name"],
             "test deck description updated",
             status.HTTP_200_OK,
         ),

@@ -19,16 +19,12 @@ config = context.config
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
 from app.config import settings
-from app.db import Base
-from app import models  # noqa
+from app.db import metadata
 
+# async_fallback=true is used, because alembic works with sync drivers
 config.set_main_option('sqlalchemy.url', str(settings.DB_DSN)+"?async_fallback=true")
-target_metadata = Base.metadata
+target_metadata = metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

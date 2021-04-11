@@ -2,12 +2,13 @@ from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic.error_wrappers import ErrorWrapper
+from starlette.requests import Request
 
 from app.db import DatabaseValidationError
 
 
 async def database_validation_exception_handler(
-    request, exc: DatabaseValidationError
+    request: Request, exc: DatabaseValidationError
 ) -> JSONResponse:
     return await request_validation_exception_handler(
         request,

@@ -12,9 +12,6 @@ class DeckBase(Base):
     name: str
     description: Optional[str] = None
 
-    class Config:
-        orm_mode = True
-
 
 class DeckCreate(DeckBase):
     pass
@@ -25,16 +22,13 @@ class Deck(DeckBase):
 
 
 class Decks(Base):
-    decks: List[Deck]
+    items: List[Deck]
 
 
 class CardBase(Base):
     front: str
     back: Optional[str] = None
     hint: Optional[str] = None
-
-    class Config:
-        orm_mode = True
 
 
 class CardCreate(CardBase):
@@ -47,4 +41,4 @@ class Card(CardBase):
 
 
 class Cards(Base):
-    cards: List[Card]
+    items: List[Card]

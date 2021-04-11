@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app import exceptions
-from app.api.views import router
+from app.apps.decks.views import router as decks_router
 from app.config import settings
 from app.db import DatabaseValidationError
 
@@ -9,7 +9,7 @@ from app.db import DatabaseValidationError
 def get_app() -> FastAPI:
     _app = FastAPI(title=settings.SERVICE_NAME, debug=settings.DEBUG)
 
-    _app.include_router(router, prefix="/api")
+    _app.include_router(decks_router, prefix="/api")
 
     _app.add_exception_handler(
         DatabaseValidationError,

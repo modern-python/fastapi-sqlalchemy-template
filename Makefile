@@ -12,19 +12,24 @@ up: down
 pytest:
 	docker-compose run app ./docker-entrypoint.sh pytest
 
-## tests:     run isort, black, pylint, mypy, pytest
-tests:
+## run_tests: run isort, black, pylint, mypy, pytest
+run_tests:
 	docker-compose run app ./docker-entrypoint.sh tests
 
 ## migration: create alembic migration
-migration: down
-	docker-compose run app ./docker-entrypoint.sh migration 8000 $(ARGS)
+migration:
+	docker-compose run app alembic revision --autogenerate
+
+## upgrade:   downgrade alembic migrations
+upgrade:
+	docker-compose run app alembic upgrade head
+
+## downgrade: downgrade alembic migrations
+downgrade:
+	docker-compose run app alembic downgrade base
 
 down:
 	docker-compose down --remove-orphans
-
-build:
-	docker-compose build
 
 ## ---------------------------------------------------------------
 ## Requirements managing: pip-tools required to be installed and
