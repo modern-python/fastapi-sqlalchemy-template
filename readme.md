@@ -1,4 +1,4 @@
-Flash-Cards
+Fully-async RestAPI on FastAPI, SQLAlchemy 1.4, Alembic and PostgreSQL
 
 ### After `git clone` run
 
