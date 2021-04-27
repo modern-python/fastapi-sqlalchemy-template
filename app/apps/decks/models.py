@@ -2,10 +2,10 @@ import sqlalchemy as sa
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app.db.models import BaseModel
 
 
-class Deck(Base):
+class Deck(BaseModel):
     __tablename__ = "deck"
 
     name = sa.Column(sa.String, nullable=False)
@@ -18,7 +18,7 @@ class Deck(Base):
     tests = relationship("Test", lazy="subquery")
 
 
-class Card(Base):
+class Card(BaseModel):
     __tablename__ = "card"
 
     front = sa.Column(sa.String, nullable=False)
@@ -30,7 +30,7 @@ class Card(Base):
     )
 
 
-class Test(Base):
+class Test(BaseModel):
     __tablename__ = "test"
 
     question = sa.Column(sa.String, nullable=False)

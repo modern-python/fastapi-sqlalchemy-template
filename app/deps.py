@@ -1,4 +1,4 @@
-from app.db import async_session
+from app.db.base import async_session
 
 
 async def get_db():

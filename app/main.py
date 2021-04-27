@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from app import exceptions
 from app.apps.decks.views import router as decks_router
 from app.config import settings
-from app.db import DatabaseValidationError
+from app.db.exceptions import DatabaseValidationError
 
 
 def get_app() -> FastAPI:

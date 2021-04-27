@@ -3,46 +3,21 @@ import re
 from typing import Any, List, NoReturn, Optional, Type, TypeVar
 
 import sqlalchemy as sa
-from sqlalchemy import MetaData
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
+from app.db.base import Base
+from app.db.exceptions import DatabaseValidationError
 
 
 logger = logging.getLogger(__name__)
-engine = create_async_engine(
-    settings.DB_DSN,
-    echo=settings.DB_ECHO,
-    pool_size=settings.DB_POOL_SIZE,
-    max_overflow=settings.DB_MAX_OVERFLOW,
-    future=True,
-)
-async_session = sessionmaker(
-    engine, expire_on_commit=False, class_=AsyncSession, future=True
-)
-metadata = MetaData()
-_Base = declarative_base(metadata=metadata)
-
-
-class DatabaseValidationError(Exception):
-    def __init__(
-        self,
-        message: str,
-        field: Optional[str] = None,
-        object_id: Optional[int] = None,
-    ) -> None:
-        self.message = message
-        self.field = field
-        self.object = object_id
 
 
 # https://mypy.readthedocs.io/en/latest/generics.html#generic-methods-and-generic-self
-T = TypeVar("T", bound="Base")
+T = TypeVar("T", bound="BaseModel")
 
 
-class Base(_Base):  # type: ignore
+class BaseModel(Base):
     __abstract__ = True
 
     id = sa.Column(sa.Integer, primary_key=True, index=True)

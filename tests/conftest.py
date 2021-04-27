@@ -7,7 +7,7 @@ from sqlalchemy.engine import Transaction
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
-from app.db import engine
+from app.db.base import engine
 from app.deps import get_db
 from app.main import app
 
