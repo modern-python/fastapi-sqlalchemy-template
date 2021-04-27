@@ -19,6 +19,7 @@ def get_deck_data():
 async def card(db, deck: models.Deck):
     instance = models.Card(**card_data.dict(), deck_id=deck.id)
     await instance.save(db)
+    await db.commit()
     return instance
 
 
@@ -26,6 +27,7 @@ async def card(db, deck: models.Deck):
 async def another_card(db, deck: models.Deck):
     instance = models.Card(**another_card_data.dict(), deck_id=deck.id)
     await instance.save(db)
+    await db.commit()
     return instance
 
 

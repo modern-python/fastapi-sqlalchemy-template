@@ -1,12 +1,12 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import parse_obj_as
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.responses import Response
 
 from app.apps.decks import models, schemas
 from app.deps import get_db
+from app.utils.db import transaction
 
 
 router = APIRouter()
@@ -15,7 +15,7 @@ router = APIRouter()
 @router.get("/decks/", response_model=schemas.Decks)
 async def list_decks(db: AsyncSession = Depends(get_db)) -> schemas.Decks:
     objects = await models.Deck.all(db)
-    return schemas.Decks(items=parse_obj_as(List[schemas.Deck], objects))
+    return schemas.Decks.parse_obj({"items": objects})
 
 
 @router.get("/decks/{deck_id}/", response_model=schemas.Deck)
@@ -36,6 +36,7 @@ async def update_deck(
     if not instance:
         raise HTTPException(status_code=404, detail="Deck is not found")
     await instance.update(db, **data.dict())
+    await db.commit()
     return schemas.Deck.from_orm(instance)
 
 
@@ -45,6 +46,7 @@ async def create_deck(
 ) -> schemas.Deck:
     instance = models.Deck(**data.dict())
     await instance.save(db)
+    await db.commit()
     return schemas.Deck.from_orm(instance)
 
 
@@ -53,7 +55,7 @@ async def list_cards(
     deck_id: int, db: AsyncSession = Depends(get_db)
 ) -> schemas.Cards:
     objects = await models.Card.filter(db, [models.Card.deck_id == deck_id])
-    return schemas.Cards(items=parse_obj_as(List[schemas.Card], objects))
+    return schemas.Cards.parse_obj({"items": objects})
 
 
 @router.get("/cards/{card_id}/", response_model=schemas.Card)
@@ -72,11 +74,12 @@ async def create_cards(
     data: List[schemas.CardCreate],
     db: AsyncSession = Depends(get_db),
 ) -> schemas.Cards:
-    objects = await models.Card.bulk_create(
-        db,
-        [models.Card(**card.dict(), deck_id=deck_id) for card in data],
-    )
-    return schemas.Cards(items=parse_obj_as(List[schemas.Card], objects))
+    async with transaction(db):
+        objects = await models.Card.bulk_create(
+            db,
+            [models.Card(**card.dict(), deck_id=deck_id) for card in data],
+        )
+    return schemas.Cards.parse_obj({"items": objects})
 
 
 @router.put("/decks/{deck_id}/cards/", response_model=schemas.Cards)
@@ -85,11 +88,12 @@ async def update_cards(
     data: List[schemas.Card],
     db: AsyncSession = Depends(get_db),
 ) -> schemas.Cards:
-    objects = await models.Card.bulk_update(
-        db,
-        [
-            models.Card(**card.dict(exclude={"deck_id"}), deck_id=deck_id)
-            for card in data
-        ],
-    )
+    async with transaction(db):
+        objects = await models.Card.bulk_update(
+            db,
+            [
+                models.Card(**card.dict(exclude={"deck_id"}), deck_id=deck_id)
+                for card in data
+            ],
+        )
     return schemas.Cards(items=parse_obj_as(List[schemas.Card], objects))

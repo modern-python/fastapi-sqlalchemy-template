@@ -1,15 +1,9 @@
-from sqlalchemy.exc import PendingRollbackError
-
 from app.db import async_session
 
 
 async def get_db():
-    session = async_session()
+    db = async_session()
     try:
-        yield session
-        try:
-            await session.commit()
-        except PendingRollbackError:
-            pass
+        yield db
     finally:
-        await session.close()
+        await db.close()

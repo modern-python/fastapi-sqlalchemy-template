@@ -1,16 +1,24 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+logger = logging.getLogger(__name__)
+
+
 @asynccontextmanager
-async def transaction(session: AsyncSession) -> AsyncGenerator[None, None]:
-    """hack to migrate from the sub transaction pattern
-    https://docs.sqlalchemy.org/en/14/orm/session_transaction.html#migrating-from-the-subtransaction-pattern
-    """
-    if not session.in_transaction():
-        async with session.begin():
+async def transaction(db: AsyncSession) -> AsyncGenerator[None, None]:
+    """if select was called before than implicit transaction has already started"""
+    if not db.in_transaction():
+        async with db.begin():
+            logger.debug("explicit transaction begin")
             yield
+        logger.debug("explicit transaction commit")
     else:
+        logger.debug("already in transaction")
         yield
+        if db.in_transaction():
+            await db.commit()
+            logger.debug("implicit transaction commit")

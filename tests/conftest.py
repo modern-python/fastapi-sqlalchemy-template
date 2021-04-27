@@ -2,7 +2,10 @@ import asyncio
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import event
+from sqlalchemy.engine import Transaction
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 from app.db import engine
 from app.deps import get_db
@@ -23,11 +26,20 @@ async def db():
     connection = await engine.connect()
     transaction = await connection.begin()
     session = AsyncSession(bind=connection, expire_on_commit=False, future=True)
+    await connection.begin_nested()
+
+    @event.listens_for(session.sync_session, "after_transaction_end")
+    def end_savepoint(session: Session, transaction: Transaction) -> None:
+        """async events are not implemented yet, recreates savepoints to avoid final commits"""
+        # https://github.com/sqlalchemy/sqlalchemy/issues/5811#issuecomment-756269881
+        if connection.closed:
+            return
+        if not connection.in_nested_transaction():
+            connection.sync_connection.begin_nested()
 
     yield session
-
-    await session.close()
-    await transaction.rollback()
+    if session.in_transaction():
+        await transaction.rollback()
     await connection.close()
 
 

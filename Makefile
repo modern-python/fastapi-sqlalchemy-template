@@ -4,6 +4,8 @@
 ## Local environment commands:
 ## ---------------------------------------------------------------
 
+.DEFAULT_GOAL := run_tests
+
 ## up:        start app in docker
 up: down
 	docker-compose up

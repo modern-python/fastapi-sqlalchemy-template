@@ -6,15 +6,9 @@ import sqlalchemy as sa
 from sqlalchemy import MetaData
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import (
-    as_declarative,
-    declarative_base,
-    declared_attr,
-    sessionmaker,
-)
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 from app.config import settings
-from app.utils.db import transaction
 
 
 logger = logging.getLogger(__name__)
@@ -93,9 +87,8 @@ class Base(_Base):  # type: ignore
         cls: Type[T], db: AsyncSession, objects: List[T]
     ) -> List[T]:
         try:
-            async with transaction(db):
-                db.add_all(objects)
-                await db.flush()
+            db.add_all(objects)
+            await db.flush()
         except IntegrityError as e:
             cls._raise_validation_exception(e)
         return objects
@@ -105,15 +98,14 @@ class Base(_Base):  # type: ignore
         cls: Type[T], db: AsyncSession, objects: List[T]
     ) -> List[T]:
         try:
-            async with transaction(db):
-                ids = [x.id for x in objects if x.id]
-                await db.execute(sa.select(cls).where(cls.id.in_(ids)))
-                for item in objects:
-                    try:
-                        await db.merge(item)
-                    except IntegrityError as e:
-                        cls._raise_validation_exception(e, item.id)
-                await db.flush()
+            ids = [x.id for x in objects if x.id]
+            await db.execute(sa.select(cls).where(cls.id.in_(ids)))
+            for item in objects:
+                try:
+                    await db.merge(item)
+                except IntegrityError as e:
+                    cls._raise_validation_exception(e, item.id)
+            await db.flush()
         except IntegrityError as e:
             cls._raise_validation_exception(e)
         return objects
