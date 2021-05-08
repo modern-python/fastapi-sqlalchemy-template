@@ -10,12 +10,8 @@ class Deck(BaseModel):
 
     name = sa.Column(sa.String, nullable=False)
     description = sa.Column(sa.String, nullable=True)
-    # Lazy is workaround for async, use either "subquery" or "selectin"
-    # More info:
-    # - https://github.com/tiangolo/fastapi/pull/2331#issuecomment-801461215
-    # - https://github.com/tiangolo/fastapi/pull/2331#issuecomment-807528963
-    cards = relationship("Card", lazy="subquery")
-    tests = relationship("Test", lazy="subquery")
+    cards = relationship("Card", lazy="noload")
+    tests = relationship("Test", lazy="noload")
 
 
 class Card(BaseModel):

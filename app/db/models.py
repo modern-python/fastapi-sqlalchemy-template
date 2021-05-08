@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.base import Base
 from app.db.exceptions import DatabaseValidationError
+from app.utils.datetime import utcnow
 
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,15 @@ class BaseModel(Base):
     __abstract__ = True
 
     id = sa.Column(sa.Integer, primary_key=True, index=True)
+    created_at = sa.Column(
+        sa.DateTime(timezone=True), default=utcnow, nullable=False
+    )
+    updated_at = sa.Column(
+        sa.DateTime(timezone=True),
+        default=utcnow,
+        onupdate=utcnow,
+        nullable=False,
+    )
 
     @classmethod
     def _raise_validation_exception(

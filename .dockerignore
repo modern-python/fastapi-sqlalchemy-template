@@ -1,9 +1,21 @@
 .git*
 Dockerfile*
-dev_env
-etc
-run.sh
 docker-compose*
 devops
 Jenkinsfile*
-.gitlab-ci*
+
+# python cache
+__pycache__
+.mypy_cache
+.pytest_cache
+
+# venv
+venv
+.env
+
+# IDE
+.idea
+.vscode
+
+# other
+notes.md
