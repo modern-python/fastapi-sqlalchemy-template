@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.prod.in
 #
-alembic==1.5.8
+alembic==1.6.2
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
@@ -16,11 +16,11 @@ click==7.1.2
     # via
     #   -c constraints.txt
     #   uvicorn
-fastapi==0.63.0
+fastapi==0.65.0
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
-greenlet==1.0.0
+greenlet==1.1.0
     # via
     #   -c constraints.txt
     #   sqlalchemy
@@ -48,7 +48,7 @@ python-dateutil==2.8.1
     # via
     #   -c constraints.txt
     #   alembic
-python-dotenv==0.17.0
+python-dotenv==0.17.1
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
@@ -56,20 +56,20 @@ python-editor==1.0.4
     # via
     #   -c constraints.txt
     #   alembic
-six==1.15.0
+six==1.16.0
     # via
     #   -c constraints.txt
     #   python-dateutil
-sqlalchemy==1.4.5
+sqlalchemy==1.4.15
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
     #   alembic
-starlette==0.13.6
+starlette==0.14.2
     # via
     #   -c constraints.txt
     #   fastapi
-typing-extensions==3.7.4.3
+typing-extensions==3.10.0.0
     # via
     #   -c constraints.txt
     #   pydantic

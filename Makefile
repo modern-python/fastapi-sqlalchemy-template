@@ -47,8 +47,9 @@ pip-compile: prepare-constraints
 
 ## pip-upgrade: upgrade all requirements
 pip-upgrade: prepare-constraints
-	pip-compile constraints.in --upgrade
-	rm -f requirements.prod.txt requirements.dev.txt
+	rm -f constraints.txt requirements.prod.txt requirements.dev.txt
+	touch constraints.txt
+	pip-compile constraints.in
 	pip-compile requirements.prod.in
 	pip-compile requirements.dev.in
 
