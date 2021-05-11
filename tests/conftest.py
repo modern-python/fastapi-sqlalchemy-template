@@ -14,7 +14,7 @@ from app.main import app
 
 @pytest.fixture(scope="session")
 def event_loop(request):
-    """Create an instance of the default event loop for each test case."""
+    """Redefined event loop fixture with bigger scope"""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
