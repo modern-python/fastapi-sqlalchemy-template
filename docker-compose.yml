@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      args:
+        - ENVIRONMENT=dev
     restart: always
     volumes:
       - .:/code
