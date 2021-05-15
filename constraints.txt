@@ -30,7 +30,7 @@ click==7.1.2
     #   uvicorn
 distlib==0.3.1
     # via virtualenv
-fastapi==0.65.0
+fastapi==0.65.1
     # via -r constraints.in
 filelock==3.0.12
     # via virtualenv
@@ -52,7 +52,7 @@ lazy-object-proxy==1.6.0
     # via astroid
 mako==1.1.4
     # via alembic
-markupsafe==1.1.1
+markupsafe==2.0.0
     # via mako
 mccabe==0.6.1
     # via pylint
@@ -76,7 +76,7 @@ psycopg2-binary==2.8.6
     # via -r constraints.in
 py==1.10.0
     # via pytest
-pydantic==1.8.1
+pydantic==1.8.2
     # via fastapi
 pylint==2.8.2
     # via -r constraints.in
