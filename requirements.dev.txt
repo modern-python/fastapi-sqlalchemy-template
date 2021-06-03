@@ -17,15 +17,15 @@ attrs==21.2.0
     # via
     #   -c constraints.txt
     #   pytest
-black==21.5b1
+black==21.5b2
     # via
     #   -c constraints.txt
     #   -r requirements.dev.in
-certifi==2020.12.5
+certifi==2021.5.30
     # via
     #   -c constraints.txt
     #   requests
-cfgv==3.2.0
+cfgv==3.3.0
     # via
     #   -c constraints.txt
     #   pre-commit
@@ -33,11 +33,11 @@ chardet==4.0.0
     # via
     #   -c constraints.txt
     #   requests
-click==7.1.2
+click==8.0.1
     # via
     #   -c constraints.txt
     #   black
-distlib==0.3.1
+distlib==0.3.2
     # via
     #   -c constraints.txt
     #   virtualenv
@@ -45,7 +45,7 @@ filelock==3.0.12
     # via
     #   -c constraints.txt
     #   virtualenv
-identify==2.2.4
+identify==2.2.8
     # via
     #   -c constraints.txt
     #   pre-commit
@@ -95,7 +95,7 @@ pluggy==0.13.1
     # via
     #   -c constraints.txt
     #   pytest
-pre-commit==2.12.1
+pre-commit==2.13.0
     # via
     #   -c constraints.txt
     #   -r requirements.dev.in
@@ -103,7 +103,7 @@ py==1.10.0
     # via
     #   -c constraints.txt
     #   pytest
-pylint==2.8.2
+pylint==2.8.3
     # via
     #   -c constraints.txt
     #   -r requirements.dev.in
@@ -151,11 +151,11 @@ typing-extensions==3.10.0.0
     # via
     #   -c constraints.txt
     #   mypy
-urllib3==1.26.4
+urllib3==1.26.5
     # via
     #   -c constraints.txt
     #   requests
-virtualenv==20.4.6
+virtualenv==20.4.7
     # via
     #   -c constraints.txt
     #   pre-commit

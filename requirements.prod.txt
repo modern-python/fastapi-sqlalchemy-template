@@ -4,15 +4,19 @@
 #
 #    pip-compile requirements.prod.in
 #
-alembic==1.6.2
+alembic==1.6.5
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
-asyncpg==0.22.0
+asgiref==3.3.4
+    # via
+    #   -c constraints.txt
+    #   uvicorn
+asyncpg==0.23.0
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
-click==7.1.2
+click==8.0.1
     # via
     #   -c constraints.txt
     #   uvicorn
@@ -32,7 +36,7 @@ mako==1.1.4
     # via
     #   -c constraints.txt
     #   alembic
-markupsafe==2.0.0
+markupsafe==2.0.1
     # via
     #   -c constraints.txt
     #   mako
@@ -60,7 +64,7 @@ six==1.16.0
     # via
     #   -c constraints.txt
     #   python-dateutil
-sqlalchemy==1.4.15
+sqlalchemy==1.4.17
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
@@ -73,7 +77,7 @@ typing-extensions==3.10.0.0
     # via
     #   -c constraints.txt
     #   pydantic
-uvicorn==0.13.4
+uvicorn==0.14.0
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
