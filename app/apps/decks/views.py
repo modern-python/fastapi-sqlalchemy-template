@@ -5,8 +5,8 @@ from pydantic import parse_obj_as
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.apps.decks import models, schemas
+from app.db.utils import transaction
 from app.deps import get_db
-from app.utils.db import transaction
 
 
 router = APIRouter()
