@@ -9,7 +9,7 @@ appdirs==1.4.4
     #   -c constraints.txt
     #   black
     #   virtualenv
-astroid==2.5.6
+astroid==2.6.2
     # via
     #   -c constraints.txt
     #   pylint
@@ -83,7 +83,7 @@ nodeenv==1.6.0
     # via
     #   -c constraints.txt
     #   pre-commit
-packaging==20.9
+packaging==21.0
     # via
     #   -c constraints.txt
     #   pytest
@@ -103,7 +103,7 @@ py==1.10.0
     # via
     #   -c constraints.txt
     #   pytest
-pylint==2.8.3
+pylint==2.9.3
     # via
     #   -c constraints.txt
     #   -r requirements.dev.in
@@ -124,7 +124,7 @@ pyyaml==5.4.1
     # via
     #   -c constraints.txt
     #   pre-commit
-regex==2021.4.4
+regex==2021.7.1
     # via
     #   -c constraints.txt
     #   black
@@ -148,7 +148,7 @@ typing-extensions==3.10.0.0
     # via
     #   -c constraints.txt
     #   mypy
-urllib3==1.26.5
+urllib3==1.26.6
     # via
     #   -c constraints.txt
     #   requests

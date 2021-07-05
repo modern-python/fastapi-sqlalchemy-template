@@ -8,7 +8,7 @@ alembic==1.6.5
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
-asgiref==3.3.4
+asgiref==3.4.1
     # via
     #   -c constraints.txt
     #   uvicorn
@@ -20,7 +20,7 @@ click==8.0.1
     # via
     #   -c constraints.txt
     #   uvicorn
-fastapi==0.65.2
+fastapi==0.66.0
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
@@ -64,7 +64,7 @@ six==1.16.0
     # via
     #   -c constraints.txt
     #   python-dateutil
-sqlalchemy==1.4.18
+sqlalchemy==1.4.20
     # via
     #   -c constraints.txt
     #   -r requirements.prod.in
