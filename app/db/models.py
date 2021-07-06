@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.base import Base
+from app.db.deps import get_db
 from app.db.exceptions import DatabaseValidationError
 from app.utils.datetime import utcnow
 
@@ -51,26 +52,26 @@ class BaseModel(Base):
         ) from e
 
     @classmethod
-    async def all(cls: Type[T], db: AsyncSession) -> List[T]:
+    async def all(cls: Type[T]) -> List[T]:
+        db: AsyncSession = get_db()
         db_execute = await db.execute(sa.select(cls))
         return db_execute.scalars().all()
 
     @classmethod
-    async def filter(
-        cls: Type[T], db: AsyncSession, conditions: List[Any]
-    ) -> List[T]:
+    async def filter(cls: Type[T], conditions: List[Any]) -> List[T]:
+        db: AsyncSession = get_db()
         query = sa.select(cls)
         db_execute = await db.execute(query.where(sa.and_(*conditions)))
         return db_execute.scalars().all()
 
     @classmethod
-    async def get_by_id(cls: Type[T], db: AsyncSession, object_id: int) -> T:
+    async def get_by_id(cls: Type[T], object_id: int) -> T:
+        db: AsyncSession = get_db()
         return await db.get(cls, object_id)
 
     @classmethod
-    async def bulk_create(
-        cls: Type[T], db: AsyncSession, objects: List[T]
-    ) -> List[T]:
+    async def bulk_create(cls: Type[T], objects: List[T]) -> List[T]:
+        db: AsyncSession = get_db()
         try:
             db.add_all(objects)
             await db.flush()
@@ -79,9 +80,8 @@ class BaseModel(Base):
         return objects
 
     @classmethod
-    async def bulk_update(
-        cls: Type[T], db: AsyncSession, objects: List[T]
-    ) -> List[T]:
+    async def bulk_update(cls: Type[T], objects: List[T]) -> List[T]:
+        db: AsyncSession = get_db()
         try:
             ids = [x.id for x in objects if x.id]
             await db.execute(sa.select(cls).where(cls.id.in_(ids)))
@@ -95,14 +95,17 @@ class BaseModel(Base):
             cls._raise_validation_exception(e)
         return objects
 
-    async def save(self, db: AsyncSession) -> None:
+    async def save(self, commit: bool = False) -> None:
+        db: AsyncSession = get_db()
         db.add(self)
         try:
             await db.flush()
         except IntegrityError as e:
             self._raise_validation_exception(e)
+        if commit:
+            await db.commit()
 
-    async def update(self, db: AsyncSession, **kwargs: Any) -> None:
+    async def update(self, **kwargs: Any) -> None:
         for k, v in kwargs.items():
             setattr(self, k, v)
-        await self.save(db)
+        await self.save()
