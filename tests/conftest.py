@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.db.base import engine
-from app.deps import get_db
+from app.db.deps import session_context_var, set_db
 from app.main import app
 
 
@@ -38,16 +38,24 @@ async def db():
             connection.sync_connection.begin_nested()
 
     yield session
+
     if session.in_transaction():
         await transaction.rollback()
     await connection.close()
 
 
 @pytest.fixture
-def client(db):
-    def _get_db():
-        return db
+def db_context(db: AsyncSession):
+    token = session_context_var.set(db)
+    yield
+    session_context_var.reset(token)
 
-    app.dependency_overrides[get_db] = _get_db
+
+@pytest.fixture
+def client(db_context):
+    def _set_db() -> None:
+        return None
+
+    app.dependency_overrides[set_db] = _set_db
     with TestClient(app) as client:
         yield client
