@@ -6,17 +6,17 @@ from app.apps.decks import models
 from tests.decks.conftest import get_deck_data
 
 
-@pytest.mark.asyncio
 def test_get_decks_empty(client: TestClient):
     response = client.get("/api/decks/")
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["items"]) == 0
 
+
+def test_get_decks_not_exist(client: TestClient):
     response = client.get("/api/decks/0/")
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-@pytest.mark.asyncio
 def test_get_decks(client: TestClient, deck: models.Deck):
     response = client.get("/api/decks/")
     assert response.status_code == status.HTTP_200_OK
@@ -25,13 +25,14 @@ def test_get_decks(client: TestClient, deck: models.Deck):
     for k, v in data["items"][0].items():
         assert v == getattr(deck, k)
 
+
+def test_get_deck(client: TestClient, deck: models.Deck):
     response = client.get(f"/api/decks/{deck.id}")
     assert response.status_code == status.HTTP_200_OK
     for k, v in response.json().items():
         assert v == getattr(deck, k)
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "name,description,status_code",
     [
@@ -67,7 +68,6 @@ def test_post_decks(
         assert description == result["description"]
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "name,description,status_code",
     [
