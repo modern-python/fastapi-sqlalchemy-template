@@ -1,4 +1,4 @@
-ARG ENVIRONMENT="prod"
+ARG ENVIRONMENT="dev"
 FROM python:3.9-buster AS app-prod
 RUN pip3 install --upgrade pip
 RUN useradd --no-create-home --gid root runner
