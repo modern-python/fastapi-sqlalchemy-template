@@ -7,3 +7,5 @@ runs:
   image: "Dockerfile"
   args:
     - 'tests'
+  env:
+    ENVIRONMENT: dev
