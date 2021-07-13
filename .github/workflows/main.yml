@@ -29,3 +29,5 @@ jobs:
 
       - name: docker-ci-action
         uses: ./
+        env:
+          DB_HOST: postgres
