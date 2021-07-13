@@ -18,6 +18,8 @@ case "$1" in
         alembic revision --autogenerate -m "$3"
         ;;
     tests)
+        alembic downgrade base
+        alembic upgrade head
         isort -c --diff --settings-file .isort.cfg .
         black --config pyproject.toml --check .
         pylint --rcfile=.pylintrc --errors-only app
