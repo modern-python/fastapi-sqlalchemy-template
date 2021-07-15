@@ -1,9 +1,0 @@
-name: "docker-ci"
-
-description: "CI action in docker container"
-
-runs:
-  using: "docker"
-  image: "Dockerfile"
-  args:
-    - 'tests'
