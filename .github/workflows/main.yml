@@ -1,8 +1,12 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
-    types: [labeled]
+    branches:
+      - main
 
 jobs:
   action:
@@ -26,8 +30,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-
-      - name: docker-ci-action
-        uses: ./
+      
+      - name: install python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+          
+      - name: install requirements
+        run: pip3 install --no-cache-dir -r requirements.prod.txt -r requirements.dev.txt
+        
+      - name: run checks and tests
+        run: ./docker-entrypoint.sh tests
         env:
-          DB_HOST: postgres
+          PYTHONDONTWRITEBYTECODE: 1
+          PYTHONUNBUFFERED: 1
+          DB_HOST: 127.0.0.1
