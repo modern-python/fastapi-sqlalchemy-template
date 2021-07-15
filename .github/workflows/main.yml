@@ -42,4 +42,6 @@ jobs:
       - name: run checks and tests
         run: ./docker-entrypoint.sh tests
         env:
-          DB_HOST: postgres
+          PYTHONDONTWRITEBYTECODE: 1
+          PYTHONUNBUFFERED: 1
+          DB_HOST: 127.0.0.1
