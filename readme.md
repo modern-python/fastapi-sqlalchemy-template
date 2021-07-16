@@ -14,7 +14,7 @@ Production-ready dockerized async REST API on FastAPI with SQLAlchemy and Postgr
 - separate requirements files for dev and production using `pip-tools`
 - configs for `mypy`, `pylint`, `isort` and `black`
 - `Alembic` for DB migrations
-- CI with Github docker action
+- CI with Github
 
 ### After `git clone` run
 ```bash
