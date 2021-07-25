@@ -26,10 +26,14 @@ def test_get_decks(client: TestClient, deck: models.Deck):
         assert v == getattr(deck, k)
 
 
-def test_get_deck(client: TestClient, deck: models.Deck):
+def test_get_deck(client: TestClient, deck: models.Deck, card: models.Card):
     response = client.get(f"/api/decks/{deck.id}")
     assert response.status_code == status.HTTP_200_OK
-    for k, v in response.json().items():
+    data = response.json()
+    assert len(data["cards"]) == 1
+    for k, v in data.items():
+        if k in ("cards",):
+            continue
         assert v == getattr(deck, k)
 
 

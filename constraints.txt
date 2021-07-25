@@ -7,24 +7,24 @@
 alembic==1.6.5
     # via -r constraints.in
 appdirs==1.4.4
-    # via
-    #   black
-    #   virtualenv
+    # via black
 asgiref==3.4.1
     # via uvicorn
-astroid==2.6.2
+astroid==2.6.5
     # via pylint
 asyncpg==0.23.0
     # via -r constraints.in
 attrs==21.2.0
     # via pytest
-black==21.6b0
+backports.entry-points-selectable==1.1.0
+    # via virtualenv
+black==21.7b0
     # via -r constraints.in
 certifi==2021.5.30
     # via requests
 cfgv==3.3.0
     # via pre-commit
-chardet==4.0.0
+charset-normalizer==2.0.3
     # via requests
 click==8.0.1
     # via
@@ -32,7 +32,7 @@ click==8.0.1
     #   uvicorn
 distlib==0.3.2
     # via virtualenv
-fastapi==0.66.0
+fastapi==0.67.0
     # via -r constraints.in
 filelock==3.0.12
     # via virtualenv
@@ -40,13 +40,13 @@ greenlet==1.1.0
     # via sqlalchemy
 h11==0.12.0
     # via uvicorn
-identify==2.2.10
+identify==2.2.11
     # via pre-commit
-idna==2.10
+idna==3.2
     # via requests
 iniconfig==1.1.1
     # via pytest
-isort==5.9.1
+isort==5.9.2
     # via
     #   -r constraints.in
     #   pylint
@@ -68,8 +68,10 @@ nodeenv==1.6.0
     # via pre-commit
 packaging==21.0
     # via pytest
-pathspec==0.8.1
+pathspec==0.9.0
     # via black
+platformdirs==2.0.2
+    # via virtualenv
 pluggy==0.13.1
     # via pytest
 pre-commit==2.13.0
@@ -80,7 +82,7 @@ py==1.10.0
     # via pytest
 pydantic==1.8.2
     # via fastapi
-pylint==2.9.3
+pylint==2.9.5
     # via -r constraints.in
 pyparsing==2.4.7
     # via packaging
@@ -90,23 +92,23 @@ pytest==6.2.4
     # via
     #   -r constraints.in
     #   pytest-asyncio
-python-dateutil==2.8.1
+python-dateutil==2.8.2
     # via alembic
-python-dotenv==0.18.0
+python-dotenv==0.19.0
     # via -r constraints.in
 python-editor==1.0.4
     # via alembic
 pyyaml==5.4.1
     # via pre-commit
-regex==2021.7.1
+regex==2021.7.6
     # via black
-requests==2.25.1
+requests==2.26.0
     # via -r constraints.in
 six==1.16.0
     # via
     #   python-dateutil
     #   virtualenv
-sqlalchemy==1.4.20
+sqlalchemy==1.4.22
     # via
     #   -r constraints.in
     #   alembic
@@ -114,11 +116,12 @@ starlette==0.14.2
     # via fastapi
 toml==0.10.2
     # via
-    #   black
     #   mypy
     #   pre-commit
     #   pylint
     #   pytest
+tomli==1.1.0
+    # via black
 typing-extensions==3.10.0.0
     # via
     #   mypy
@@ -127,7 +130,10 @@ urllib3==1.26.6
     # via requests
 uvicorn==0.14.0
     # via -r constraints.in
-virtualenv==20.4.7
+virtualenv==20.6.0
     # via pre-commit
 wrapt==1.12.1
     # via astroid
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

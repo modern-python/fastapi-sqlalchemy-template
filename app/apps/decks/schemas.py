@@ -8,23 +8,6 @@ class Base(BaseModel):
         orm_mode = True
 
 
-class DeckBase(Base):
-    name: str
-    description: Optional[str] = None
-
-
-class DeckCreate(DeckBase):
-    pass
-
-
-class Deck(DeckBase):
-    id: PositiveInt
-
-
-class Decks(Base):
-    items: List[Deck]
-
-
 class CardBase(Base):
     front: str
     back: Optional[str] = None
@@ -42,3 +25,21 @@ class Card(CardBase):
 
 class Cards(Base):
     items: List[Card]
+
+
+class DeckBase(Base):
+    name: str
+    description: Optional[str] = None
+
+
+class DeckCreate(DeckBase):
+    pass
+
+
+class Deck(DeckBase):
+    id: PositiveInt
+    cards: Optional[List[Card]]
+
+
+class Decks(Base):
+    items: List[Deck]

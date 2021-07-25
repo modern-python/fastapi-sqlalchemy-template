@@ -16,7 +16,7 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_DB: postgres        
+          POSTGRES_DB: postgres
           POSTGRES_PASSWORD: password
           POSTGRES_USER: postgres
         ports:
@@ -30,15 +30,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      
+
       - name: install python
         uses: actions/setup-python@v1
         with:
           python-version: 3.9
-          
+
       - name: install requirements
         run: pip3 install --no-cache-dir -r requirements.prod.txt -r requirements.dev.txt
-        
+
       - name: run checks and tests
         run: ./docker-entrypoint.sh tests
         env:

@@ -18,7 +18,7 @@ async def list_decks() -> schemas.Decks:
 
 @router.get("/decks/{deck_id}/", response_model=schemas.Deck)
 async def get_deck(deck_id: int) -> schemas.Deck:
-    instance = await models.Deck.get_by_id(deck_id)
+    instance = await models.Deck.get_by_id(deck_id, prefetch=("cards",))
     if not instance:
         raise HTTPException(status_code=404, detail="Deck is not found")
     return schemas.Deck.from_orm(instance)
@@ -29,21 +29,21 @@ async def update_deck(deck_id: int, data: schemas.DeckCreate) -> schemas.Deck:
     instance = await models.Deck.get_by_id(deck_id)
     if not instance:
         raise HTTPException(status_code=404, detail="Deck is not found")
-    await instance.update(**data.dict())
-    await instance.save(commit=True)
+    await instance.update_attrs(**data.dict())
+    await instance.save()
     return schemas.Deck.from_orm(instance)
 
 
 @router.post("/decks/", response_model=schemas.Deck)
 async def create_deck(data: schemas.DeckCreate) -> schemas.Deck:
     instance = models.Deck(**data.dict())
-    await instance.save(commit=True)
+    await instance.save()
     return schemas.Deck.from_orm(instance)
 
 
 @router.get("/decks/{deck_id}/cards/", response_model=schemas.Cards)
 async def list_cards(deck_id: int) -> schemas.Cards:
-    objects = await models.Card.filter([models.Card.deck_id == deck_id])
+    objects = await models.Card.filter({"deck_id": deck_id})
     return schemas.Cards.parse_obj({"items": objects})
 
 
@@ -56,10 +56,7 @@ async def get_card(card_id: int) -> schemas.Card:
 
 
 @router.post("/decks/{deck_id}/cards/", response_model=schemas.Cards)
-async def create_cards(
-    deck_id: int,
-    data: List[schemas.CardCreate],
-) -> schemas.Cards:
+async def create_cards(deck_id: int, data: List[schemas.CardCreate]) -> schemas.Cards:
     async with transaction():
         objects = await models.Card.bulk_create(
             [models.Card(**card.dict(), deck_id=deck_id) for card in data],
@@ -68,15 +65,9 @@ async def create_cards(
 
 
 @router.put("/decks/{deck_id}/cards/", response_model=schemas.Cards)
-async def update_cards(
-    deck_id: int,
-    data: List[schemas.Card],
-) -> schemas.Cards:
+async def update_cards(deck_id: int, data: List[schemas.Card]) -> schemas.Cards:
     async with transaction():
         objects = await models.Card.bulk_update(
-            [
-                models.Card(**card.dict(exclude={"deck_id"}), deck_id=deck_id)
-                for card in data
-            ],
+            [models.Card(**card.dict(exclude={"deck_id"}), deck_id=deck_id) for card in data],
         )
     return schemas.Cards(items=parse_obj_as(List[schemas.Card], objects))
