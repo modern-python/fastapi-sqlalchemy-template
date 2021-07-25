@@ -7,14 +7,10 @@ from starlette.requests import Request
 from app.db.exceptions import DatabaseValidationError
 
 
-async def database_validation_exception_handler(
-    request: Request, exc: DatabaseValidationError
-) -> JSONResponse:
+async def database_validation_exception_handler(request: Request, exc: DatabaseValidationError) -> JSONResponse:
     return await request_validation_exception_handler(
         request,
-        RequestValidationError(
-            [ErrorWrapper(ValueError(exc.message), exc.field or "__root__")]
-        ),
+        RequestValidationError([ErrorWrapper(ValueError(exc.message), exc.field or "__root__")]),
     )
 
 

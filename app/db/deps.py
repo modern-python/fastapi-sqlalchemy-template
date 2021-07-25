@@ -6,9 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.base import async_session
 
 
-session_context_var: ContextVar[Optional[AsyncSession]] = ContextVar(
-    "_session", default=None
-)
+session_context_var: ContextVar[Optional[AsyncSession]] = ContextVar("_session", default=None)
 
 
 async def set_db():

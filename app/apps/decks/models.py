@@ -11,7 +11,6 @@ class Deck(BaseModel):
     name = sa.Column(sa.String, nullable=False)
     description = sa.Column(sa.String, nullable=True)
     cards = relationship("Card", lazy="noload")
-    tests = relationship("Test", lazy="noload")
 
 
 class Card(BaseModel):
@@ -21,20 +20,4 @@ class Card(BaseModel):
     back = sa.Column(sa.String, nullable=True)
     hint = sa.Column(sa.String, nullable=True)
     deck_id = sa.Column(sa.Integer, sa.ForeignKey("deck.id"))
-    __table_args__ = (
-        UniqueConstraint("deck_id", "front", name="card_deck_id_front_uc"),
-    )
-
-
-class Test(BaseModel):
-    __tablename__ = "test"
-
-    question = sa.Column(sa.String, nullable=False)
-    options = sa.Column(sa.String, nullable=True)
-    hint = sa.Column(sa.String, nullable=True)
-    deck_id = sa.Column(sa.Integer, sa.ForeignKey("deck.id"))
-    __table_args__ = (
-        UniqueConstraint(
-            "deck_id", "question", name="card_deck_id_question_uc"
-        ),
-    )
+    __table_args__ = (UniqueConstraint("deck_id", "front", name="card_deck_id_front_uc"),)
