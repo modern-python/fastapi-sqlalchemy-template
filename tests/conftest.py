@@ -1,7 +1,7 @@
 import asyncio
 
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from sqlalchemy import event
 from sqlalchemy.engine import Transaction
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -52,10 +52,13 @@ def db_context(db: AsyncSession):
 
 
 @pytest.fixture
-def client(db_context):
+async def client(db_context):
     def _set_db() -> None:
         return None
 
     app.dependency_overrides[set_db] = _set_db
-    with TestClient(app) as client:
+    async with AsyncClient(
+        app=app,
+        base_url="http://test",
+    ) as client:
         yield client

@@ -7,16 +7,5 @@ pre-commit
 pylint
 pytest
 pytest-asyncio
-requests
+httpx
 mypy
--c constraints.txt
-
-fastapi
-uvicorn
-python-dotenv
-
-# DB
-alembic
-psycopg2-binary
-sqlalchemy
-asyncpg
