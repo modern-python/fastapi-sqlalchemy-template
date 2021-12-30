@@ -42,15 +42,15 @@ down:
 # https://github.com/jazzband/pip-tools/issues/1092#issuecomment-632584777
 pip-compile: prepare-constraints
 	pip-compile constraints.in
-	pip-compile requirements.prod.in
+	pip-compile requirements.in
 	pip-compile requirements.dev.in
 
 ## pip-upgrade: upgrade all requirements
 pip-upgrade: prepare-constraints
-	rm -f constraints.txt requirements.prod.txt requirements.dev.txt
+	rm -f constraints.txt requirements.txt requirements.dev.txt
 	touch constraints.txt
 	pip-compile constraints.in
-	pip-compile requirements.prod.in
+	pip-compile requirements.in
 	pip-compile requirements.dev.in
 
 prepare-constraints: check-pip-compile
@@ -60,7 +60,7 @@ prepare-constraints: check-pip-compile
 
 ## pip-sync:    sync requirements in local environment
 pip-sync: check-pip-compile
-	pip-sync requirements.prod.txt requirements.dev.txt
+	pip-sync requirements.txt requirements.dev.txt
 
 check-pip-compile:
 	@which pip-compile > /dev/null

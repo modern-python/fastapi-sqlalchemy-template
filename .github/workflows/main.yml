@@ -37,7 +37,7 @@ jobs:
           python-version: 3.9
 
       - name: install requirements
-        run: pip3 install --no-cache-dir -r requirements.prod.txt -r requirements.dev.txt
+        run: pip3 install --no-cache-dir -r requirements.txt -r requirements.dev.txt
 
       - name: run checks and tests
         run: ./docker-entrypoint.sh tests

@@ -7,5 +7,5 @@ pre-commit
 pylint
 pytest
 pytest-asyncio
-requests
+httpx
 mypy
