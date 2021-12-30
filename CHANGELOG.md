@@ -4,6 +4,7 @@
 ### Changed
 - upgrade dependencies
 - change starlette.TestClient with httpx.AsyncClient
+- return raw responses in views to avoid double parsing
 
 ## [0.1.0] - 2021-07-25
 ### Changed
