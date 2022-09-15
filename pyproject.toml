@@ -1,5 +1,48 @@
+[tool.poetry]
+name = "fast-api-sqlalchemy-template"
+version = "0"
+description = "Async template on FastAPI and SQLAlchemy 1.4"
+authors = ["Artur Shiriev <me@shiriev.ru>"]
+license = "MIT License"
+
+
+[tool.poetry.dependencies]
+# main
+python = ">=3.8,<4.0"
+fastapi = ">=0.76"
+uvicorn = "*"
+python-dotenv = "*"
+
+# database
+alembic = "*"
+psycopg2-binary = "*"
+sqlalchemy = "*"
+asyncpg = "*"
+
+
+[tool.poetry.dev-dependencies]
+## linters
+black = "*"
+isort = "*"
+mypy = "*"
+pylint = "*"
+
+## tests
+httpx = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-asyncio = "*"
+
+
+[build-system]
+requires = ["poetry-core^1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
+
+
 [tool.black]
 line-length = 120
+multi_line_output = 3
+length_sort = true
 py38 = true
 include = '\.pyi?$'
 exclude = '''
@@ -21,3 +64,47 @@ force-exclude = '''
     migrations
 )/
 '''
+
+
+[tool.isort]
+src_paths = ["app", "tests"]
+line_length = 120
+skip = ["venv", "migrations", ".git", "proto"]
+multi_line_output = 3
+combine_as_imports = true
+include_trailing_comma = true
+lines_after_imports = 2
+use_parentheses = true
+
+
+[tool.mypy]
+python_version = 3.8
+ignore_missing_imports = true
+follow_imports = "silent"
+pretty = true
+exclude = ["tests/", "migrations/"]
+disallow_incomplete_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+strict_equality = true
+plugins = "pydantic.mypy"
+
+[[pydantic-mypy]]
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+init_typed = true
+
+[[mypy-tests."*"]] # exclude doesn't work in some cases, e.g. in VSCode integration
+ignore_errors = true
+
+
+[tool.pylint.MASTER]
+extension-pkg-whitelist="pydantic"
+[tool.pylint.FORMAT]
+max-line-length = 120
+
+
+[tool.pytest.ini_options]
+asyncio_mode="auto"

@@ -1,0 +1,148 @@
+# https://taskfile.dev/
+version: "3"
+
+dotenv: ["dev.env"]
+
+vars:
+  VENV: venv
+  PYTHON: python3
+
+tasks:
+  venv:create:
+    status:
+      - "test -f {{.VENV}}/bin/activate"
+    cmds:
+      - "python3 -m venv {{.VENV}}"
+    preconditions:
+      - sh: "which poetry"
+        msg: "No poetry found"
+      - sh: "which {{.PYTHON}}"
+        msg: "No {{.PYTHON}} found"
+
+  venv:activate:
+    deps:
+      - venv:create
+    cmds:
+      - ". {{.VENV}}/bin/activate"
+
+  containers:up:
+    cmds:
+      - docker-compose up -d db
+
+  isort:format:
+    deps:
+      - venv:activate
+    cmds:
+      - "poetry run isort ."
+
+  isort:check:
+    deps:
+      - venv:activate
+    cmds:
+      - "poetry run isort --check --diff ."
+
+  black:format:
+    deps:
+      - venv:activate
+    cmds:
+      - "poetry run black ."
+
+  black:check:
+    deps:
+      - venv:activate
+    cmds:
+      - "poetry run black --check ."
+
+  mypy:
+    deps:
+      - venv:activate
+    cmds:
+      - "poetry run mypy ."
+
+  pylint:
+    deps:
+      - venv:activate
+    cmds:
+      - "poetry run pylint --errors-only app"
+
+  pytest-docker:
+    desc: "run pytest in docker (pass args after '--')"
+    cmds:
+      - "docker-compose run app ./docker-entrypoint.sh pytest {{.CLI_ARGS}}"
+
+  pytest:
+    desc: "run pytest locally (pass args after '--')"
+    deps:
+      - containers:up
+    cmds:
+      - alembic downgrade base
+      - alembic upgrade head
+      - poetry run pytest -s -vv -x tests/ --cov=app {{.CLI_ARGS}}
+    env:
+      DB_HOST: "localhost"
+      TZ: "UTC"
+
+  migration:
+    desc: "create alembic migration (pass args after '--')"
+    deps:
+      - containers:up
+    cmds:
+      - "alembic revision --autogenerate {{.CLI_ARGS}}"
+    env:
+      DB_HOST: "localhost"
+      TZ: "UTC"
+
+  upgrade:
+    desc: "apply all alembic migration"
+    deps:
+      - containers:up
+    cmds:
+    - "alembic upgrade head"
+    env:
+      DB_HOST: "localhost"
+      TZ: "UTC"
+
+  downgrade:
+    desc: "rollback all alembic migrations"
+    deps:
+      - containers:up
+    cmds:
+    - "alembic downgrade base"
+    env:
+      DB_HOST: "localhost"
+      TZ: "UTC"
+
+  run-docker:
+    desc: "run app in docker"
+    cmds:
+      - "docker-compose up"
+
+  run:
+    desc: "run app"
+    deps:
+      - containers:up
+    cmds:
+      - ./docker-entrypoint.sh start
+    env:
+      DB_HOST: "localhost"
+      TZ: "UTC"
+
+  down:
+    desc: "down all app containers"
+    cmds:
+      - "docker-compose down --remove-orphans"
+
+  # groups
+  format:
+    desc: "run code formatters"
+    cmds:
+      - task: isort:format
+      - task: black:format
+
+  lint:
+    desc: "run linters"
+    cmds:
+      - task: isort:check
+      - task: black:check
+      - task: pylint
+      - task: mypy

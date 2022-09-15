@@ -14,9 +14,6 @@ case "$1" in
         alembic upgrade head
         uvicorn app.main:app --host 0.0.0.0 --port $PORT --reload
         ;;
-    migration)
-        alembic revision --autogenerate -m "$3"
-        ;;
     tests)
         isort -c --diff --settings-file .isort.cfg .
         black --config pyproject.toml --check .

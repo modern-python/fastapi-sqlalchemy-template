@@ -29,18 +29,40 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
-      - name: install python
-        uses: actions/setup-python@v1
+      - name: python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: '3.x'
 
-      - name: install requirements
-        run: pip3 install --no-cache-dir -r requirements.txt -r requirements.dev.txt
+      - name: dependencies
+        run: |
+          pip install poetry
+          poetry install
+          source `poetry env info --path`/bin/activate
 
-      - name: run checks and tests
-        run: ./docker-entrypoint.sh tests
+      - name: isort
+        run: |
+          poetry run isort .
+
+      - name: black
+        run: |
+          poetry run black --check .
+
+      - name: mypy
+        run: |
+          poetry run mypy .
+
+      - name: pylint
+        run: |
+          poetry run pylint --errors-only app
+
+      - name: pytest
+        run: |
+          source `poetry env info --path`/bin/activate
+          alembic upgrade head
+          poetry run pytest -s -vv -x tests/ --cov=app
         env:
           PYTHONDONTWRITEBYTECODE: 1
           PYTHONUNBUFFERED: 1

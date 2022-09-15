@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.0] - 2022-09-15
+### Changed
+- upgrade dependencies
+- introduce poetry, Taskfile
+
 ## [0.2.0] - 2021-12-30
 ### Changed
 - upgrade dependencies
