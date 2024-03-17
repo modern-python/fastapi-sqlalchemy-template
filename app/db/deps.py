@@ -1,16 +1,16 @@
+import typing
 from contextvars import ContextVar
-from typing import Optional
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext import asyncio as sa_async
 
 from app.db.base import async_session
 
 
-session_context_var: ContextVar[Optional[AsyncSession]] = ContextVar("_session", default=None)
+session_context_var: ContextVar[sa_async.AsyncSession | None] = ContextVar("_session", default=None)
 
 
-async def set_db():
-    """Store db session in the context var and reset it"""
+async def set_db() -> typing.AsyncIterator[None]:
+    """Store db session in the context var and reset it."""
     db = async_session()
     token = session_context_var.set(db)
     try:
@@ -20,9 +20,10 @@ async def set_db():
         session_context_var.reset(token)
 
 
-def get_db():
-    """Fetch db session from the context var"""
+def get_db() -> sa_async.AsyncSession:
+    """Fetch db session from the context var."""
     session = session_context_var.get()
     if session is None:
-        raise Exception("Missing session")
+        msg = "Missing session"
+        raise RuntimeError(msg)
     return session

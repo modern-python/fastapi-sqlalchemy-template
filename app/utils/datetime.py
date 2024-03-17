@@ -1,6 +1,6 @@
 import datetime
 
 
-def utcnow() -> datetime.datetime:
-    """Generates timezone-aware UTC datetime."""
-    return datetime.datetime.now(datetime.timezone.utc)
+def generate_utc_dt() -> datetime.datetime:
+    """Generate timezone-aware UTC datetime."""
+    return datetime.datetime.now(datetime.UTC)

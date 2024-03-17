@@ -1,11 +1,16 @@
 import logging
+import typing
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from typing import TYPE_CHECKING
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import operators
 
 from app.db.deps import get_db
+
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 logger = logging.getLogger(__name__)
@@ -29,8 +34,8 @@ async def transaction() -> AsyncGenerator[None, None]:
 
 
 # https://github.com/absent1706/sqlalchemy-mixins/blob/master/sqlalchemy_mixins/smartquery.py
-operators_map = {
-    "isnull": lambda c, v: (c == None) if v else (c != None),
+operators_map: dict[str, typing.Any] = {
+    "isnull": lambda c, v: (c is None) if v else (c is not None),
     "exact": operators.eq,
     "ne": operators.ne,  # not equal or is not (for None)
     "gt": operators.gt,  # greater than , >
@@ -46,5 +51,5 @@ operators_map = {
     "istartswith": lambda c, v: c.ilike(v + "%"),
     "endswith": operators.endswith_op,
     "iendswith": lambda c, v: c.ilike("%" + v),
-    "overlaps": lambda c, v: getattr(c, "overlaps")(v),
+    "overlaps": lambda c, v: c.overlaps(v),
 }

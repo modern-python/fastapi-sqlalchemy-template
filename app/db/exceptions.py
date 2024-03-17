@@ -1,11 +1,8 @@
-from typing import Optional
-
-
-class DatabaseException(Exception):
+class DatabaseError(Exception):
     pass
 
 
-class DatabaseValidationError(DatabaseException):
-    def __init__(self, message: str, field: Optional[str] = None) -> None:
+class DatabaseValidationError(DatabaseError):
+    def __init__(self, message: str, field: str | None = None) -> None:
         self.message = message
         self.field = field

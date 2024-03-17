@@ -9,18 +9,18 @@ from tests.decks.conftest import get_deck_data
 pytestmark = pytest.mark.asyncio
 
 
-async def test_get_decks_empty(client: AsyncClient):
+async def test_get_decks_empty(client: AsyncClient) -> None:
     response = await client.get("/api/decks/")
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["items"]) == 0
 
 
-async def test_get_decks_not_exist(client: AsyncClient):
+async def test_get_decks_not_exist(client: AsyncClient) -> None:
     response = await client.get("/api/decks/0/")
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-async def test_get_decks(client: AsyncClient, deck: models.Deck):
+async def test_get_decks(client: AsyncClient, deck: models.Deck) -> None:
     response = await client.get("/api/decks/")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -29,19 +29,20 @@ async def test_get_decks(client: AsyncClient, deck: models.Deck):
         assert v == getattr(deck, k)
 
 
-async def test_get_deck(client: AsyncClient, deck: models.Deck, card: models.Card):
+@pytest.mark.usefixtures("card")
+async def test_get_deck(client: AsyncClient, deck: models.Deck) -> None:
     response = await client.get(f"/api/decks/{deck.id}/")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert len(data["cards"]) == 1
     for k, v in data.items():
-        if k in ("cards",):
+        if k == "cards":
             continue
         assert v == getattr(deck, k)
 
 
 @pytest.mark.parametrize(
-    "name,description,status_code",
+    ("name", "description", "status_code"),
     [
         (None, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
         ("test deck", None, status.HTTP_200_OK),
@@ -53,7 +54,7 @@ async def test_post_decks(
     name: str,
     description: str,
     status_code: int,
-):
+) -> None:
     # create deck
     response = await client.post(
         "/api/decks/",
@@ -76,7 +77,7 @@ async def test_post_decks(
 
 
 @pytest.mark.parametrize(
-    "name,description,status_code",
+    ("name", "description", "status_code"),
     [
         (None, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
         ("test deck updated", None, status.HTTP_200_OK),
@@ -98,7 +99,7 @@ async def test_put_decks(
     name: str,
     description: str,
     status_code: int,
-):
+) -> None:
     # update deck
     response = await client.put(
         f"/api/decks/{deck.id}/",

@@ -1,17 +1,15 @@
-from typing import List, Optional
-
+import pydantic
 from pydantic import BaseModel, PositiveInt
 
 
 class Base(BaseModel):
-    class Config:
-        orm_mode = True
+    model_config = pydantic.ConfigDict(from_attributes=True)
 
 
 class CardBase(Base):
     front: str
-    back: Optional[str] = None
-    hint: Optional[str] = None
+    back: str | None = None
+    hint: str | None = None
 
 
 class CardCreate(CardBase):
@@ -20,16 +18,16 @@ class CardCreate(CardBase):
 
 class Card(CardBase):
     id: PositiveInt
-    deck_id: Optional[PositiveInt] = None
+    deck_id: PositiveInt | None = None
 
 
 class Cards(Base):
-    items: List[Card]
+    items: list[Card]
 
 
 class DeckBase(Base):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class DeckCreate(DeckBase):
@@ -38,8 +36,8 @@ class DeckCreate(DeckBase):
 
 class Deck(DeckBase):
     id: PositiveInt
-    cards: Optional[List[Card]]
+    cards: list[Card] | None
 
 
 class Decks(Base):
-    items: List[Deck]
+    items: list[Deck]

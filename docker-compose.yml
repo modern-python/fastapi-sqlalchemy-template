@@ -1,7 +1,7 @@
-version: "3"
+version: "3.9"
 
 services:
-  app:
+  application:
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -13,17 +13,21 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DEBUG=true
       - DB_ECHO=true
     command:
-      ['start', '8000']
+      ["python", "-m", "app"]
 
   db:
-    image: postgres:13
+    image: postgres:14
     restart: always
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 15

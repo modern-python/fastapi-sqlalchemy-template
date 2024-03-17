@@ -1,21 +1,16 @@
-.git*
-Dockerfile*
-docker-compose*
-devops
-Jenkinsfile*
-
-# python cache
-__pycache__
-.mypy_cache
-.pytest_cache
-
-# venv
-venv
 .env
-
-# IDE
+.coverage
+.gitignore
 .idea
+.mypy_cache
+.ruff_cache
 .vscode
-
-# other
-notes.md
+.git
+.pytest_cache
+.DS_Store
+*.md
+*.yml
+Dockerfile
+**/__pycache__
+.hypothesis
+.venv

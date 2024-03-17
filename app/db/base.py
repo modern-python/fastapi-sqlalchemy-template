@@ -1,17 +1,17 @@
 from sqlalchemy import MetaData
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext import asyncio as sa_async
+from sqlalchemy.orm import declarative_base
 
-from app.config import settings
+from app.settings import settings
 
 
-engine = create_async_engine(
-    settings.DB_DSN,
-    echo=settings.DB_ECHO,
-    pool_size=settings.DB_POOL_SIZE,
-    max_overflow=settings.DB_MAX_OVERFLOW,
+engine = sa_async.create_async_engine(
+    settings.db_dsn,
+    echo=settings.db_echo,
+    pool_size=settings.db_pool_size,
+    max_overflow=settings.db_max_overflow,
     future=True,
 )
-async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession, future=True)
+async_session = sa_async.async_sessionmaker(engine, expire_on_commit=False)
 metadata = MetaData()
 Base = declarative_base(metadata=metadata)

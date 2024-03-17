@@ -9,7 +9,7 @@ from tests.decks.conftest import another_card_data, card_data
 pytestmark = pytest.mark.asyncio
 
 
-async def test_get_cards_empty(client: AsyncClient, deck: models.Deck):
+async def test_get_cards_empty(client: AsyncClient, deck: models.Deck) -> None:
     response = await client.get(f"/api/decks/{deck.id}/cards/")
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["items"]) == 0
@@ -18,7 +18,7 @@ async def test_get_cards_empty(client: AsyncClient, deck: models.Deck):
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-async def test_get_cards(client: AsyncClient, card: models.Card):
+async def test_get_cards(client: AsyncClient, card: models.Card) -> None:
     response = await client.get(f"/api/decks/{card.deck_id}/cards/")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -27,19 +27,20 @@ async def test_get_cards(client: AsyncClient, card: models.Card):
         assert v == getattr(card, k)
 
 
-async def test_get_card(client: AsyncClient, card: models.Card):
+async def test_get_card(client: AsyncClient, card: models.Card) -> None:
     response = await client.get(f"/api/cards/{card.id}/")
     assert response.status_code == status.HTTP_200_OK
     for k, v in response.json().items():
         assert v == getattr(card, k)
 
 
-@pytest.mark.asyncio
-async def test_create_cards(client: AsyncClient, deck: models.Deck):
+@pytest.mark.asyncio()
+async def test_create_cards(client: AsyncClient, deck: models.Deck) -> None:
     # bulk create
+    cards_to_create = [card_data.dict(), another_card_data.dict()]
     response = await client.post(
         f"/api/decks/{deck.id}/cards/",
-        json=[card_data.dict(), another_card_data.dict()],
+        json=cards_to_create,
     )
     assert response.status_code == status.HTTP_200_OK
     created_data = response.json()
@@ -49,7 +50,7 @@ async def test_create_cards(client: AsyncClient, deck: models.Deck):
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert created_data == data
-    assert len(data["items"]) == 2
+    assert len(data["items"]) == len(cards_to_create)
     for k, v in card_data.dict().items():
         assert data["items"][0][k] == v
     for k, v in another_card_data.dict().items():
@@ -71,7 +72,7 @@ async def test_update_cards(
     deck: models.Deck,
     card: models.Card,
     another_card: models.Card,
-):
+) -> None:
     updated_data = [
         {
             "id": card.id,
@@ -100,7 +101,7 @@ async def test_update_cards(
     response = await client.get(f"/api/decks/{deck.id}/cards/")
     assert response.status_code == status.HTTP_200_OK
     cards = response.json()["items"]
-    assert len(cards) == 2
+    assert len(cards) == len(updated_data)
     for x in cards:
         assert x.pop("deck_id") == deck.id
     assert cards == updated_data

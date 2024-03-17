@@ -1,54 +1,79 @@
+import datetime
 import logging
 import re
-from typing import Any, Dict, List, NoReturn, Optional, Tuple, Type, TypeVar
+import typing
 
 import sqlalchemy as sa
+from sqlalchemy import orm
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.db.base import Base
 from app.db.deps import get_db
 from app.db.exceptions import DatabaseValidationError
 from app.db.utils import operators_map
-from app.utils.datetime import utcnow
+from app.utils.datetime import generate_utc_dt
+
+
+if typing.TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 logger = logging.getLogger(__name__)
-TBase = TypeVar("TBase", bound="BaseModel")
+
+
+METADATA: typing.Final = sa.MetaData()
+
+
+class Base(orm.DeclarativeBase):
+    metadata = METADATA
 
 
 class EmptyBaseModel(Base):
-    """Clean Base without fields and methods"""
-
     __abstract__ = True
 
 
 class BaseModel(Base):
     __abstract__ = True
 
-    id = sa.Column(sa.Integer, primary_key=True)
-    created_at = sa.Column(sa.DateTime(timezone=True), default=utcnow, nullable=False)
-    updated_at = sa.Column(sa.DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+    id: orm.Mapped[typing.Annotated[int, orm.mapped_column(primary_key=True)]]
+    created_at: orm.Mapped[
+        typing.Annotated[
+            datetime.datetime,
+            orm.mapped_column(sa.DateTime(timezone=True), default=generate_utc_dt, nullable=False),
+        ]
+    ]
+    updated_at: orm.Mapped[
+        typing.Annotated[
+            datetime.datetime,
+            orm.mapped_column(sa.DateTime(timezone=True), default=generate_utc_dt, nullable=False),
+        ]
+    ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<{type(self).__name__}({self.id=})>"
 
     @classmethod
-    def _raise_validation_exception(cls, e: IntegrityError) -> NoReturn:
-        info = e.orig.args[0] if e.orig.args else ""
+    def _raise_validation_exception(cls, e: IntegrityError) -> typing.Never:
+        info = e.orig.args[0] if e.orig.args else ""  # type: ignore[union-attr]
         if (match := re.findall(r"Key \((.*)\)=\(.*\) already exists|$", info)) and match[0]:
-            raise DatabaseValidationError(f"Unique constraint violated for {cls.__name__}", match[0]) from e
+            msg = f"Unique constraint violated for {cls.__name__}"
+            raise DatabaseValidationError(msg, match[0]) from e
         if (match := re.findall(r"Key \((.*)\)=\(.*\) conflicts with existing key|$", info)) and match[0]:
             field_name = match[0].split(",", 1)[0]
-            raise DatabaseValidationError(f"Range overlapped for {cls.__name__}", field_name) from e
+            msg = f"Range overlapped for {cls.__name__}"
+            raise DatabaseValidationError(msg, field_name) from e
         if (match := re.findall(r"Key \((.*)\)=\(.*\) is not present in table|$", info)) and match[0]:
-            raise DatabaseValidationError(f"Foreign key constraint violated for {cls.__name__}", match[0]) from e
+            msg = f"Foreign key constraint violated for {cls.__name__}"
+            raise DatabaseValidationError(msg, match[0]) from e
         logger.error("Integrity error for %s: %s", cls.__name__, e)
         raise e
 
     @classmethod
-    def _get_query(cls, prefetch: Optional[Tuple[str, ...]] = None, options: Optional[List[Any]] = None) -> Any:
+    def _get_query(
+        cls,
+        prefetch: tuple[str, ...] | None = None,
+        options: list[typing.Any] | None = None,
+    ) -> sa.Select[tuple[typing.Self]]:
         query = sa.select(cls)
         if prefetch:
             if not options:
@@ -58,27 +83,26 @@ class BaseModel(Base):
         return query
 
     @classmethod
-    async def all(cls: Type[TBase], prefetch: Optional[Tuple[str, ...]] = None) -> List[TBase]:
+    async def all(cls, prefetch: tuple[str, ...] | None = None) -> typing.Sequence[typing.Self]:
         query = cls._get_query(prefetch)
         db = get_db()
         db_execute = await db.execute(query)
         return db_execute.scalars().all()
 
     @classmethod
-    async def get_by_id(cls: Type[TBase], obj_id: int, prefetch: Optional[Tuple[str, ...]] = None) -> Optional[TBase]:
+    async def get_by_id(cls, obj_id: int, prefetch: tuple[str, ...] | None = None) -> typing.Self | None:
         query = cls._get_query(prefetch).where(cls.id == obj_id)
         db = get_db()
         db_execute = await db.execute(query)
-        instance = db_execute.scalars().first()
-        return instance
+        return db_execute.scalars().first()
 
     @classmethod
     async def filter(
-        cls: Type[TBase],
-        filters: Dict[str, Any],
-        sorting: Optional[Dict[str, str]] = None,
-        prefetch: Optional[Tuple[str, ...]] = None,
-    ) -> List[TBase]:
+        cls,
+        filters: dict[str, typing.Any],
+        sorting: dict[str, str] | None = None,
+        prefetch: tuple[str, ...] | None = None,
+    ) -> typing.Sequence[typing.Self]:
         query = cls._get_query(prefetch)
         db = get_db()
         if sorting is not None:
@@ -87,8 +111,8 @@ class BaseModel(Base):
         return db_execute.scalars().all()
 
     @classmethod
-    def _build_sorting(cls, sorting: Dict[str, str]) -> List[Any]:
-        """Build list of ORDER_BY clauses"""
+    def _build_sorting(cls, sorting: dict[str, str]) -> list[typing.Any]:
+        """Build list of ORDER_BY clauses."""
         result = []
         for field_name, direction in sorting.items():
             field = getattr(cls, field_name)
@@ -96,21 +120,22 @@ class BaseModel(Base):
         return result
 
     @classmethod
-    def _build_filters(cls, filters: Dict[str, Any]) -> List[Any]:
-        """Build list of WHERE conditions"""
+    def _build_filters(cls, filters: dict[str, typing.Any]) -> list[typing.Any]:
+        """Build list of WHERE conditions."""
         result = []
         for expression, value in filters.items():
             parts = expression.split("__")
             op_name = parts[1] if len(parts) > 1 else "exact"
             if op_name not in operators_map:
-                raise KeyError(f"Expression {expression} has incorrect operator {op_name}")
+                msg = f"Expression {expression} has incorrect operator {op_name}"
+                raise KeyError(msg)
             operator = operators_map[op_name]
             column = getattr(cls, parts[0])
             result.append(operator(column, value))
         return result
 
     @classmethod
-    async def bulk_create(cls: Type[TBase], objects: List[TBase]) -> List[TBase]:
+    async def bulk_create(cls, objects: list[typing.Self]) -> typing.Sequence[typing.Self]:
         db: AsyncSession = get_db()
         try:
             db.add_all(objects)
@@ -120,7 +145,7 @@ class BaseModel(Base):
         return objects
 
     @classmethod
-    async def bulk_update(cls: Type[TBase], objects: List[TBase]) -> List[TBase]:
+    async def bulk_update(cls, objects: list[typing.Self]) -> typing.Sequence[typing.Self]:
         db: AsyncSession = get_db()
         try:
             ids = [x.id for x in objects if x.id]
@@ -146,6 +171,6 @@ class BaseModel(Base):
         except IntegrityError as e:
             self._raise_validation_exception(e)
 
-    async def update_attrs(self, **kwargs: Any) -> None:
+    async def update_attrs(self, **kwargs: typing.Any) -> None:  # noqa: ANN401
         for k, v in kwargs.items():
             setattr(self, k, v)
