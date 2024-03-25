@@ -7,10 +7,11 @@ license = "MIT License"
 
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 fastapi = ">=0.76"
 pydantic-settings = "*"
 granian = "*"
+that-depends = "*"
 # database
 alembic = "*"
 psycopg2 = "*"
@@ -18,6 +19,7 @@ sqlalchemy = "*"
 asyncpg = "*"
 
 [tool.poetry.group.dev.dependencies]
+polyfactory = "*"
 httpx = "*"
 pytest = "*"
 pytest-cov = "*"
@@ -45,25 +47,18 @@ ignore = [
     "ANN204", # no typings for __init__
     "RUF001", # allow cyrillic letters
 ]
+isort.lines-after-imports = 2
+isort.no-lines-before = ["standard-library", "local-folder"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "tests/*.py" = [
     "S101", # allow asserts
 ]
 
-[tool.ruff.lint.isort]
-lines-after-imports = 2
-no-lines-before = ["standard-library", "local-folder"]
-
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 pretty = true
-
-[[pydantic-mypy]]
-warn_required_dynamic_aliases = true
-warn_untyped_fields = true
-init_typed = true
 
 [tool.pytest.ini_options]
 addopts = "--cov=. --cov-report term-missing"
@@ -73,3 +68,6 @@ asyncio_mode = "auto"
 exclude_also = [
     "if typing.TYPE_CHECKING:",
 ]
+
+[tool.coverage.run]
+concurrency = ["thread","greenlet"]

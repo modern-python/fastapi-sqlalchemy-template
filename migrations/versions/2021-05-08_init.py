@@ -19,7 +19,7 @@ depends_on = None
 
 def upgrade() -> None:
     op.create_table(
-        "deck",
+        "decks",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
@@ -28,7 +28,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
-        "card",
+        "cards",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
@@ -38,7 +38,7 @@ def upgrade() -> None:
         sa.Column("deck_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
             ["deck_id"],
-            ["deck.id"],
+            ["decks.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("deck_id", "front", name="card_deck_id_front_uc"),
@@ -46,5 +46,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_table("card")
-    op.drop_table("deck")
+    op.drop_table("cards")
+    op.drop_table("decks")

@@ -18,6 +18,7 @@ class Settings(pydantic_settings.BaseSettings):
     db_pool_size: int = 5
     db_max_overflow: int = 0
     db_echo: bool = False
+    db_pool_pre_ping: bool = True
 
     app_port: int = 8000
 

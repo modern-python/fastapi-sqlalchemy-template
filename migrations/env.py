@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import URL, create_engine
 
-from app.db.base import metadata
+from app.models import METADATA
 from app.settings import settings
 
 
@@ -22,7 +22,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # add your model's MetaData object here for 'autogenerate' support
-target_metadata = metadata
+target_metadata = METADATA
 
 
 def run_migrations_offline() -> None:

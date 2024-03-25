@@ -3,7 +3,15 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
 
-from app.db.exceptions import DatabaseValidationError
+
+class DatabaseError(Exception):
+    pass
+
+
+class DatabaseValidationError(DatabaseError):
+    def __init__(self, message: str, field: str | None = None) -> None:
+        self.message = message
+        self.field = field
 
 
 async def database_validation_exception_handler(request: Request, exc: DatabaseValidationError) -> JSONResponse:

@@ -1,36 +1,6 @@
-import logging
 import typing
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING
 
 from sqlalchemy.sql import operators
-
-from app.db.deps import get_db
-
-
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
-
-
-logger = logging.getLogger(__name__)
-
-
-@asynccontextmanager
-async def transaction() -> AsyncGenerator[None, None]:
-    db: AsyncSession = get_db()
-    """if select was called before than implicit transaction has already started"""
-    if not db.in_transaction():
-        async with db.begin():
-            logger.debug("explicit transaction begin")
-            yield
-        logger.debug("explicit transaction commit")
-    else:
-        logger.debug("already in transaction")
-        yield
-        if db.in_transaction():
-            await db.commit()
-            logger.debug("implicit transaction commit")
 
 
 # https://github.com/absent1706/sqlalchemy-mixins/blob/master/sqlalchemy_mixins/smartquery.py

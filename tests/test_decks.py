@@ -1,12 +1,11 @@
 import pytest
 from fastapi import status
 from httpx import AsyncClient
+from that_depends import Provide, inject
 
-from app.apps.decks import models
-from tests.decks.conftest import get_deck_data
-
-
-pytestmark = pytest.mark.asyncio
+from app import ioc
+from app.repositories.decks import CardsRepository, DecksRepository
+from tests import factories
 
 
 async def test_get_decks_empty(client: AsyncClient) -> None:
@@ -20,7 +19,15 @@ async def test_get_decks_not_exist(client: AsyncClient) -> None:
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-async def test_get_decks(client: AsyncClient, deck: models.Deck) -> None:
+@inject
+async def test_get_decks(
+    client: AsyncClient,
+    decks_repo: DecksRepository = Provide[ioc.IOCContainer.decks_repo],
+) -> None:
+    deck = factories.DeckModelFactory.build()
+    assert str(deck) == "<Deck(self.id=None)>"
+    await decks_repo.save(deck)
+
     response = await client.get("/api/decks/")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -29,8 +36,18 @@ async def test_get_decks(client: AsyncClient, deck: models.Deck) -> None:
         assert v == getattr(deck, k)
 
 
-@pytest.mark.usefixtures("card")
-async def test_get_deck(client: AsyncClient, deck: models.Deck) -> None:
+@inject
+async def test_get_deck(
+    client: AsyncClient,
+    decks_repo: DecksRepository = Provide[ioc.IOCContainer.decks_repo],
+    cards_repo: CardsRepository = Provide[ioc.IOCContainer.cards_repo],
+) -> None:
+    deck = factories.DeckModelFactory.build()
+    await decks_repo.save(deck)
+
+    card = factories.CardModelFactory.build(deck_id=deck.id)
+    await cards_repo.save(card)
+
     response = await client.get(f"/api/decks/{deck.id}/")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -76,42 +93,58 @@ async def test_post_decks(
         assert description == result["description"]
 
 
+@inject
+async def test_put_decks_wrong_body(
+    client: AsyncClient,
+    decks_repo: DecksRepository = Provide[ioc.IOCContainer.decks_repo],
+) -> None:
+    deck = factories.DeckModelFactory.build()
+    await decks_repo.save(deck)
+
+    # update deck
+    response = await client.put(
+        f"/api/decks/{deck.id}/",
+        json={"name": None, "description": None},
+    )
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+async def test_put_decks_not_exist(client: AsyncClient) -> None:
+    response = await client.put(
+        "/api/decks/999/",
+        json={"name": "some", "description": "some"},
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
 @pytest.mark.parametrize(
-    ("name", "description", "status_code"),
+    ("name", "description"),
     [
-        (None, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
-        ("test deck updated", None, status.HTTP_200_OK),
-        (
-            get_deck_data()["name"],
-            "test deck description updated",
-            status.HTTP_200_OK,
-        ),
-        (
-            "test deck updated",
-            "test deck description updated",
-            status.HTTP_200_OK,
-        ),
+        ("test deck updated", None),
+        ("test deck updated", "test deck description updated"),
     ],
 )
+@inject
 async def test_put_decks(
     client: AsyncClient,
-    deck: models.Deck,
     name: str,
     description: str,
-    status_code: int,
+    decks_repo: DecksRepository = Provide[ioc.IOCContainer.decks_repo],
 ) -> None:
+    deck = factories.DeckModelFactory.build()
+    await decks_repo.save(deck)
+
     # update deck
     response = await client.put(
         f"/api/decks/{deck.id}/",
         json={"name": name, "description": description},
     )
-    assert response.status_code == status_code
+    assert response.status_code == status.HTTP_200_OK
 
     # get item
-    if status_code == status.HTTP_200_OK:
-        item_id = response.json()["id"]
-        response = await client.get(f"/api/decks/{item_id}/")
-        assert response.status_code == status.HTTP_200_OK
-        result = response.json()
-        assert name == result["name"]
-        assert description == result["description"]
+    item_id = response.json()["id"]
+    response = await client.get(f"/api/decks/{item_id}/")
+    assert response.status_code == status.HTTP_200_OK
+    result = response.json()
+    assert name == result["name"]
+    assert description == result["description"]
