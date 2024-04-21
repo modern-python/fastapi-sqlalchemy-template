@@ -25,3 +25,8 @@ async def create_sa_engine() -> typing.AsyncIterator[sa.AsyncEngine]:
     finally:
         await engine.dispose()
         logger.info("SQLAlchemy engine has been cleaned up")
+
+
+async def create_session(engine: sa.AsyncEngine) -> typing.AsyncIterator[sa.AsyncSession]:
+    async with sa.AsyncSession(engine, expire_on_commit=False, autoflush=False) as session:
+        yield session

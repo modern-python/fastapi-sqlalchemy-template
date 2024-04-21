@@ -1063,13 +1063,13 @@ full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.7
 
 [[package]]
 name = "that-depends"
-version = "1.5.3"
+version = "1.6.1"
 description = "Simple Dependency Injection framework"
 optional = false
 python-versions = "<4,>=3.10"
 files = [
-    {file = "that_depends-1.5.3-py3-none-any.whl", hash = "sha256:c31bc223f59675c51c1a5ad14cad5dddd54171913cf925b4ad53416211bc09b5"},
-    {file = "that_depends-1.5.3.tar.gz", hash = "sha256:4de5962083ed9f3f1f96dfaa5e3664a7c94a96cc3490448935eb6028c3da02e7"},
+    {file = "that_depends-1.6.1-py3-none-any.whl", hash = "sha256:dd10487ea96d62d177717066348561f9fdefc8fc5b15572377469858f10c0b27"},
+    {file = "that_depends-1.6.1.tar.gz", hash = "sha256:9dafb2a8eb010fd5054cca677812ba79bb36598c189f7f6951ef590be437cfb9"},
 ]
 
 [[package]]
