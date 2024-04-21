@@ -46,10 +46,10 @@ ignore = [
     "B008", # function-call-in-default-argument
     "ANN204", # no typings for __init__
     "RUF001", # allow cyrillic letters
-    "D203", # one-blank-line-before-class
-    "D213", # multi-line-summary-second-line
-    "COM812",
-    "ISC001",
+    "D203", # "one-blank-line-before-class" conflicting with D211
+    "D213", # "multi-line-summary-second-line" conflicting with D212
+    "COM812", # flake8-commas "Trailing comma missing"
+    "ISC001", # flake8-implicit-str-concat
 ]
 isort.lines-after-imports = 2
 isort.no-lines-before = ["standard-library", "local-folder"]
