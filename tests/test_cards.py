@@ -89,15 +89,15 @@ async def test_create_cards(
     data = response.json()
     assert created_data == data
     assert len(data["items"]) == len(cards_to_create)
-    for k, v in cards_to_create[0].dict().items():
+    for k, v in cards_to_create[0].model_dump().items():
         assert data["items"][0][k] == v
-    for k, v in cards_to_create[1].dict().items():
+    for k, v in cards_to_create[1].model_dump().items():
         assert data["items"][1][k] == v
 
     # unique constraint error
     response = await client.post(
         f"/api/decks/{deck.id}/cards/",
-        json=[cards_to_create[0].dict(), cards_to_create[1].dict()],
+        json=[cards_to_create[0].model_dump(), cards_to_create[1].model_dump()],
     )
     data = response.json()
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY

@@ -1,7 +1,7 @@
 import typing
 
 import pytest
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import ioc
@@ -11,7 +11,7 @@ from app.application import application
 @pytest.fixture()
 async def client() -> typing.AsyncIterator[AsyncClient]:
     async with AsyncClient(
-        app=application,
+        transport=ASGITransport(app=application),  # type: ignore[arg-type]
         base_url="http://test",
     ) as client:
         yield client

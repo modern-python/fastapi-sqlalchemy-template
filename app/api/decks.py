@@ -44,7 +44,7 @@ async def update_deck(
     if not instance:
         raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck is not found")
 
-    await decks_repo.update_attrs(instance, **data.dict())
+    await decks_repo.update_attrs(instance, **data.model_dump())
     await decks_repo.save(instance)
     return typing.cast(schemas.Deck, instance)
 
@@ -55,7 +55,7 @@ async def create_deck(
     data: schemas.DeckCreate,
     decks_repo: DecksRepository = fastapi.Depends(ioc.IOCContainer.decks_repo),
 ) -> schemas.Deck:
-    instance = models.Deck(**data.dict())
+    instance = models.Deck(**data.model_dump())
     await decks_repo.save(instance)
     return typing.cast(schemas.Deck, instance)
 
@@ -90,7 +90,7 @@ async def create_cards(
     cards_repo: CardsRepository = fastapi.Depends(ioc.IOCContainer.cards_repo),
 ) -> schemas.Cards:
     objects = await cards_repo.bulk_create(
-        [models.Card(**card.dict(), deck_id=deck_id) for card in data],
+        [models.Card(**card.model_dump(), deck_id=deck_id) for card in data],
     )
     return typing.cast(schemas.Cards, {"items": objects})
 
@@ -103,6 +103,6 @@ async def update_cards(
     cards_repo: CardsRepository = fastapi.Depends(ioc.IOCContainer.cards_repo),
 ) -> schemas.Cards:
     objects = await cards_repo.bulk_update(
-        [models.Card(**card.dict(exclude={"deck_id"}), deck_id=deck_id) for card in data],
+        [models.Card(**card.model_dump(exclude={"deck_id"}), deck_id=deck_id) for card in data],
     )
     return typing.cast(schemas.Cards, {"items": objects})
