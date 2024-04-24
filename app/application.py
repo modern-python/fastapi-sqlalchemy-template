@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from that_depends.providers import DIContextMiddleware
 
 from app import exceptions
 from app.api.decks import ROUTER
@@ -13,6 +14,8 @@ def get_app() -> FastAPI:
     )
 
     _app.include_router(ROUTER, prefix="/api")
+
+    _app.add_middleware(DIContextMiddleware)
 
     _app.add_exception_handler(
         DatabaseValidationError,

@@ -9,7 +9,7 @@ tasks:
   sh:
     desc: "run shell in container"
     cmds:
-      - docker compose run application bash
+      - docker compose run --service-ports application bash
 
   tests:
     desc: "run pytest (pass args after '--')"
