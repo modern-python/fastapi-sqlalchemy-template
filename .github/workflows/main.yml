@@ -55,9 +55,9 @@ jobs:
       - run: pip install poetry
       - run: task install
       - run: task tests-ci
-      - uses: tj-actions/coverage-badge-py@v1
         env:
           ENVIRONMENT: dev
           PYTHONDONTWRITEBYTECODE: 1
           PYTHONUNBUFFERED: 1
           DB_HOST: 127.0.0.1
+      - uses: tj-actions/coverage-badge-py@v1
