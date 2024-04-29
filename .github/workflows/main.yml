@@ -44,6 +44,13 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -54,7 +61,8 @@ jobs:
           repo-token: ${{ github.token }}
       - run: pip install poetry
       - run: task install
-      - run: task tests
+      - run: task tests-ci
+      - uses: tj-actions/coverage-badge-py@v1
         env:
           ENVIRONMENT: dev
           PYTHONDONTWRITEBYTECODE: 1

@@ -18,6 +18,11 @@ tasks:
       - docker compose run application sh -c "sleep 1 && alembic downgrade base && alembic upgrade head && pytest {{.CLI_ARGS}}"
       - task: down
 
+  tests-ci:
+    desc: "run pytest in github actions"
+    cmds:
+      - poetry run pytest
+
   migration:
     desc: "create alembic migration (pass args after '--')"
     cmds:
