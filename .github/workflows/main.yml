@@ -20,12 +20,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-      - uses: arduino/setup-task@v1
-        with:
-          repo-token: ${{ github.token }}
-      - run: pip install poetry
-      - run: task install
-      - run: task lint-ci
+      - run: |
+          pip install -U pip poetry
+          poetry install --sync --no-root
+          poetry run ruff format . --check
+          poetry run ruff check . --no-fix
+          poetry run mypy .
 
   pytest:
     runs-on: ubuntu-latest
@@ -49,12 +49,11 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-      - uses: arduino/setup-task@v1
-        with:
-          repo-token: ${{ github.token }}
-      - run: pip install poetry
-      - run: task install
-      - run: task tests-ci
+      - run: |
+          pip install -U pip poetry
+          poetry install --sync --no-root
+          poetry run alembic upgrade head
+          poetry run pytest
         env:
           ENVIRONMENT: dev
           PYTHONDONTWRITEBYTECODE: 1
