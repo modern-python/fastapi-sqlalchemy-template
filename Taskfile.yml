@@ -21,6 +21,7 @@ tasks:
   tests-ci:
     desc: "run pytest in github actions"
     cmds:
+      - alembic upgrade head
       - poetry run pytest
 
   migration:
