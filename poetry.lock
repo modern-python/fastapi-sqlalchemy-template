@@ -1395,13 +1395,13 @@ full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.7
 
 [[package]]
 name = "that-depends"
-version = "1.8.0"
+version = "1.9.2"
 description = "Simple Dependency Injection framework"
 optional = false
 python-versions = "<4,>=3.10"
 files = [
-    {file = "that_depends-1.8.0-py3-none-any.whl", hash = "sha256:42675691621ae127372782b71a0a11a58ffec0fffe7d4611dab57711dec4389c"},
-    {file = "that_depends-1.8.0.tar.gz", hash = "sha256:e9b0cf9b2b34c155f855c90a0e249612065db6b6306efbe84d4840ac547cf052"},
+    {file = "that_depends-1.9.2-py3-none-any.whl", hash = "sha256:7824ef0fb665a5bcc5298de1ed5b53788bd163e455faec59868bd1bd2a9ef88e"},
+    {file = "that_depends-1.9.2.tar.gz", hash = "sha256:fa7efec092d76f9c7d3c7d70eefe08af1a4d6c4413c1d0616290df0199469c86"},
 ]
 
 [[package]]
@@ -1423,13 +1423,13 @@ typing-extensions = ">=3.7.4.3"
 
 [[package]]
 name = "typing-extensions"
-version = "4.11.0"
+version = "4.12.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "typing_extensions-4.11.0-py3-none-any.whl", hash = "sha256:c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a"},
-    {file = "typing_extensions-4.11.0.tar.gz", hash = "sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0"},
+    {file = "typing_extensions-4.12.0-py3-none-any.whl", hash = "sha256:b349c66bea9016ac22978d800cfff206d5f9816951f12a7d0ec5578b0a819594"},
+    {file = "typing_extensions-4.12.0.tar.gz", hash = "sha256:8cbcdc8606ebcb0d95453ad7dc5065e6237b6aa230a31e81d0f440c30fed5fd8"},
 ]
 
 [[package]]
