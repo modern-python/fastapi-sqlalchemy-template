@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 async def create_sa_engine(settings: Settings) -> typing.AsyncIterator[sa.AsyncEngine]:
-    logger.info("Initializing SQLAlchemy engine")
+    logger.debug("Initializing SQLAlchemy engine")
     engine = sa.create_async_engine(
         url=settings.db_dsn,
         echo=settings.debug,
@@ -19,12 +19,12 @@ async def create_sa_engine(settings: Settings) -> typing.AsyncIterator[sa.AsyncE
         pool_pre_ping=settings.db_pool_pre_ping,
         max_overflow=settings.db_max_overflow,
     )
-    logger.info("SQLAlchemy engine has been initialized")
+    logger.debug("SQLAlchemy engine has been initialized")
     try:
         yield engine
     finally:
         await engine.dispose()
-        logger.info("SQLAlchemy engine has been cleaned up")
+        logger.debug("SQLAlchemy engine has been cleaned up")
 
 
 async def create_session(engine: sa.AsyncEngine) -> typing.AsyncIterator[sa.AsyncSession]:
