@@ -2,7 +2,6 @@ import contextlib
 import typing
 
 import fastapi
-from that_depends.providers import DIContextMiddleware
 
 from app import exceptions, ioc
 from app.api.decks import ROUTER
@@ -22,7 +21,6 @@ class AppBuilder:
             lifespan=self.lifespan_manager,
         )
         include_routers(self.app)
-        self.app.add_middleware(DIContextMiddleware)
         self.app.add_exception_handler(
             DatabaseValidationError,
             exceptions.database_validation_exception_handler,  # type: ignore[arg-type]

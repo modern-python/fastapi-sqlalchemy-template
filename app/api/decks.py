@@ -8,11 +8,15 @@ from app import ioc, models, schemas
 from app.repositories.decks import CardsRepository, DecksRepository
 
 
-ROUTER: typing.Final = fastapi.APIRouter()
+async def init_di_context() -> typing.AsyncIterator[None]:
+    async with container_context():
+        yield
+
+
+ROUTER: typing.Final = fastapi.APIRouter(dependencies=[fastapi.Depends(init_di_context)])
 
 
 @ROUTER.get("/decks/")
-@container_context()
 async def list_decks(
     decks_repo: DecksRepository = fastapi.Depends(ioc.IOCContainer.decks_repo),
 ) -> schemas.Decks:
@@ -21,7 +25,6 @@ async def list_decks(
 
 
 @ROUTER.get("/decks/{deck_id}/")
-@container_context()
 async def get_deck(
     deck_id: int,
     decks_repo: DecksRepository = fastapi.Depends(ioc.IOCContainer.decks_repo),
@@ -34,7 +37,6 @@ async def get_deck(
 
 
 @ROUTER.put("/decks/{deck_id}/")
-@container_context()
 async def update_deck(
     deck_id: int,
     data: schemas.DeckCreate,
@@ -50,7 +52,6 @@ async def update_deck(
 
 
 @ROUTER.post("/decks/")
-@container_context()
 async def create_deck(
     data: schemas.DeckCreate,
     decks_repo: DecksRepository = fastapi.Depends(ioc.IOCContainer.decks_repo),
@@ -61,7 +62,6 @@ async def create_deck(
 
 
 @ROUTER.get("/decks/{deck_id}/cards/")
-@container_context()
 async def list_cards(
     deck_id: int,
     cards_repo: CardsRepository = fastapi.Depends(ioc.IOCContainer.cards_repo),
@@ -71,7 +71,6 @@ async def list_cards(
 
 
 @ROUTER.get("/cards/{card_id}/")
-@container_context()
 async def get_card(
     card_id: int,
     cards_repo: CardsRepository = fastapi.Depends(ioc.IOCContainer.cards_repo),
@@ -83,7 +82,6 @@ async def get_card(
 
 
 @ROUTER.post("/decks/{deck_id}/cards/")
-@container_context()
 async def create_cards(
     deck_id: int,
     data: list[schemas.CardCreate],
@@ -96,7 +94,6 @@ async def create_cards(
 
 
 @ROUTER.put("/decks/{deck_id}/cards/")
-@container_context()
 async def update_cards(
     deck_id: int,
     data: list[schemas.Card],
