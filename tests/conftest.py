@@ -13,6 +13,7 @@ async def client() -> typing.AsyncIterator[AsyncClient]:
     async with AsyncClient(
         transport=ASGITransport(app=application),  # type: ignore[arg-type]
         base_url="http://test",
+        timeout=0,
     ) as client:
         yield client
 
