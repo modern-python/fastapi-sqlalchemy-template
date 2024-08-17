@@ -8,7 +8,7 @@ from app import ioc
 from app.application import application
 
 
-@pytest.fixture()
+@pytest.fixture
 async def client() -> typing.AsyncIterator[AsyncClient]:
     async with AsyncClient(
         transport=ASGITransport(app=application),  # type: ignore[arg-type]

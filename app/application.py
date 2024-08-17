@@ -29,7 +29,7 @@ class AppBuilder:
     @contextlib.asynccontextmanager
     async def lifespan_manager(self, _: fastapi.FastAPI) -> typing.AsyncIterator[dict[str, typing.Any]]:
         try:
-            await ioc.IOCContainer.init_async_resources()
+            await ioc.IOCContainer.init_resources()
             yield {}
         finally:
             await ioc.IOCContainer.tear_down()
