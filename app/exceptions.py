@@ -1,29 +1,20 @@
+from advanced_alchemy.exceptions import ForeignKeyError
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
 
 
-class DatabaseError(Exception):
-    pass
-
-
-class DatabaseValidationError(DatabaseError):
-    def __init__(self, message: str, field: str | None = None) -> None:
-        self.message = message
-        self.field = field
-
-
-async def database_validation_exception_handler(request: Request, exc: DatabaseValidationError) -> JSONResponse:
+async def database_validation_exception_handler(request: Request, exc: ForeignKeyError) -> JSONResponse:
     validation_error = RequestValidationError(
         [
             {
-                "loc": [exc.field or "__root__"],
-                "msg": exc.message,
+                "loc": ["__root__"],
+                "msg": exc.detail,
                 "input": {},
-                "ctx": {"error": exc.message},
+                "ctx": {"error": exc.detail},
             },
         ],
-        body=exc.message,
+        body=exc.detail,
     )
     return await request_validation_exception_handler(request, validation_error)

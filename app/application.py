@@ -2,10 +2,10 @@ import contextlib
 import typing
 
 import fastapi
+from advanced_alchemy.exceptions import ForeignKeyError
 
 from app import exceptions, ioc
 from app.api.decks import ROUTER
-from app.exceptions import DatabaseValidationError
 
 
 def include_routers(app: fastapi.FastAPI) -> None:
@@ -22,7 +22,7 @@ class AppBuilder:
         )
         include_routers(self.app)
         self.app.add_exception_handler(
-            DatabaseValidationError,
+            ForeignKeyError,
             exceptions.database_validation_exception_handler,  # type: ignore[arg-type]
         )
 

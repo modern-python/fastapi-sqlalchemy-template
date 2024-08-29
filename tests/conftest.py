@@ -11,7 +11,7 @@ from app.application import application
 @pytest.fixture
 async def client() -> typing.AsyncIterator[AsyncClient]:
     async with AsyncClient(
-        transport=ASGITransport(app=application),  # type: ignore[arg-type]
+        transport=ASGITransport(app=application),
         base_url="http://test",
         timeout=0,
     ) as client:

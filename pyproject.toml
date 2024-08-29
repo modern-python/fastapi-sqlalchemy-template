@@ -9,6 +9,7 @@ license = "MIT License"
 [tool.poetry.dependencies]
 python = "3.12.*"
 fastapi = ">=0.76"
+advanced-alchemy = "*"
 pydantic-settings = "*"
 granian = "*"
 that-depends = "*"

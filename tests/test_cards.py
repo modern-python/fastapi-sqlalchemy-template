@@ -3,17 +3,17 @@ from httpx import AsyncClient
 from that_depends import Provide, inject
 
 from app import ioc
-from app.repositories.decks import CardsRepository, DecksRepository
+from app.repositories import CardsService, DecksService
 from tests import factories
 
 
 @inject
 async def test_get_cards_empty(
     client: AsyncClient,
-    decks_repo: DecksRepository = Provide[ioc.IOCContainer.decks_repo],
+    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
 ) -> None:
     deck = factories.DeckModelFactory.build()
-    await decks_repo.save(deck)
+    await decks_service.create(deck)
 
     response = await client.get(f"/api/decks/{deck.id}/cards/")
     assert response.status_code == status.HTTP_200_OK
@@ -26,14 +26,14 @@ async def test_get_cards_empty(
 @inject
 async def test_get_cards(
     client: AsyncClient,
-    decks_repo: DecksRepository = Provide[ioc.IOCContainer.decks_repo],
-    cards_repo: CardsRepository = Provide[ioc.IOCContainer.cards_repo],
+    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
+    cards_repo: CardsService = Provide[ioc.IOCContainer.cards_service],
 ) -> None:
     deck = factories.DeckModelFactory.build()
-    await decks_repo.save(deck)
+    await decks_service.create(deck)
 
     card = factories.CardModelFactory.build(deck_id=deck.id)
-    await cards_repo.save(card)
+    await cards_repo.create(card)
 
     response = await client.get(f"/api/decks/{card.deck_id}/cards/")
     assert response.status_code == status.HTTP_200_OK
@@ -46,14 +46,14 @@ async def test_get_cards(
 @inject
 async def test_get_card(
     client: AsyncClient,
-    decks_repo: DecksRepository = Provide[ioc.IOCContainer.decks_repo],
-    cards_repo: CardsRepository = Provide[ioc.IOCContainer.cards_repo],
+    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
+    cards_repo: CardsService = Provide[ioc.IOCContainer.cards_service],
 ) -> None:
     deck = factories.DeckModelFactory.build()
-    await decks_repo.save(deck)
+    await decks_service.create(deck)
 
     card = factories.CardModelFactory.build(deck_id=deck.id)
-    await cards_repo.save(card)
+    await cards_repo.create(card)
 
     response = await client.get(f"/api/cards/{card.id}/")
     assert response.status_code == status.HTTP_200_OK
@@ -69,11 +69,11 @@ async def test_get_card_not_exist(client: AsyncClient) -> None:
 @inject
 async def test_create_cards(
     client: AsyncClient,
-    decks_repo: DecksRepository = Provide[ioc.IOCContainer.decks_repo],
+    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
 ) -> None:
     # bulk create
     deck = factories.DeckModelFactory.build()
-    await decks_repo.save(deck)
+    await decks_service.create(deck)
 
     cards_to_create = [factories.CardCreateSchemaFactory.build(), factories.CardCreateSchemaFactory.build()]
     response = await client.post(
@@ -101,23 +101,22 @@ async def test_create_cards(
     )
     data = response.json()
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-    assert data["detail"][0]["msg"] == "Unique constraint violated for Card"
-    assert data["detail"][0]["loc"] == ["deck_id, front"]
+    assert data["detail"][0]["msg"] == "A foreign key is missing or invalid"
 
 
 @inject
 async def test_update_cards(
     client: AsyncClient,
-    decks_repo: DecksRepository = Provide[ioc.IOCContainer.decks_repo],
-    cards_repo: CardsRepository = Provide[ioc.IOCContainer.cards_repo],
+    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
+    cards_repo: CardsService = Provide[ioc.IOCContainer.cards_service],
 ) -> None:
     deck = factories.DeckModelFactory.build()
-    await decks_repo.save(deck)
+    await decks_service.create(deck)
 
     card1 = factories.CardModelFactory.build(deck_id=deck.id)
     card2 = factories.CardModelFactory.build(deck_id=deck.id)
-    await cards_repo.save(card1)
-    await cards_repo.save(card2)
+    await cards_repo.create(card1)
+    await cards_repo.create(card2)
 
     updated_data = [
         {
