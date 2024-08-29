@@ -1,10 +1,10 @@
 import pytest
 from fastapi import status
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 from that_depends import Provide, inject
 
 from app import ioc
-from app.repositories import CardsService, DecksService
 from tests import factories
 
 
@@ -22,10 +22,10 @@ async def test_get_decks_not_exist(client: AsyncClient) -> None:
 @inject
 async def test_get_decks(
     client: AsyncClient,
-    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
+    session: AsyncSession = Provide[ioc.IOCContainer.session],
 ) -> None:
-    deck = factories.DeckModelFactory.build()
-    await decks_service.create(deck)
+    factories.DeckModelFactory.__async_session__ = session
+    deck = await factories.DeckModelFactory.create_async()
 
     response = await client.get("/api/decks/")
     assert response.status_code == status.HTTP_200_OK
@@ -38,13 +38,14 @@ async def test_get_decks(
 @inject
 async def test_get_one_deck(
     client: AsyncClient,
-    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
-    cards_service: CardsService = Provide[ioc.IOCContainer.cards_service],
+    session: AsyncSession = Provide[ioc.IOCContainer.session],
 ) -> None:
-    deck = await decks_service.create(factories.DeckModelFactory.build())
-    card = await cards_service.create(factories.CardModelFactory.build(deck_id=deck.id))
+    factories.DeckModelFactory.__async_session__ = session
+    factories.CardModelFactory.__async_session__ = session
+    deck = await factories.DeckModelFactory.create_async()
+    card = await factories.CardModelFactory.create_async(deck_id=deck.id)
     assert card.id
-    cards_service.repository.session.expunge_all()
+    session.expunge_all()
 
     response = await client.get(f"/api/decks/{deck.id}/")
     assert response.status_code == status.HTTP_200_OK
@@ -94,10 +95,10 @@ async def test_post_decks(
 @inject
 async def test_put_decks_wrong_body(
     client: AsyncClient,
-    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
+    session: AsyncSession = Provide[ioc.IOCContainer.session],
 ) -> None:
-    deck = factories.DeckModelFactory.build()
-    await decks_service.create(deck)
+    factories.DeckModelFactory.__async_session__ = session
+    deck = await factories.DeckModelFactory.create_async()
 
     # update deck
     response = await client.put(
@@ -127,10 +128,10 @@ async def test_put_decks(
     client: AsyncClient,
     name: str,
     description: str,
-    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
+    session: AsyncSession = Provide[ioc.IOCContainer.session],
 ) -> None:
-    deck = factories.DeckModelFactory.build()
-    await decks_service.create(deck)
+    factories.DeckModelFactory.__async_session__ = session
+    deck = await factories.DeckModelFactory.create_async()
 
     # update deck
     response = await client.put(

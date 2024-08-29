@@ -1,7 +1,6 @@
 import typing
 
 import fastapi
-import sqlalchemy
 from advanced_alchemy.exceptions import NotFoundError
 from sqlalchemy import orm
 from starlette import status
@@ -34,7 +33,7 @@ async def get_deck(
 ) -> schemas.Deck:
     instance = await decks_service.get_one_or_none(
         models.Deck.id == deck_id,
-        statement=sqlalchemy.select(models.Deck).options(orm.selectinload(models.Deck.cards)),
+        load=[orm.selectinload(models.Deck.cards)],
     )
     if not instance:
         raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck is not found")

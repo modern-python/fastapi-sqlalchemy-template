@@ -14,9 +14,5 @@ class CardModelFactory(SQLAlchemyFactory[models.Card]):
     id = None
 
 
-class DeckCreateSchemaFactory(ModelFactory[schemas.DeckCreate]):
-    __model__ = schemas.DeckCreate
-
-
 class CardCreateSchemaFactory(ModelFactory[schemas.CardCreate]):
     __model__ = schemas.CardCreate

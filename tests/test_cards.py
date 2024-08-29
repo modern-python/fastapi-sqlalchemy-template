@@ -1,19 +1,19 @@
 from fastapi import status
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 from that_depends import Provide, inject
 
 from app import ioc
-from app.repositories import CardsService, DecksService
 from tests import factories
 
 
 @inject
 async def test_get_cards_empty(
     client: AsyncClient,
-    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
+    session: AsyncSession = Provide[ioc.IOCContainer.session],
 ) -> None:
-    deck = factories.DeckModelFactory.build()
-    await decks_service.create(deck)
+    factories.DeckModelFactory.__async_session__ = session
+    deck = await factories.DeckModelFactory.create_async()
 
     response = await client.get(f"/api/decks/{deck.id}/cards/")
     assert response.status_code == status.HTTP_200_OK
@@ -26,14 +26,12 @@ async def test_get_cards_empty(
 @inject
 async def test_get_cards(
     client: AsyncClient,
-    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
-    cards_repo: CardsService = Provide[ioc.IOCContainer.cards_service],
+    session: AsyncSession = Provide[ioc.IOCContainer.session],
 ) -> None:
-    deck = factories.DeckModelFactory.build()
-    await decks_service.create(deck)
-
-    card = factories.CardModelFactory.build(deck_id=deck.id)
-    await cards_repo.create(card)
+    factories.DeckModelFactory.__async_session__ = session
+    factories.CardModelFactory.__async_session__ = session
+    deck = await factories.DeckModelFactory.create_async()
+    card = await factories.CardModelFactory.create_async(deck_id=deck.id)
 
     response = await client.get(f"/api/decks/{card.deck_id}/cards/")
     assert response.status_code == status.HTTP_200_OK
@@ -46,14 +44,12 @@ async def test_get_cards(
 @inject
 async def test_get_card(
     client: AsyncClient,
-    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
-    cards_repo: CardsService = Provide[ioc.IOCContainer.cards_service],
+    session: AsyncSession = Provide[ioc.IOCContainer.session],
 ) -> None:
-    deck = factories.DeckModelFactory.build()
-    await decks_service.create(deck)
-
-    card = factories.CardModelFactory.build(deck_id=deck.id)
-    await cards_repo.create(card)
+    factories.DeckModelFactory.__async_session__ = session
+    factories.CardModelFactory.__async_session__ = session
+    deck = await factories.DeckModelFactory.create_async()
+    card = await factories.CardModelFactory.create_async(deck_id=deck.id)
 
     response = await client.get(f"/api/cards/{card.id}/")
     assert response.status_code == status.HTTP_200_OK
@@ -69,11 +65,10 @@ async def test_get_card_not_exist(client: AsyncClient) -> None:
 @inject
 async def test_create_cards(
     client: AsyncClient,
-    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
+    session: AsyncSession = Provide[ioc.IOCContainer.session],
 ) -> None:
-    # bulk create
-    deck = factories.DeckModelFactory.build()
-    await decks_service.create(deck)
+    factories.DeckModelFactory.__async_session__ = session
+    deck = await factories.DeckModelFactory.create_async()
 
     cards_to_create = [factories.CardCreateSchemaFactory.build(), factories.CardCreateSchemaFactory.build()]
     response = await client.post(
@@ -107,16 +102,12 @@ async def test_create_cards(
 @inject
 async def test_update_cards(
     client: AsyncClient,
-    decks_service: DecksService = Provide[ioc.IOCContainer.decks_service],
-    cards_repo: CardsService = Provide[ioc.IOCContainer.cards_service],
+    session: AsyncSession = Provide[ioc.IOCContainer.session],
 ) -> None:
-    deck = factories.DeckModelFactory.build()
-    await decks_service.create(deck)
-
-    card1 = factories.CardModelFactory.build(deck_id=deck.id)
-    card2 = factories.CardModelFactory.build(deck_id=deck.id)
-    await cards_repo.create(card1)
-    await cards_repo.create(card2)
+    factories.DeckModelFactory.__async_session__ = session
+    factories.CardModelFactory.__async_session__ = session
+    deck = await factories.DeckModelFactory.create_async()
+    card1, card2 = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
 
     updated_data = [
         {

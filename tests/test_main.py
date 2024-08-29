@@ -13,7 +13,7 @@ from app.application import AppBuilder
 async def test_init_resources() -> None:
     try:
         ioc.IOCContainer.reset_override()
-        await ioc.IOCContainer.database_engine()
+        await ioc.IOCContainer.init_resources()
     finally:
         await ioc.IOCContainer.tear_down()
 
