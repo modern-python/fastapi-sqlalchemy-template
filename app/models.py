@@ -1,45 +1,15 @@
-import datetime
-import logging
 import typing
 
 import sqlalchemy as sa
+from advanced_alchemy.base import BigIntAuditBase
 from sqlalchemy import orm
-
-from app.helpers.datetime import generate_utc_dt
-
-
-logger = logging.getLogger(__name__)
 
 
 METADATA: typing.Final = sa.MetaData()
+orm.DeclarativeBase.metadata = METADATA
 
 
-class Base(orm.DeclarativeBase):
-    metadata = METADATA
-
-
-class BaseModel(Base):
-    __abstract__ = True
-
-    id: orm.Mapped[typing.Annotated[int, orm.mapped_column(primary_key=True)]]
-    created_at: orm.Mapped[
-        typing.Annotated[
-            datetime.datetime,
-            orm.mapped_column(sa.DateTime(timezone=True), default=generate_utc_dt, nullable=False),
-        ]
-    ]
-    updated_at: orm.Mapped[
-        typing.Annotated[
-            datetime.datetime,
-            orm.mapped_column(sa.DateTime(timezone=True), default=generate_utc_dt, nullable=False),
-        ]
-    ]
-
-    def __str__(self) -> str:
-        return f"<{type(self).__name__}({self.id=})>"
-
-
-class Deck(BaseModel):
+class Deck(BigIntAuditBase):
     __tablename__ = "decks"
 
     name: orm.Mapped[str] = orm.mapped_column(sa.String, nullable=False)
@@ -47,7 +17,7 @@ class Deck(BaseModel):
     cards: orm.Mapped[list["Card"]] = orm.relationship("Card", lazy="noload", uselist=True)
 
 
-class Card(BaseModel):
+class Card(BigIntAuditBase):
     __tablename__ = "cards"
     __table_args__ = (sa.UniqueConstraint("deck_id", "front", name="card_deck_id_front_uc"),)
 

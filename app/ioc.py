@@ -1,7 +1,7 @@
 from that_depends import BaseContainer, providers
 
+from app import repositories
 from app.db.resource import create_sa_engine, create_session
-from app.repositories.decks import CardsRepository, DecksRepository
 from app.settings import Settings
 
 
@@ -11,5 +11,5 @@ class IOCContainer(BaseContainer):
     database_engine = providers.Resource(create_sa_engine, settings=settings.cast)
     session = providers.ContextResource(create_session, engine=database_engine.cast)
 
-    decks_repo = providers.Factory(DecksRepository, session=session)
-    cards_repo = providers.Factory(CardsRepository, session=session)
+    decks_service = providers.Factory(repositories.DecksService, session=session)
+    cards_service = providers.Factory(repositories.CardsService, session=session)

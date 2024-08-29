@@ -1,11 +1,14 @@
 import typing
 
 import fastapi
+import sqlalchemy
+from advanced_alchemy.exceptions import NotFoundError
+from sqlalchemy import orm
 from starlette import status
 from that_depends.providers import container_context
 
 from app import ioc, models, schemas
-from app.repositories.decks import CardsRepository, DecksRepository
+from app.repositories import CardsService, DecksService
 
 
 async def init_di_context() -> typing.AsyncIterator[None]:
@@ -18,18 +21,21 @@ ROUTER: typing.Final = fastapi.APIRouter(dependencies=[fastapi.Depends(init_di_c
 
 @ROUTER.get("/decks/")
 async def list_decks(
-    decks_repo: DecksRepository = fastapi.Depends(ioc.IOCContainer.decks_repo),
+    decks_service: DecksService = fastapi.Depends(ioc.IOCContainer.decks_service),
 ) -> schemas.Decks:
-    objects = await decks_repo.all()
+    objects = await decks_service.list()
     return typing.cast(schemas.Decks, {"items": objects})
 
 
 @ROUTER.get("/decks/{deck_id}/")
 async def get_deck(
     deck_id: int,
-    decks_repo: DecksRepository = fastapi.Depends(ioc.IOCContainer.decks_repo),
+    decks_service: DecksService = fastapi.Depends(ioc.IOCContainer.decks_service),
 ) -> schemas.Deck:
-    instance = await decks_repo.get_by_id(deck_id, prefetch=("cards",))
+    instance = await decks_service.get_one_or_none(
+        models.Deck.id == deck_id,
+        statement=sqlalchemy.select(models.Deck).options(orm.selectinload(models.Deck.cards)),
+    )
     if not instance:
         raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck is not found")
 
@@ -40,42 +46,40 @@ async def get_deck(
 async def update_deck(
     deck_id: int,
     data: schemas.DeckCreate,
-    decks_repo: DecksRepository = fastapi.Depends(ioc.IOCContainer.decks_repo),
+    decks_service: DecksService = fastapi.Depends(ioc.IOCContainer.decks_service),
 ) -> schemas.Deck:
-    instance = await decks_repo.get_by_id(deck_id)
-    if not instance:
-        raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck is not found")
+    try:
+        instance = await decks_service.update(data=data.model_dump(), item_id=deck_id)
+    except NotFoundError:
+        raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck is not found") from None
 
-    await decks_repo.update_attrs(instance, **data.model_dump())
-    await decks_repo.save(instance)
     return typing.cast(schemas.Deck, instance)
 
 
 @ROUTER.post("/decks/")
 async def create_deck(
     data: schemas.DeckCreate,
-    decks_repo: DecksRepository = fastapi.Depends(ioc.IOCContainer.decks_repo),
+    decks_service: DecksService = fastapi.Depends(ioc.IOCContainer.decks_service),
 ) -> schemas.Deck:
-    instance = models.Deck(**data.model_dump())
-    await decks_repo.save(instance)
+    instance = await decks_service.create(data)
     return typing.cast(schemas.Deck, instance)
 
 
 @ROUTER.get("/decks/{deck_id}/cards/")
 async def list_cards(
     deck_id: int,
-    cards_repo: CardsRepository = fastapi.Depends(ioc.IOCContainer.cards_repo),
+    cards_service: CardsService = fastapi.Depends(ioc.IOCContainer.cards_service),
 ) -> schemas.Cards:
-    objects = await cards_repo.filter({"deck_id": deck_id})
+    objects = await cards_service.list(models.Card.deck_id == deck_id)
     return typing.cast(schemas.Cards, {"items": objects})
 
 
 @ROUTER.get("/cards/{card_id}/")
 async def get_card(
     card_id: int,
-    cards_repo: CardsRepository = fastapi.Depends(ioc.IOCContainer.cards_repo),
+    cards_service: CardsService = fastapi.Depends(ioc.IOCContainer.cards_service),
 ) -> schemas.Card:
-    instance = await cards_repo.get_by_id(card_id)
+    instance = await cards_service.get_one_or_none(models.Card.id == card_id)
     if not instance:
         raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Card is not found")
     return typing.cast(schemas.Card, instance)
@@ -85,10 +89,10 @@ async def get_card(
 async def create_cards(
     deck_id: int,
     data: list[schemas.CardCreate],
-    cards_repo: CardsRepository = fastapi.Depends(ioc.IOCContainer.cards_repo),
+    cards_service: CardsService = fastapi.Depends(ioc.IOCContainer.cards_service),
 ) -> schemas.Cards:
-    objects = await cards_repo.bulk_create(
-        [models.Card(**card.model_dump(), deck_id=deck_id) for card in data],
+    objects = await cards_service.create_many(
+        data=[models.Card(**card.model_dump(), deck_id=deck_id) for card in data],
     )
     return typing.cast(schemas.Cards, {"items": objects})
 
@@ -97,9 +101,9 @@ async def create_cards(
 async def update_cards(
     deck_id: int,
     data: list[schemas.Card],
-    cards_repo: CardsRepository = fastapi.Depends(ioc.IOCContainer.cards_repo),
+    cards_service: CardsService = fastapi.Depends(ioc.IOCContainer.cards_service),
 ) -> schemas.Cards:
-    objects = await cards_repo.bulk_update(
-        [models.Card(**card.model_dump(exclude={"deck_id"}), deck_id=deck_id) for card in data],
+    objects = await cards_service.upsert_many(
+        data=[models.Card(**card.model_dump(exclude={"deck_id"}), deck_id=deck_id) for card in data],
     )
     return typing.cast(schemas.Cards, {"items": objects})
