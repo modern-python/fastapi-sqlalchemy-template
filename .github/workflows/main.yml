@@ -21,11 +21,11 @@ jobs:
         with:
           python-version: "3.12"
       - run: |
-          pip install -U pip poetry
-          poetry install --sync --no-root
-          poetry run ruff format . --check
-          poetry run ruff check . --no-fix
-          poetry run mypy .
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv sync --all-extras --frozen --no-install-project
+          uv run ruff format . --check
+          uv run ruff check . --no-fix
+          uv run mypy .
 
   pytest:
     runs-on: ubuntu-latest
@@ -50,10 +50,10 @@ jobs:
         with:
           python-version: "3.12"
       - run: |
-          pip install -U pip poetry
-          poetry install --sync --no-root
-          poetry run alembic upgrade head
-          poetry run pytest
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv sync --all-extras --frozen --no-install-project
+          uv run alembic upgrade head
+          uv run pytest
         env:
           ENVIRONMENT: dev
           PYTHONDONTWRITEBYTECODE: 1

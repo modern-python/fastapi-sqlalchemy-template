@@ -8,6 +8,7 @@ services:
     restart: always
     volumes:
       - .:/code
+      - /code/.venv
     ports:
       - "8000:8000"
     depends_on:
@@ -17,7 +18,7 @@ services:
       - DEBUG=true
       - DB_ECHO=true
     command:
-      ["python", "-m", "app"]
+      ["uv", "run", "python", "-m", "app"]
 
   db:
     image: postgres:14

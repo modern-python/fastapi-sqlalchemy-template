@@ -1,33 +1,40 @@
-[tool.poetry]
+[project]
 name = "fast-api-sqlalchemy-template"
 version = "0"
 description = "Async template on FastAPI and SQLAlchemy 2"
-authors = ["Artur Shiriev <me@shiriev.ru>"]
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { email = "me@shiriev.ru" },
+    { name = "Artur Shiriev"}
+]
 license = "MIT License"
+dependencies = [
+    "fastapi>=0.76",
+    "advanced-alchemy",
+    "pydantic-settings",
+    "granian",
+    "that-depends",
+    # database
+    "alembic",
+    "psycopg2",
+    "sqlalchemy",
+    "asyncpg",
+]
 
-
-[tool.poetry.dependencies]
-python = "3.12.*"
-fastapi = ">=0.76"
-advanced-alchemy = "*"
-pydantic-settings = "*"
-granian = "*"
-that-depends = "*"
-# database
-alembic = "*"
-psycopg2 = "*"
-sqlalchemy = "*"
-asyncpg = "*"
-
-[tool.poetry.group.dev.dependencies]
-polyfactory = "*"
-httpx = "*"
-pytest = "*"
-pytest-cov = "*"
-pytest-asyncio = "*"
-ruff = "*"
-mypy = "*"
-asyncpg-stubs = "*"
+[project.optional-dependencies]
+test = [
+    "polyfactory",
+    "httpx",
+    "pytest",
+    "pytest-cov",
+    "pytest-asyncio",
+]
+lint = [
+    "ruff",
+    "mypy",
+    "asyncpg-stubs",
+]
 
 [tool.ruff]
 fix = true
