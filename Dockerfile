@@ -1,4 +1,3 @@
-ARG ENVIRONMENT="prod"
 FROM python:3.12-slim
 
 # required for psycopg2
@@ -9,17 +8,18 @@ RUN apt update \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir --upgrade pip poetry
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 RUN useradd --no-create-home --gid root runner
 
-ENV POETRY_VIRTUALENVS_CREATE=false
+ENV UV_PYTHON_PREFERENCE=only-system
+ENV UV_NO_CACHE=true
 
 WORKDIR /code
 
 COPY pyproject.toml .
-COPY poetry.lock .
+COPY uv.lock .
 
-RUN [ "$ENVIRONMENT" = "prod" ] && poetry install --no-dev || poetry install
+RUN uv sync --all-extras --frozen --no-install-project
 
 COPY . .
 

@@ -15,13 +15,13 @@ tasks:
     desc: "run pytest (pass args after '--')"
     cmds:
       - task: down
-      - docker compose run application sh -c "sleep 1 && alembic downgrade base && alembic upgrade head && pytest {{.CLI_ARGS}}"
+      - docker compose run application sh -c "sleep 1 && uv run alembic downgrade base && uv run alembic upgrade head && uv run pytest {{.CLI_ARGS}}"
       - task: down
 
   migration:
     desc: "create alembic migration (pass args after '--')"
     cmds:
-      - docker compose run application sh -c "sleep 1 && alembic upgrade head && alembic revision --autogenerate {{.CLI_ARGS}}"
+      - docker compose run application sh -c "sleep 1 && uv run alembic upgrade head && uv run alembic revision --autogenerate {{.CLI_ARGS}}"
       - task: down
 
   build:
@@ -29,14 +29,19 @@ tasks:
     cmds:
       - docker compose build application
 
+  lock:
+    desc: lock with update
+    cmds:
+      - uv lock --upgrade
+
   install:
     desc: "install local dependencies"
     cmds:
-      - poetry install --sync --no-root
+      - uv sync --all-extras --no-install-project --frozen
 
   lint:
     desc: "run linters"
     cmds:
-      - poetry run ruff format .
-      - poetry run ruff check . --fix
-      - poetry run mypy .
+      - uv run ruff format .
+      - uv run ruff check . --fix
+      - uv run mypy .
