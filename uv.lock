@@ -181,18 +181,16 @@ dependencies = [
     { name = "that-depends" },
 ]
 
-[package.optional-dependencies]
-lint = [
+[package.dev-dependencies]
+dev = [
     { name = "asyncpg-stubs" },
-    { name = "mypy" },
-    { name = "ruff" },
-]
-test = [
     { name = "httpx" },
+    { name = "mypy" },
     { name = "polyfactory" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -200,20 +198,24 @@ requires-dist = [
     { name = "advanced-alchemy" },
     { name = "alembic" },
     { name = "asyncpg" },
-    { name = "asyncpg-stubs", marker = "extra == 'lint'" },
     { name = "fastapi", specifier = ">=0.76" },
     { name = "granian" },
-    { name = "httpx", marker = "extra == 'test'" },
-    { name = "mypy", marker = "extra == 'lint'" },
-    { name = "polyfactory", marker = "extra == 'test'" },
     { name = "psycopg2" },
     { name = "pydantic-settings" },
-    { name = "pytest", marker = "extra == 'test'" },
-    { name = "pytest-asyncio", marker = "extra == 'test'" },
-    { name = "pytest-cov", marker = "extra == 'test'" },
-    { name = "ruff", marker = "extra == 'lint'" },
     { name = "sqlalchemy" },
     { name = "that-depends" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "asyncpg-stubs" },
+    { name = "httpx" },
+    { name = "mypy" },
+    { name = "polyfactory" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
 ]
 
 [[package]]
