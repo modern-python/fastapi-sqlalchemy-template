@@ -29,14 +29,10 @@ tasks:
     cmds:
       - docker compose build application
 
-  lock:
-    desc: lock with update
-    cmds:
-      - uv lock --upgrade
-
   install:
     desc: "install local dependencies"
     cmds:
+      - uv lock --upgrade
       - uv sync --all-extras --no-install-project --frozen
 
   lint:

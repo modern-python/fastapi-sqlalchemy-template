@@ -23,7 +23,7 @@ class AppBuilder:
         include_routers(self.app)
         self.app.add_exception_handler(
             ForeignKeyError,
-            exceptions.database_validation_exception_handler,  # type: ignore[arg-type]
+            exceptions.foreign_key_error_handler,  # type: ignore[arg-type]
         )
 
     @contextlib.asynccontextmanager

@@ -96,7 +96,7 @@ async def test_create_cards(
     )
     data = response.json()
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-    assert data["detail"][0]["msg"] == "A foreign key is missing or invalid"
+    assert data["detail"] == "A foreign key is missing or invalid"
 
 
 @inject

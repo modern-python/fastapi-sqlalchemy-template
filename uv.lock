@@ -616,23 +616,23 @@ wheels = [
 
 [[package]]
 name = "starlette"
-version = "0.38.2"
+version = "0.38.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/43/e2/d49a94ecb665b3a1c34b40c78165a737abc384fcabc843ccb14a3bd3dc37/starlette-0.38.2.tar.gz", hash = "sha256:c7c0441065252160993a1a37cf2a73bb64d271b17303e0b0c1eb7191cfb12d75", size = 2844770 }
+sdist = { url = "https://files.pythonhosted.org/packages/7f/27/ea66b32f01d9f07bbb8cc545ae670fe1d4dce91c951132d0d968ed49d60a/starlette-0.38.3.tar.gz", hash = "sha256:f674450f0f46a790be1f3a128f386080600b58fa358f8e320d93dbef6d7f676c", size = 2845452 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c1/60/d976da9998e4f4a99e297cda09d61ce305919ea94cbeeb476dba4fece098/starlette-0.38.2-py3-none-any.whl", hash = "sha256:4ec6a59df6bbafdab5f567754481657f7ed90dc9d69b0c9ff017907dd54faeff", size = 72020 },
+    { url = "https://files.pythonhosted.org/packages/bc/c9/add3daf4ac49d1406db0901f47b5b743a1caa740d05c861790b6814f05c4/starlette-0.38.3-py3-none-any.whl", hash = "sha256:0e4af343a4e59324b96fbe0f3c6ad8c3a908d73f12f5c80a797803a6c3ad4687", size = 72130 },
 ]
 
 [[package]]
 name = "that-depends"
-version = "1.17.0"
+version = "1.17.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/67/38/ac04ca7474ae0e4267e26f28bf133ad01e68fb534efdd749a48baafef1a2/that_depends-1.17.0.tar.gz", hash = "sha256:5cf2bf468a27c6fdab36754ddb1d56337ba4b3a0316c07ddde092eee86813ba2", size = 10042 }
+sdist = { url = "https://files.pythonhosted.org/packages/69/19/3f5b05c3fbff32211767b860fffcf8fcf8f96165b517c1f3f7bee8dc01d5/that_depends-1.17.1.tar.gz", hash = "sha256:9a8d7ab9b9582234c7efde97251f701a614219210c5e694dbfa30e131b9ec163", size = 52720 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b6/6b/9d95db5f92acaee42e6619d9871fe5b1cdf9f1f0f76ddd1bda3ba75d3005/that_depends-1.17.0-py3-none-any.whl", hash = "sha256:df92e40edddd03259fd165af7f836e129bfe202d602fd67f923253a24ca0c8f4", size = 13474 },
+    { url = "https://files.pythonhosted.org/packages/1b/47/3ff64be7057c967ce0431ec7a62ec4eda8f8f74bf78b20a5c14ac2555cf0/that_depends-1.17.1-py3-none-any.whl", hash = "sha256:6b1f948b2dfe0037205b89045c884d938e2d331e421fbea5f2bee404371e60a7", size = 13594 },
 ]
 
 [[package]]
