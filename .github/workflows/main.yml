@@ -53,9 +53,17 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           uv sync --all-extras --frozen --no-install-project
           uv run alembic upgrade head
-          uv run pytest
+          uv run pytest . --cov=. --cov-report xml
         env:
           ENVIRONMENT: dev
           PYTHONDONTWRITEBYTECODE: 1
           PYTHONUNBUFFERED: 1
           DB_HOST: 127.0.0.1
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-${{ matrix.python-version }}
