@@ -1,4 +1,4 @@
-default: install lint build tests
+default: install lint build test
 
 # down all app containers
 down:
@@ -9,7 +9,7 @@ sh:
     docker compose run --service-ports application bash
 
 # run pytest with arguments
-tests *args: down && down
+test *args: down && down
     docker compose run application sh -c "sleep 1 && uv run alembic downgrade base && uv run alembic upgrade head && uv run pytest {{ args }}"
 
 # create alembic migration with arguments
