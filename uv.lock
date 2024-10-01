@@ -155,14 +155,15 @@ wheels = [
 
 [[package]]
 name = "faker"
-version = "30.0.0"
+version = "30.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "python-dateutil" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5a/0c/f9d44e8db51c2c448a22e2d2068b69f0890247d918ffc8f2f1b51898e2c0/faker-30.0.0.tar.gz", hash = "sha256:bf0207af5777950054a2a3b43f4b5bdc33b585918d2b28f1dab52ac0ffe2bac0", size = 1795010 }
+sdist = { url = "https://files.pythonhosted.org/packages/78/f4/a6fe96b1bc0a8b864ddcd087e7909d8c6ccb74a1247baadbf5c7094a9067/faker-30.1.0.tar.gz", hash = "sha256:e0593931bd7be9a9ea984b5d8c302ef1cec19392585d1e90d444199271d0a94d", size = 1796615 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/73/72/7a16a45bacca81062186c0ded439e23f23475005a88f64d90be2a6c7b2ed/Faker-30.0.0-py3-none-any.whl", hash = "sha256:f0a60009150736c1c033bea31aa19ae63071c9dcf10adfaf9f1a87a3add84bc8", size = 1835073 },
+    { url = "https://files.pythonhosted.org/packages/61/49/34f3615d1f4770f70cda4df1ce09d1203cf66b62baabac307c28887c69af/Faker-30.1.0-py3-none-any.whl", hash = "sha256:dbf81295c948270a9e96cd48a9a3ebec73acac9a153d0c854fbbd0294557609f", size = 1836618 },
 ]
 
 [[package]]
@@ -302,15 +303,15 @@ wheels = [
 
 [[package]]
 name = "httpcore"
-version = "1.0.5"
+version = "1.0.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
     { name = "h11" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/17/b0/5e8b8674f8d203335a62fdfcfa0d11ebe09e23613c3391033cbba35f7926/httpcore-1.0.5.tar.gz", hash = "sha256:34a38e2f9291467ee3b44e89dd52615370e152954ba21721378a87b2960f7a61", size = 83234 }
+sdist = { url = "https://files.pythonhosted.org/packages/b6/44/ed0fa6a17845fb033bd885c03e842f08c1b9406c86a2e60ac1ae1b9206a6/httpcore-1.0.6.tar.gz", hash = "sha256:73f6dbd6eb8c21bbf7ef8efad555481853f5f6acdeaff1edb0694289269ee17f", size = 85180 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/d4/e5d7e4f2174f8a4d63c8897d79eb8fe2503f7ecc03282fee1fa2719c2704/httpcore-1.0.5-py3-none-any.whl", hash = "sha256:421f18bac248b25d310f3cacd198d55b8e6125c107797b609ff9b7a6ba7991b5", size = 77926 },
+    { url = "https://files.pythonhosted.org/packages/06/89/b161908e2f51be56568184aeb4a880fd287178d176fd1c860d2217f41106/httpcore-1.0.6-py3-none-any.whl", hash = "sha256:27b59625743b85577a8c0e10e55b50b5368a4f2cfe8cc7bcfa9cf00829c2682f", size = 78011 },
 ]
 
 [[package]]
@@ -646,11 +647,11 @@ wheels = [
 
 [[package]]
 name = "that-depends"
-version = "1.19.6"
+version = "1.20.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6f/66/0baff8e70300bd50b882a747bcdc301a61524611928e57fef5d089846454/that_depends-1.19.6.tar.gz", hash = "sha256:d93f08aefd87bd57deb12d9b25c7aab35c7d00c7e58c529ce0ba635e2c1f27a8", size = 22527 }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/dd/204440f245ddef9cd40405d98412161dee87ab1af5563f00768484ae86f6/that_depends-1.20.0.tar.gz", hash = "sha256:68c1e5db1d85e0b2b6608214bd895a2c240d0bd3eed570ba7c70de47fcda84e8", size = 23429 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d4/93/de7b9474ce988e8d6293a2078ac3b77c42d05f8d5b9b28f77340e7fdc5e6/that_depends-1.19.6-py3-none-any.whl", hash = "sha256:c305df115659deba41018da56dc13cd699e35ca10312a61d8982316caba2588d", size = 14622 },
+    { url = "https://files.pythonhosted.org/packages/e1/22/880de34c998f3efbbc1114bbc14f55c95cad2ed96af2d9f626544c59e7b7/that_depends-1.20.0-py3-none-any.whl", hash = "sha256:e4d88f00b5625be160b400a56c84239caab2f639d1b5a1a21ea098ff887e66e5", size = 14986 },
 ]
 
 [[package]]
