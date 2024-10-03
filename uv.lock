@@ -647,11 +647,11 @@ wheels = [
 
 [[package]]
 name = "that-depends"
-version = "1.20.0"
+version = "1.21.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f6/dd/204440f245ddef9cd40405d98412161dee87ab1af5563f00768484ae86f6/that_depends-1.20.0.tar.gz", hash = "sha256:68c1e5db1d85e0b2b6608214bd895a2c240d0bd3eed570ba7c70de47fcda84e8", size = 23429 }
+sdist = { url = "https://files.pythonhosted.org/packages/d3/0c/2800d604822d46131f2a01b6047ac08838153b78a6adf16254a377e822b0/that_depends-1.21.0.tar.gz", hash = "sha256:bb34e064a145e149293501e4f07095262f77809c488c0d308da0ce27519a51b5", size = 23722 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e1/22/880de34c998f3efbbc1114bbc14f55c95cad2ed96af2d9f626544c59e7b7/that_depends-1.20.0-py3-none-any.whl", hash = "sha256:e4d88f00b5625be160b400a56c84239caab2f639d1b5a1a21ea098ff887e66e5", size = 14986 },
+    { url = "https://files.pythonhosted.org/packages/5d/67/b5f3fe534c415f53bdb72ff549f4278915e954b2094a0d2b47bef4af5d52/that_depends-1.21.0-py3-none-any.whl", hash = "sha256:d4527e1963facd52e4eced7fdc7facd99ee3ca8e7f9058fb011addd395c96436", size = 14569 },
 ]
 
 [[package]]
