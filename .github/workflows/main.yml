@@ -17,11 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install 3.12
       - run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
           uv sync --all-extras --frozen --no-install-project
           uv run ruff format . --check
           uv run ruff check . --no-fix
@@ -46,11 +44,9 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install 3.13
       - run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
           uv sync --all-extras --frozen --no-install-project
           uv run alembic upgrade head
           uv run pytest . --cov=. --cov-report xml

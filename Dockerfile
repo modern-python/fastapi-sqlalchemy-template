@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 # required for psycopg2
 RUN apt update \
@@ -19,7 +19,7 @@ WORKDIR /code
 COPY pyproject.toml .
 COPY uv.lock .
 
-RUN uv sync --frozen --no-install-project
+RUN uv sync --all-extras --frozen --no-install-project
 
 COPY . .
 
