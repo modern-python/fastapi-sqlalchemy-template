@@ -1,5 +1,7 @@
 import typing
 
+import modern_di
+import modern_di_fastapi
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,26 +15,27 @@ async def client() -> typing.AsyncIterator[AsyncClient]:
     async with AsyncClient(
         transport=ASGITransport(app=application),
         base_url="http://test",
-        timeout=0,
     ) as client:
         yield client
 
 
 @pytest.fixture(autouse=True)
-async def _prepare_ioc_container() -> typing.AsyncIterator[None]:
-    engine = await ioc.IOCContainer.database_engine()
-    connection = await engine.connect()
-    transaction = await connection.begin()
-    await connection.begin_nested()
-    session = AsyncSession(connection, expire_on_commit=False, autoflush=False)
-    ioc.IOCContainer.session.override(session)
+async def di_container() -> modern_di.Container:
+    return modern_di_fastapi.fetch_di_container(application)
 
-    try:
-        yield
-    finally:
-        if connection.in_transaction():
-            await transaction.rollback()
-        await connection.close()
 
-        ioc.IOCContainer.reset_override()
-        await ioc.IOCContainer.tear_down()
+@pytest.fixture(autouse=True)
+async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[AsyncSession]:
+    async with di_container:
+        engine = await ioc.IOCContainer.database_engine.async_resolve(di_container)
+        connection = await engine.connect()
+        transaction = await connection.begin()
+        await connection.begin_nested()
+        ioc.IOCContainer.database_engine.override(connection, di_container)
+
+        try:
+            yield AsyncSession(connection, expire_on_commit=False, autoflush=False)
+        finally:
+            if connection.in_transaction():
+                await transaction.rollback()
+            await connection.close()

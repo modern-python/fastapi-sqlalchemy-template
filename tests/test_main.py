@@ -2,20 +2,12 @@ import runpy
 from unittest import mock
 
 import fastapi
+import modern_di
 import pytest
-from that_depends.providers import container_context
 
 from app import __main__ as api_main
 from app import ioc
 from app.application import AppBuilder
-
-
-async def test_init_resources() -> None:
-    try:
-        ioc.IOCContainer.reset_override()
-        await ioc.IOCContainer.init_resources()
-    finally:
-        await ioc.IOCContainer.tear_down()
 
 
 def test_main(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -24,6 +16,13 @@ def test_main(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 async def test_app_lifespan() -> None:
-    ioc.IOCContainer.reset_override()
-    async with AppBuilder().lifespan_manager(fastapi.FastAPI()), container_context():
-        await ioc.IOCContainer.session()
+    async with AppBuilder().lifespan_manager(fastapi.FastAPI()):
+        pass
+
+
+async def test_session() -> None:
+    async with (
+        modern_di.Container(scope=modern_di.Scope.APP) as container,
+        container.build_child_container() as request_container,
+    ):
+        await ioc.IOCContainer.session.async_resolve(request_container)

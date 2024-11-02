@@ -3,12 +3,11 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import URL, create_engine
 
-from app import ioc
 from app.models import METADATA
+from app.settings import settings
 
 
 def get_dsn() -> URL:
-    settings = ioc.IOCContainer.settings.sync_resolve()
     db_dsn = settings.db_dsn
     return db_dsn.set(drivername="postgresql")
 

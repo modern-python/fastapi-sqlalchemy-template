@@ -1,15 +1,12 @@
-from that_depends import BaseContainer, providers
+from modern_di import BaseGraph, Scope, providers
 
 from app import repositories
 from app.resources.db import create_sa_engine, create_session
-from app.settings import Settings
 
 
-class IOCContainer(BaseContainer):
-    settings = providers.Singleton(Settings)
+class IOCContainer(BaseGraph):
+    database_engine = providers.Resource(Scope.APP, create_sa_engine)
+    session = providers.Resource(Scope.REQUEST, create_session, engine=database_engine.cast)
 
-    database_engine = providers.Resource(create_sa_engine, settings=settings.cast)
-    session = providers.ContextResource(create_session, engine=database_engine.cast)
-
-    decks_service = providers.Factory(repositories.DecksService, session=session)
-    cards_service = providers.Factory(repositories.CardsService, session=session)
+    decks_service = providers.Factory(Scope.REQUEST, repositories.DecksService, session=session.cast)
+    cards_service = providers.Factory(Scope.REQUEST, repositories.CardsService, session=session.cast)
