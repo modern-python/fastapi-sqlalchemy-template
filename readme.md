@@ -10,7 +10,7 @@ Production-ready dockerized async REST API on FastAPI with SQLAlchemy and Postgr
 
 ## Key Features
 - tests on `pytest` with automatic rollback after each test case
-- IOC (Inversion of Control) container built on [that-depends](https://github.com/modern-python/that-depends/) - my DI framework
+- IOC (Inversion of Control) container built on [modern-di](https://github.com/modern-python/modern-di/) - my DI framework
 - Linting and formatting using `ruff` and `mypy`
 - `Alembic` for DB migrations
 
