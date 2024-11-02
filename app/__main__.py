@@ -1,11 +1,10 @@
 import granian
 from granian.constants import Interfaces, Loops
 
-from app import ioc
+from app.settings import settings
 
 
 if __name__ == "__main__":
-    settings = ioc.IOCContainer.settings.sync_resolve()
     granian.Granian(
         target="app.application:application",
         address="0.0.0.0",  # noqa: S104

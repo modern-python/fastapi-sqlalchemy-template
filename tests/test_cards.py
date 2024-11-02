@@ -1,18 +1,12 @@
 from fastapi import status
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-from that_depends import Provide, inject
 
-from app import ioc
 from tests import factories
 
 
-@inject
-async def test_get_cards_empty(
-    client: AsyncClient,
-    session: AsyncSession = Provide[ioc.IOCContainer.session],
-) -> None:
-    factories.DeckModelFactory.__async_session__ = session
+async def test_get_cards_empty(client: AsyncClient, db_session: AsyncSession) -> None:
+    factories.DeckModelFactory.__async_session__ = db_session
     deck = await factories.DeckModelFactory.create_async()
 
     response = await client.get(f"/api/decks/{deck.id}/cards/")
@@ -23,13 +17,9 @@ async def test_get_cards_empty(
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-@inject
-async def test_get_cards(
-    client: AsyncClient,
-    session: AsyncSession = Provide[ioc.IOCContainer.session],
-) -> None:
-    factories.DeckModelFactory.__async_session__ = session
-    factories.CardModelFactory.__async_session__ = session
+async def test_get_cards(client: AsyncClient, db_session: AsyncSession) -> None:
+    factories.DeckModelFactory.__async_session__ = db_session
+    factories.CardModelFactory.__async_session__ = db_session
     deck = await factories.DeckModelFactory.create_async()
     card = await factories.CardModelFactory.create_async(deck_id=deck.id)
 
@@ -41,13 +31,9 @@ async def test_get_cards(
         assert v == getattr(card, k)
 
 
-@inject
-async def test_get_card(
-    client: AsyncClient,
-    session: AsyncSession = Provide[ioc.IOCContainer.session],
-) -> None:
-    factories.DeckModelFactory.__async_session__ = session
-    factories.CardModelFactory.__async_session__ = session
+async def test_get_card(client: AsyncClient, db_session: AsyncSession) -> None:
+    factories.DeckModelFactory.__async_session__ = db_session
+    factories.CardModelFactory.__async_session__ = db_session
     deck = await factories.DeckModelFactory.create_async()
     card = await factories.CardModelFactory.create_async(deck_id=deck.id)
 
@@ -62,12 +48,8 @@ async def test_get_card_not_exist(client: AsyncClient) -> None:
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-@inject
-async def test_create_cards(
-    client: AsyncClient,
-    session: AsyncSession = Provide[ioc.IOCContainer.session],
-) -> None:
-    factories.DeckModelFactory.__async_session__ = session
+async def test_create_cards(client: AsyncClient, db_session: AsyncSession) -> None:
+    factories.DeckModelFactory.__async_session__ = db_session
     deck = await factories.DeckModelFactory.create_async()
 
     cards_to_create = [factories.CardCreateSchemaFactory.build(), factories.CardCreateSchemaFactory.build()]
@@ -96,16 +78,12 @@ async def test_create_cards(
     )
     data = response.json()
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-    assert data["detail"] == "A foreign key is missing or invalid"
+    assert data["detail"] == "A record matching the supplied data already exists."
 
 
-@inject
-async def test_update_cards(
-    client: AsyncClient,
-    session: AsyncSession = Provide[ioc.IOCContainer.session],
-) -> None:
-    factories.DeckModelFactory.__async_session__ = session
-    factories.CardModelFactory.__async_session__ = session
+async def test_update_cards(client: AsyncClient, db_session: AsyncSession) -> None:
+    factories.DeckModelFactory.__async_session__ = db_session
+    factories.CardModelFactory.__async_session__ = db_session
     deck = await factories.DeckModelFactory.create_async()
     card1, card2 = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
 
