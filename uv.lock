@@ -409,15 +409,15 @@ wheels = [
 
 [[package]]
 name = "modern-di-fastapi"
-version = "0.2.0"
+version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastapi" },
     { name = "modern-di" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8c/1d/a67770189406a2713b67ee20de7b3be983c99c51c677d0f285463dabdabc/modern_di_fastapi-0.2.0.tar.gz", hash = "sha256:1711d1fe7e03e60150a94324ca085da38a5764ea43faa31e4d547decb5151930", size = 2982 }
+sdist = { url = "https://files.pythonhosted.org/packages/49/aa/fd591203f0831ab497990d13bc79945546c63f940564f115b80260daa6de/modern_di_fastapi-0.3.0.tar.gz", hash = "sha256:aa7c2da66e1786cb8f230e2ffaf56e3c9d4cdbfdb10eb3ef299558bd38e891d1", size = 2913 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/b4/816dd022f0d50528fb7cf602d7dc97f22aa90a1decbab53b7f4a7b2f1aef/modern_di_fastapi-0.2.0-py3-none-any.whl", hash = "sha256:623aa6396980302ef97026c25954036e37d303c198c591b8687a49acbb4ae6d9", size = 2353 },
+    { url = "https://files.pythonhosted.org/packages/1c/66/7fa3372b2915ef16e1ee695d6e8e1349d49793c7b1a27f887fba3ef0da46/modern_di_fastapi-0.3.0-py3-none-any.whl", hash = "sha256:710b377e739fde1d8940915e6eef6d9fd753fc285dcb04f6e05c89d2be71c756", size = 2321 },
 ]
 
 [[package]]

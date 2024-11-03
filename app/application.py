@@ -2,7 +2,6 @@ import contextlib
 import typing
 
 import fastapi
-import modern_di
 import modern_di_fastapi
 from advanced_alchemy.exceptions import DuplicateKeyError, ForeignKeyError
 
@@ -21,10 +20,8 @@ class AppBuilder:
             title=settings.service_name,
             debug=settings.debug,
             lifespan=self.lifespan_manager,
-            dependencies=[fastapi.Depends(modern_di_fastapi.enter_di_request_scope)],
         )
-        self.di_container = modern_di.Container(scope=modern_di.Scope.APP)
-        modern_di_fastapi.save_di_container(self.app, self.di_container)
+        self.di_container = modern_di_fastapi.setup_di(self.app)
         include_routers(self.app)
         self.app.add_exception_handler(
             ForeignKeyError,
