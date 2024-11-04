@@ -23,6 +23,6 @@ async def test_app_lifespan() -> None:
 async def test_session() -> None:
     async with (
         modern_di.Container(scope=modern_di.Scope.APP) as container,
-        container.build_child_container() as request_container,
+        container.build_child_container(scope=modern_di.Scope.REQUEST) as request_container,
     ):
         await ioc.IOCContainer.session.async_resolve(request_container)
