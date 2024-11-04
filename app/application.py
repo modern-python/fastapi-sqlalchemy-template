@@ -2,7 +2,7 @@ import contextlib
 import typing
 
 import fastapi
-from advanced_alchemy.exceptions import ForeignKeyError
+from advanced_alchemy.exceptions import DuplicateKeyError
 
 from app import exceptions, ioc
 from app.api.decks import ROUTER
@@ -22,8 +22,8 @@ class AppBuilder:
         )
         include_routers(self.app)
         self.app.add_exception_handler(
-            ForeignKeyError,
-            exceptions.foreign_key_error_handler,  # type: ignore[arg-type]
+            DuplicateKeyError,
+            exceptions.duplicate_key_error_handler,  # type: ignore[arg-type]
         )
 
     @contextlib.asynccontextmanager
