@@ -25,4 +25,4 @@ async def test_session() -> None:
         modern_di.Container(scope=modern_di.Scope.APP) as container,
         container.build_child_container(scope=modern_di.Scope.REQUEST) as request_container,
     ):
-        await ioc.IOCContainer.session.async_resolve(request_container)
+        await ioc.Dependencies.session.async_resolve(request_container)

@@ -1,5 +1,5 @@
 [project]
-name = "fast-api-sqlalchemy-template"
+name = "fastapi-sqlalchemy-template"
 version = "0"
 description = "Async template on FastAPI and SQLAlchemy 2"
 readme = "README.md"

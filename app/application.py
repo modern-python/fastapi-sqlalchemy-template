@@ -35,7 +35,7 @@ class AppBuilder:
     @contextlib.asynccontextmanager
     async def lifespan_manager(self, _: fastapi.FastAPI) -> typing.AsyncIterator[dict[str, typing.Any]]:
         async with self.di_container:
-            await ioc.IOCContainer.async_resolve_creators(self.di_container)
+            await ioc.Dependencies.async_resolve_creators(self.di_container)
             yield {}
 
 

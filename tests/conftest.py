@@ -27,11 +27,11 @@ async def di_container() -> modern_di.Container:
 @pytest.fixture(autouse=True)
 async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[AsyncSession]:
     async with di_container:
-        engine = await ioc.IOCContainer.database_engine.async_resolve(di_container)
+        engine = await ioc.Dependencies.database_engine.async_resolve(di_container)
         connection = await engine.connect()
         transaction = await connection.begin()
         await connection.begin_nested()
-        ioc.IOCContainer.database_engine.override(connection, di_container)
+        ioc.Dependencies.database_engine.override(connection, di_container)
 
         try:
             yield AsyncSession(connection, expire_on_commit=False, autoflush=False)
