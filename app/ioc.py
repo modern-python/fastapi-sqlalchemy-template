@@ -8,5 +8,5 @@ class Dependencies(BaseGraph):
     database_engine = providers.Resource(Scope.APP, create_sa_engine)
     session = providers.Resource(Scope.REQUEST, create_session, engine=database_engine.cast)
 
-    decks_service = providers.Factory(Scope.REQUEST, repositories.DecksService, session=session.cast)
-    cards_service = providers.Factory(Scope.REQUEST, repositories.CardsService, session=session.cast)
+    decks_service = providers.Factory(Scope.REQUEST, repositories.DecksService, session=session.cast, auto_commit=True)
+    cards_service = providers.Factory(Scope.REQUEST, repositories.CardsService, session=session.cast, auto_commit=True)

@@ -12,6 +12,10 @@ sh:
 test *args: down && down
     docker compose run application sh -c "sleep 1 && uv run alembic downgrade base && uv run alembic upgrade head && uv run pytest {{ args }}"
 
+# run api
+run:
+    docker compose run --service-ports application sh -c "sleep 1 && uv run alembic upgrade head && uv run python -m app"
+
 # create alembic migration with arguments
 migration *args: && down
     docker compose run application sh -c "sleep 1 && uv run alembic upgrade head && uv run alembic revision --autogenerate {{ args }}"

@@ -1,6 +1,5 @@
 import typing
 
-import modern_di
 import modern_di_fastapi
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -20,13 +19,8 @@ async def client() -> typing.AsyncIterator[AsyncClient]:
 
 
 @pytest.fixture(autouse=True)
-async def di_container() -> modern_di.Container:
-    return modern_di_fastapi.fetch_di_container(application)
-
-
-@pytest.fixture(autouse=True)
-async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[AsyncSession]:
-    async with di_container:
+async def db_session() -> typing.AsyncIterator[AsyncSession]:
+    async with modern_di_fastapi.fetch_di_container(application) as di_container:
         engine = await ioc.Dependencies.database_engine.async_resolve(di_container)
         connection = await engine.connect()
         transaction = await connection.begin()
@@ -39,3 +33,4 @@ async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[
             if connection.in_transaction():
                 await transaction.rollback()
             await connection.close()
+            await engine.dispose()
