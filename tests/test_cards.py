@@ -13,7 +13,7 @@ async def test_get_cards_empty(client: AsyncClient, db_session: AsyncSession) ->
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["items"]) == 0
 
-    response = await client.get(f"/api/decks/{deck.id}/cards/0/")
+    response = await client.get("/api/cards/0/")
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
