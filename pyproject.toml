@@ -11,7 +11,7 @@ authors = [
 license = "MIT License"
 dependencies = [
     "fastapi>=0.76",
-    "advanced-alchemy==0.22.1",
+    "advanced-alchemy",
     "pydantic-settings",
     "granian",
     "modern-di-fastapi",
