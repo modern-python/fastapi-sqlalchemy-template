@@ -408,11 +408,11 @@ wheels = [
 
 [[package]]
 name = "modern-di"
-version = "0.7.2"
+version = "0.8.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/5b/be/90c623c1e3cd6ef479088c6701856a01e325400c2e85096b556599772c9d/modern_di-0.7.2.tar.gz", hash = "sha256:215997df86aa1c57b73e7fb029386086f4cd3381af26a92c3e094fd0c463c790", size = 6336 }
+sdist = { url = "https://files.pythonhosted.org/packages/8b/11/a26e76f29afe5fe6d70ab55766cb406a8bcc84eae4e851ad7d5bbb1f07cb/modern_di-0.8.0.tar.gz", hash = "sha256:29026d949d80f9f6903bcf9181ce24a36369426a374084561e112a6aba5d8360", size = 6504 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/82/98/26bc0384fcb16d240dd287f662d65eed0606d2985a826c0a8f1e424f71cd/modern_di-0.7.2-py3-none-any.whl", hash = "sha256:5abd54adad1241d951f7bd705b0e9989f64ce156386f01791a3ac0d6573040d8", size = 12617 },
+    { url = "https://files.pythonhosted.org/packages/20/75/f0affe281afc964b42036af8ea5acacfec53a9af2af574998e9c0c3b2813/modern_di-0.8.0-py3-none-any.whl", hash = "sha256:258e36c5fc058a0167dbef43ca8795b4d3cdd5e89446081c7da8799cc3db7ecb", size = 12792 },
 ]
 
 [[package]]
