@@ -55,7 +55,7 @@ async def create_deck(
     data: schemas.DeckCreate,
     decks_service: DecksService = FromDI(ioc.Dependencies.decks_service),
 ) -> schemas.Deck:
-    instance = await decks_service.create(data)
+    instance = await decks_service.create(data.model_dump())
     return typing.cast(schemas.Deck, instance)
 
 
