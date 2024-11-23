@@ -3,7 +3,7 @@ name = "fastapi-sqlalchemy-template"
 version = "0"
 description = "Async template on FastAPI and SQLAlchemy 2"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 authors = [
     { email = "me@shiriev.ru" },
     { name = "Artur Shiriev"}
@@ -18,7 +18,7 @@ dependencies = [
     # database
     "alembic",
     "psycopg2",
-    "sqlalchemy",
+    "sqlalchemy[asyncio]",
     "asyncpg",
 ]
 
@@ -38,7 +38,7 @@ dev = [
 fix = true
 unsafe-fixes = true
 line-length = 120
-target-version = "py312"
+target-version = "py313"
 extend-exclude = ["bin"]
 
 [tool.ruff.lint]
@@ -46,8 +46,6 @@ select = ["ALL"]
 ignore = [
     "D1", # allow missing docstrings
     "FBT", # allow boolean args
-    "ANN101", # missing-type-self
-    "ANN102", # missing-type-cls
     "INP", # ignore flake8-no-pep420
     "B008", # function-call-in-default-argument
     "ANN204", # no typings for __init__
@@ -66,7 +64,7 @@ isort.no-lines-before = ["standard-library", "local-folder"]
 ]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.13"
 strict = true
 pretty = true
 
@@ -81,4 +79,4 @@ exclude_also = [
 ]
 
 [tool.coverage.run]
-concurrency = ["thread","greenlet"]
+concurrency = ["thread", "greenlet"]
