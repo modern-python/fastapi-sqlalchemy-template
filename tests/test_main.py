@@ -5,14 +5,13 @@ import fastapi
 import modern_di
 import pytest
 
-from app import __main__ as api_main
 from app import ioc
 from app.application import AppBuilder
 
 
 def test_main(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("granian.Granian", mock.Mock())
-    runpy.run_module(api_main.__name__, run_name="__main__")
+    runpy.run_module("app.__main__", run_name="__main__")
 
 
 async def test_app_lifespan() -> None:
