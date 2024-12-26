@@ -54,6 +54,7 @@ ignore = [
     "D213", # "multi-line-summary-second-line" conflicting with D212
     "COM812", # flake8-commas "Trailing comma missing"
     "ISC001", # flake8-implicit-str-concat
+    "S105", # Possible hardcoded password
 ]
 isort.lines-after-imports = 2
 isort.no-lines-before = ["standard-library", "local-folder"]
