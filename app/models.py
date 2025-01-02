@@ -1,11 +1,11 @@
 import typing
 
 import sqlalchemy as sa
-from advanced_alchemy.base import BigIntAuditBase
+from advanced_alchemy.base import BigIntAuditBase, orm_registry
 from sqlalchemy import orm
 
 
-METADATA: typing.Final = sa.MetaData()
+METADATA: typing.Final = orm_registry.metadata
 orm.DeclarativeBase.metadata = METADATA
 
 
