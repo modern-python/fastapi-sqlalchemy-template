@@ -2,6 +2,7 @@ import contextlib
 import typing
 
 import fastapi
+from fastapi.middleware.cors import CORSMiddleware
 import modern_di_fastapi
 from advanced_alchemy.exceptions import DuplicateKeyError
 
@@ -9,6 +10,10 @@ from app import exceptions, ioc
 from app.api.decks import ROUTER
 from app.settings import settings
 
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    # YOUR ALLOWED ORIGINS HERE
+]
 
 def include_routers(app: fastapi.FastAPI) -> None:
     app.include_router(ROUTER, prefix="/api")
@@ -26,6 +31,13 @@ class AppBuilder:
         self.app.add_exception_handler(
             DuplicateKeyError,
             exceptions.duplicate_key_error_handler,  # type: ignore[arg-type]
+        )
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=ALLOWED_ORIGINS,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
         )
 
     @contextlib.asynccontextmanager
