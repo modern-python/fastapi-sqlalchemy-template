@@ -1,3 +1,4 @@
+import pydantic
 import pydantic_settings
 from granian.log import LogLevels
 from sqlalchemy.engine.url import URL
@@ -5,7 +6,9 @@ from sqlalchemy.engine.url import URL
 
 class Settings(pydantic_settings.BaseSettings):
     service_name: str = "FastAPI template"
-    debug: bool = False
+    service_version: str = "1.0.0"
+    service_environment: str = "local"
+    service_debug: bool = False
     log_level: LogLevels = LogLevels.info
 
     db_driver: str = "postgresql+asyncpg"
@@ -21,6 +24,20 @@ class Settings(pydantic_settings.BaseSettings):
     db_pool_pre_ping: bool = True
 
     app_port: int = 8000
+
+    opentelemetry_endpoint: str = ""
+    sentry_dsn: str = ""
+    logging_buffer_capacity: int = 0
+    swagger_offline_docs: bool = True
+
+    cors_allowed_origins: list[str] = pydantic.Field(
+        default_factory=lambda: [
+            "http://localhost:5173",
+        ]
+    )
+    cors_allowed_methods: list[str] = pydantic.Field(default_factory=lambda: [""])
+    cors_allowed_headers: list[str] = pydantic.Field(default_factory=lambda: [""])
+    cors_exposed_headers: list[str] = pydantic.Field(default_factory=list)
 
     @property
     def db_dsn(self) -> URL:

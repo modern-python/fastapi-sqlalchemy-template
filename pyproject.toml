@@ -11,9 +11,10 @@ authors = [
 license = "MIT License"
 dependencies = [
     "fastapi>=0.76",
+    "lite-bootstrap[fastapi-all]",
     "advanced-alchemy",
     "pydantic-settings",
-    "granian",
+    "granian[uvloop]",
     "modern-di-fastapi",
     # database
     "alembic",
