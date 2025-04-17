@@ -4,17 +4,11 @@ import typing
 import fastapi
 import modern_di_fastapi
 from advanced_alchemy.exceptions import DuplicateKeyError
-from fastapi.middleware.cors import CORSMiddleware
+from lite_bootstrap import FastAPIBootstrapper, FastAPIConfig
 
-from app import exceptions, ioc
+from app import exceptions
 from app.api.decks import ROUTER
 from app.settings import settings
-
-
-ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    # YOUR ALLOWED ORIGINS HERE
-]
 
 
 def include_routers(app: fastapi.FastAPI) -> None:
@@ -24,28 +18,36 @@ def include_routers(app: fastapi.FastAPI) -> None:
 class AppBuilder:
     def __init__(self) -> None:
         self.app: fastapi.FastAPI = fastapi.FastAPI(
-            title=settings.service_name,
-            debug=settings.debug,
             lifespan=self.lifespan_manager,
         )
+        self.bootstrapper = FastAPIBootstrapper(
+            bootstrap_config=FastAPIConfig(
+                application=self.app,
+                service_name=settings.service_name,
+                service_version=settings.service_version,
+                service_environment=settings.service_environment,
+                service_debug=settings.service_debug,
+                opentelemetry_endpoint=settings.opentelemetry_endpoint,
+                sentry_dsn=settings.sentry_dsn,
+                cors_allowed_origins=settings.cors_allowed_origins,
+                cors_allowed_methods=settings.cors_allowed_methods,
+                cors_allowed_headers=settings.cors_allowed_headers,
+                cors_exposed_headers=settings.cors_exposed_headers,
+                logging_buffer_capacity=settings.logging_buffer_capacity,
+                swagger_offline_docs=settings.swagger_offline_docs,
+            ),
+        )
+        self.bootstrapper.bootstrap()
         self.di_container = modern_di_fastapi.setup_di(self.app)
         include_routers(self.app)
         self.app.add_exception_handler(
             DuplicateKeyError,
             exceptions.duplicate_key_error_handler,  # type: ignore[arg-type]
         )
-        self.app.add_middleware(
-            CORSMiddleware,
-            allow_origins=ALLOWED_ORIGINS,
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        )
 
     @contextlib.asynccontextmanager
     async def lifespan_manager(self, _: fastapi.FastAPI) -> typing.AsyncIterator[dict[str, typing.Any]]:
         async with self.di_container:
-            await ioc.Dependencies.async_resolve_creators(self.di_container)
             yield {}
 
 
