@@ -1,29 +1,36 @@
 import typing
 
+import fastapi
 import modern_di
 import modern_di_fastapi
 import pytest
+from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import ioc
-from app.application import application
+from app.application import build_app
 
 
 @pytest.fixture
-async def client() -> typing.AsyncIterator[AsyncClient]:
+async def app() -> typing.AsyncIterator[fastapi.FastAPI]:
+    app_ = build_app()
+    async with LifespanManager(app_):
+        yield app_
+
+
+@pytest.fixture
+async def client(app: fastapi.FastAPI) -> typing.AsyncIterator[AsyncClient]:
     async with AsyncClient(
-        transport=ASGITransport(app=application),
+        transport=ASGITransport(app=app),
         base_url="http://test",
     ) as client:
         yield client
 
 
 @pytest.fixture
-async def di_container() -> typing.AsyncIterator[modern_di.Container]:
-    di_container_: typing.Final = modern_di_fastapi.fetch_di_container(application)
-    async with di_container_:
-        yield di_container_
+def di_container(app: fastapi.FastAPI) -> modern_di.Container:
+    return modern_di_fastapi.fetch_di_container(app)
 
 
 @pytest.fixture(autouse=True)
