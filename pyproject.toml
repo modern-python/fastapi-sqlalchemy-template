@@ -30,6 +30,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "pytest-asyncio",
+    "asgi_lifespan",
     "ruff",
     "mypy",
     "asyncpg-stubs",

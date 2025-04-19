@@ -3,7 +3,7 @@ requires-python = ">=3.13"
 
 [[package]]
 name = "advanced-alchemy"
-version = "1.2.0"
+version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alembic" },
@@ -11,9 +11,9 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2a/17/20d28d37664f075f8c4bdef8d749d078807734874e91ea6b2898da6f1787/advanced_alchemy-1.2.0.tar.gz", hash = "sha256:057698f2a7d837a64c36e82de964a971f57e28feb0d53206c8db3231a3a43861", size = 640931 }
+sdist = { url = "https://files.pythonhosted.org/packages/df/fd/33ea448cdbab6555112803c155077cfc9d964e1c8f30d4564b134bc2c080/advanced_alchemy-1.3.0.tar.gz", hash = "sha256:f2ea9e0a744ea2e31d7af7f0b23f68c52be01abead86132fe1cd1ae5adc0e934", size = 654978 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8b/ac/32a556996e583f8c115e0b58f8e25b29f446b2e8f91cc6681e896e18ebca/advanced_alchemy-1.2.0-py3-none-any.whl", hash = "sha256:29ba70a7d2678a737530e00daabebd449a106f8481466cd7d63ed0a7f5e5fccc", size = 213327 },
+    { url = "https://files.pythonhosted.org/packages/65/7e/021cfddc434bafc094cd0320e5828de7c4191c1d127db9ae3f3aaae8c336/advanced_alchemy-1.3.0-py3-none-any.whl", hash = "sha256:b0b52ca8f6ef3917ad82226ee74c7cf31fe5b8dc25e789222c082cf6fb7a70d4", size = 219530 },
 ]
 
 [[package]]
@@ -50,6 +50,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/95/7d/4c1bd541d4dffa1b52bd83fb8527089e097a106fc90b467a7313b105f840/anyio-4.9.0.tar.gz", hash = "sha256:673c0c244e15788651a4ff38710fea9675823028a6f08a5eda409e0c9840a028", size = 190949 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a1/ee/48ca1a7c89ffec8b6a0c5d02b89c305671d5ffd8d3c94acf8b8c408575bb/anyio-4.9.0-py3-none-any.whl", hash = "sha256:9f76d541cad6e36af7beb62e978876f3b41e3e04f2c1fbf0884604c0a9c4d93c", size = 100916 },
+]
+
+[[package]]
+name = "asgi-lifespan"
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "sniffio" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6a/da/e7908b54e0f8043725a990bf625f2041ecf6bfe8eb7b19407f1c00b630f7/asgi-lifespan-2.1.0.tar.gz", hash = "sha256:5e2effaf0bfe39829cf2d64e7ecc47c7d86d676a6599f7afba378c31f5e3a308", size = 15627 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/f5/c36551e93acba41a59939ae6a0fb77ddb3f2e8e8caa716410c65f7341f72/asgi_lifespan-2.1.0-py3-none-any.whl", hash = "sha256:ed840706680e28428c01e14afb3875d7d76d3206f3d5b2f2294e059b5c23804f", size = 10895 },
 ]
 
 [[package]]
@@ -228,6 +240,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "asgi-lifespan" },
     { name = "asyncpg-stubs" },
     { name = "httpx" },
     { name = "mypy" },
@@ -254,6 +267,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "asgi-lifespan" },
     { name = "asyncpg-stubs" },
     { name = "httpx" },
     { name = "mypy" },
@@ -422,11 +436,11 @@ wheels = [
 
 [[package]]
 name = "lite-bootstrap"
-version = "0.12.4"
+version = "0.12.7"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/59/a1/b7b1cb6f4fea12ae16b33c5bd60702bab669ee0b2d12399235eaf600e631/lite_bootstrap-0.12.4.tar.gz", hash = "sha256:01b09a767e2a22b0895f8817d72b2456e23f8a48aa9772f256237645b1e9712f", size = 1789490 }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/2c/13a920ded862783f66ab67c265b3f6f21a7e6c6f74db4c2347cc56bc83e5/lite_bootstrap-0.12.7.tar.gz", hash = "sha256:99073e7c96213468b183386f4b2eecc25c61daaf637877d90b314d614667fd5a", size = 1789536 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/30/22/9e170705bf42cf40cb6301b5f3e7dfd839656ef27b891bce86760be9b770/lite_bootstrap-0.12.4-py3-none-any.whl", hash = "sha256:c3ec5a24a51a9ab55c106e16ecfa7638d8adb9840c91bde25b07f2d4bd8826b8", size = 1817453 },
+    { url = "https://files.pythonhosted.org/packages/49/5e/68d41f47c93c35b91b97fbfdb4edf5171561d8f115f4be667689e13a866a/lite_bootstrap-0.12.7-py3-none-any.whl", hash = "sha256:64b4d808a6899d827028ce148e9d71f12f9cbf3acdedd9ed39b16a8b66bdd34f", size = 1817509 },
 ]
 
 [package.optional-dependencies]
@@ -493,15 +507,15 @@ wheels = [
 
 [[package]]
 name = "modern-di-fastapi"
-version = "0.4.2"
+version = "0.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastapi" },
     { name = "modern-di" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ce/5d/778f3f97612a592d9cbc451a238c01c9a96b86e8e81c80f545b3e90b09f9/modern_di_fastapi-0.4.2.tar.gz", hash = "sha256:df6fc2412fae12e2efc023e151c9859959ea6ab835a0f6a0442269c6a0334c5a", size = 2048 }
+sdist = { url = "https://files.pythonhosted.org/packages/72/c1/020ced61c98a80e0a32938205d89974c00e31eddec714870e276e147114c/modern_di_fastapi-0.5.0.tar.gz", hash = "sha256:793210a0bdfbf3cb4e4d426070371aa0187cba8b331f20e7d12fa236488fc967", size = 2145 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/f0/2511a1493004302f51c0099222d19239e1930a8888465087820d44fbbcb1/modern_di_fastapi-0.4.2-py3-none-any.whl", hash = "sha256:ae64cbe93c5866f4fc59b3844e18be2b1cdb0a128ea579c80cf41162597226aa", size = 2481 },
+    { url = "https://files.pythonhosted.org/packages/44/2f/2d0e0268b54ecb71c29682130247f98484dedad19f0d72e255bf28fbb0a9/modern_di_fastapi-0.5.0-py3-none-any.whl", hash = "sha256:3908e91f953877db457341d22861e935d3d60454f44a3214addacaf0a9976432", size = 2586 },
 ]
 
 [[package]]
@@ -721,15 +735,15 @@ wheels = [
 
 [[package]]
 name = "polyfactory"
-version = "2.20.0"
+version = "2.21.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "faker" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/59/c8/9d5c64495e3a7b672455859399aa0098b2728a7820ebe856db0cd0590197/polyfactory-2.20.0.tar.gz", hash = "sha256:86017160f05332baadb5eaf89885e1ba7bb447a3140e46ba4546848c76cbdec5", size = 243596 }
+sdist = { url = "https://files.pythonhosted.org/packages/bd/d0/8ce6a9912a6f1077710ebc46a6aa9a79a64a06b69d2d6b4ccefc9765ce8f/polyfactory-2.21.0.tar.gz", hash = "sha256:a6d8dba91b2515d744cc014b5be48835633f7ccb72519a68f8801759e5b1737a", size = 246314 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/57/1a/c74707cb643b36ab490690d8b4501c2e839a81dcfbc14c9639d3d8ee9ad3/polyfactory-2.20.0-py3-none-any.whl", hash = "sha256:6a808454bb03afacf54abeeb50d79b86c9e5b8476efc2bc3788e5ece26dd561a", size = 60535 },
+    { url = "https://files.pythonhosted.org/packages/e0/ba/c148fba517a0aaccfc4fca5e61bf2a051e084a417403e930dc615886d4e6/polyfactory-2.21.0-py3-none-any.whl", hash = "sha256:9483b764756c8622313d99f375889b1c0d92f09affb05742d7bcfa2b5198d8c5", size = 60875 },
 ]
 
 [[package]]
@@ -822,15 +836,16 @@ wheels = [
 
 [[package]]
 name = "pydantic-settings"
-version = "2.8.1"
+version = "2.9.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "typing-inspection" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/88/82/c79424d7d8c29b994fb01d277da57b0a9b09cc03c3ff875f9bd8a86b2145/pydantic_settings-2.8.1.tar.gz", hash = "sha256:d5c663dfbe9db9d5e1c646b2e161da12f0d734d422ee56f567d0ea2cee4e8585", size = 83550 }
+sdist = { url = "https://files.pythonhosted.org/packages/67/1d/42628a2c33e93f8e9acbde0d5d735fa0850f3e6a2f8cb1eb6c40b9a732ac/pydantic_settings-2.9.1.tar.gz", hash = "sha256:c509bf79d27563add44e8446233359004ed85066cd096d8b510f715e6ef5d268", size = 163234 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/53/a64f03044927dc47aafe029c42a5b7aabc38dfb813475e0e1bf71c4a59d0/pydantic_settings-2.8.1-py3-none-any.whl", hash = "sha256:81942d5ac3d905f7f3ee1a70df5dfb62d5569c12f51a5a647defc1c3d9ee2e9c", size = 30839 },
+    { url = "https://files.pythonhosted.org/packages/b6/5f/d6d641b490fd3ec2c4c13b4244d68deea3a1b970a97be64f34fb5504ff72/pydantic_settings-2.9.1-py3-none-any.whl", hash = "sha256:59b4f431b1defb26fe620c71a7d3968a710d719f5f4cdbbdb7926edeb770f6ef", size = 44356 },
 ]
 
 [[package]]
