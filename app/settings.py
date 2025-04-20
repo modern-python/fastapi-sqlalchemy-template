@@ -1,6 +1,4 @@
-import pydantic
 import pydantic_settings
-from granian.log import LogLevels
 from sqlalchemy.engine.url import URL
 
 
@@ -9,7 +7,7 @@ class Settings(pydantic_settings.BaseSettings):
     service_version: str = "1.0.0"
     service_environment: str = "local"
     service_debug: bool = False
-    log_level: LogLevels = LogLevels.info
+    log_level: str = "info"
 
     db_driver: str = "postgresql+asyncpg"
     db_host: str = "db"
@@ -30,14 +28,10 @@ class Settings(pydantic_settings.BaseSettings):
     logging_buffer_capacity: int = 0
     swagger_offline_docs: bool = True
 
-    cors_allowed_origins: list[str] = pydantic.Field(
-        default_factory=lambda: [
-            "http://localhost:5173",
-        ]
-    )
-    cors_allowed_methods: list[str] = pydantic.Field(default_factory=lambda: [""])
-    cors_allowed_headers: list[str] = pydantic.Field(default_factory=lambda: [""])
-    cors_exposed_headers: list[str] = pydantic.Field(default_factory=list)
+    cors_allowed_origins: list[str] = ["http://localhost:5173"]
+    cors_allowed_methods: list[str] = [""]
+    cors_allowed_headers: list[str] = [""]
+    cors_exposed_headers: list[str] = []
 
     @property
     def db_dsn(self) -> URL:
