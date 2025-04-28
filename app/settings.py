@@ -1,5 +1,6 @@
 import pydantic_settings
-from sqlalchemy.engine.url import URL
+from lite_bootstrap import FastAPIConfig
+from sqlalchemy.engine.url import URL, make_url
 
 
 class Settings(pydantic_settings.BaseSettings):
@@ -9,13 +10,7 @@ class Settings(pydantic_settings.BaseSettings):
     service_debug: bool = False
     log_level: str = "info"
 
-    db_driver: str = "postgresql+asyncpg"
-    db_host: str = "db"
-    db_port: int = 5432
-    db_user: str = "postgres"
-    db_password: str = "password"
-    db_database: str = "postgres"
-
+    db_dsn: str = "postgresql+asyncpg://postgres:password@db/postgres"
     db_pool_size: int = 5
     db_max_overflow: int = 0
     db_echo: bool = False
@@ -34,14 +29,24 @@ class Settings(pydantic_settings.BaseSettings):
     cors_exposed_headers: list[str] = []
 
     @property
-    def db_dsn(self) -> URL:
-        return URL.create(
-            self.db_driver,
-            self.db_user,
-            self.db_password,
-            self.db_host,
-            self.db_port,
-            self.db_database,
+    def db_dsn_parsed(self) -> URL:
+        return make_url(self.db_dsn)
+
+    @property
+    def api_bootstrapper_config(self) -> FastAPIConfig:
+        return FastAPIConfig(
+            service_name=settings.service_name,
+            service_version=settings.service_version,
+            service_environment=settings.service_environment,
+            service_debug=settings.service_debug,
+            opentelemetry_endpoint=settings.opentelemetry_endpoint,
+            sentry_dsn=settings.sentry_dsn,
+            cors_allowed_origins=settings.cors_allowed_origins,
+            cors_allowed_methods=settings.cors_allowed_methods,
+            cors_allowed_headers=settings.cors_allowed_headers,
+            cors_exposed_headers=settings.cors_exposed_headers,
+            logging_buffer_capacity=settings.logging_buffer_capacity,
+            swagger_offline_docs=settings.swagger_offline_docs,
         )
 
 

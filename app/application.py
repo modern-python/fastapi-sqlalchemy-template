@@ -1,7 +1,11 @@
+import dataclasses
+
 import fastapi
 import modern_di_fastapi
 from advanced_alchemy.exceptions import DuplicateKeyError
-from lite_bootstrap import FastAPIBootstrapper, FastAPIConfig
+from lite_bootstrap import FastAPIBootstrapper
+from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
 from app import exceptions
 from app.api.decks import ROUTER
@@ -13,22 +17,14 @@ def include_routers(app: fastapi.FastAPI) -> None:
 
 
 def build_app() -> fastapi.FastAPI:
-    bootstrapper = FastAPIBootstrapper(
-        bootstrap_config=FastAPIConfig(
-            service_name=settings.service_name,
-            service_version=settings.service_version,
-            service_environment=settings.service_environment,
-            service_debug=settings.service_debug,
-            opentelemetry_endpoint=settings.opentelemetry_endpoint,
-            sentry_dsn=settings.sentry_dsn,
-            cors_allowed_origins=settings.cors_allowed_origins,
-            cors_allowed_methods=settings.cors_allowed_methods,
-            cors_allowed_headers=settings.cors_allowed_headers,
-            cors_exposed_headers=settings.cors_exposed_headers,
-            logging_buffer_capacity=settings.logging_buffer_capacity,
-            swagger_offline_docs=settings.swagger_offline_docs,
-        ),
+    bootstrap_config = dataclasses.replace(
+        settings.api_bootstrapper_config,
+        opentelemetry_instrumentors=[
+            SQLAlchemyInstrumentor(),
+            AsyncPGInstrumentor(capture_parameters=True),  # type: ignore[no-untyped-call]
+        ],
     )
+    bootstrapper = FastAPIBootstrapper(bootstrap_config=bootstrap_config)
     app: fastapi.FastAPI = bootstrapper.bootstrap()
     modern_di_fastapi.setup_di(app)
     include_routers(app)

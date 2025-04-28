@@ -8,7 +8,7 @@ from app.settings import settings
 
 
 def get_dsn() -> URL:
-    db_dsn = settings.db_dsn
+    db_dsn = settings.db_dsn_parsed
     return db_dsn.set(drivername="postgresql")
 
 

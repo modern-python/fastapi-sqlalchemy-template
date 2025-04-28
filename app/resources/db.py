@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 async def create_sa_engine() -> typing.AsyncIterator[sa.AsyncEngine]:
     logger.info("Initializing SQLAlchemy engine")
     engine = sa.create_async_engine(
-        url=settings.db_dsn,
+        url=settings.db_dsn_parsed,
         echo=settings.service_debug,
         echo_pool=settings.service_debug,
         pool_size=settings.db_pool_size,

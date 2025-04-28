@@ -21,6 +21,9 @@ dependencies = [
     "psycopg2",
     "sqlalchemy[asyncio]",
     "asyncpg",
+    # tracing
+    "opentelemetry-instrumentation-asyncpg",
+    "opentelemetry-instrumentation-sqlalchemy",
 ]
 
 [dependency-groups]
