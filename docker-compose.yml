@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       args:
-        - ENVIRONMENT=dev
+        - SERVICE_ENVIRONMENT=dev
     restart: always
     volumes:
       - .:/code
@@ -15,8 +15,9 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DEBUG=true
+      - SERVICE_DEBUG=true
       - DB_ECHO=true
+      - DB_DSN=postgresql+asyncpg://postgres:password@db/postgres
     command:
       ["uv", "run", "python", "-m", "app"]
 
