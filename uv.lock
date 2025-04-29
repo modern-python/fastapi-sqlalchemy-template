@@ -440,11 +440,11 @@ wheels = [
 
 [[package]]
 name = "lite-bootstrap"
-version = "0.13.0"
+version = "0.14.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/eb/08/d05fa7e8526f55e5abfd24cea92f5124aa991f6b79538cc4d1abe0e8b69f/lite_bootstrap-0.13.0.tar.gz", hash = "sha256:d5e758294877920cc47094e0b2be695fe68812a5bd55cdd8980041c9c61c1582", size = 1793438 }
+sdist = { url = "https://files.pythonhosted.org/packages/3c/c0/835690651d9da95885d2333d4f8c632e08bb02207050058e8f65a8a7eea9/lite_bootstrap-0.14.1.tar.gz", hash = "sha256:8b56ff647b3a3ccefb06a476bcfc04fe87f1556c057380f6ce1b5f9535af379e", size = 1793872 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/94/fe/09d9adde27778488511606d3aaa4c96386aed064156630a7392cbfe08ecf/lite_bootstrap-0.13.0-py3-none-any.whl", hash = "sha256:88f91e11cda0efd4f5834a7dd612b0a4f45d5fcd0515485c8802102201de6529", size = 1817796 },
+    { url = "https://files.pythonhosted.org/packages/b7/75/f7c9698fa4cccf95a77c5f0ac34292f7cdf1f13394b2610849d113fa96ba/lite_bootstrap-0.14.1-py3-none-any.whl", hash = "sha256:40f68fbfaf24bd781f05a302e1d7da213635c458f3dfe35ed778ab5f7b6682ae", size = 1818018 },
 ]
 
 [package.optional-dependencies]

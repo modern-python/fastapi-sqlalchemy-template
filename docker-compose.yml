@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      args:
-        - SERVICE_ENVIRONMENT=dev
     restart: always
     volumes:
       - .:/code
@@ -16,7 +14,7 @@ services:
         condition: service_healthy
     environment:
       - SERVICE_DEBUG=true
-      - DB_ECHO=true
+      - SERVICE_ENVIRONMENT=ci
       - DB_DSN=postgresql+asyncpg://postgres:password@db/postgres
     command:
       ["uv", "run", "python", "-m", "app"]
