@@ -1,0 +1,6 @@
+_commit: 3a2cdb0
+_src_path: https://github.com/modern-python/modern-python-template
+framework: fastapi
+project_description: Async template on FastAPI and SQLAlchemy 2
+project_name: FastAPI template
+project_slug: fastapi-sqlalchemy-template
