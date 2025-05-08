@@ -11,10 +11,10 @@ license = "MIT License"
 dependencies = [
     "fastapi>=0.76",
     "lite-bootstrap[fastapi-all]",
+    "modern-di-fastapi",
     "advanced-alchemy",
     "pydantic-settings",
     "granian[uvloop]",
-    "modern-di-fastapi",
     # database
     "alembic",
     "psycopg2",
