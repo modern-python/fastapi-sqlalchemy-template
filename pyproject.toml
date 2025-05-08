@@ -5,8 +5,7 @@ description = "Async template on FastAPI and SQLAlchemy 2"
 readme = "README.md"
 requires-python = ">=3.13"
 authors = [
-    { email = "me@shiriev.ru" },
-    { name = "Artur Shiriev"}
+    { name = "Artur Shiriev", email = "me@shiriev.ru" },
 ]
 license = "MIT License"
 dependencies = [

@@ -15,6 +15,7 @@ class Settings(pydantic_settings.BaseSettings):
     db_max_overflow: int = 0
     db_pool_pre_ping: bool = True
 
+    app_host: str = "0.0.0.0"  # noqa: S104
     app_port: int = 8000
 
     opentelemetry_endpoint: str = ""

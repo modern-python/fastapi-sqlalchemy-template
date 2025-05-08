@@ -33,6 +33,3 @@ def build_app() -> fastapi.FastAPI:
         exceptions.duplicate_key_error_handler,  # type: ignore[arg-type]
     )
     return app
-
-
-application = build_app()
