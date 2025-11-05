@@ -19,6 +19,7 @@ async def create_sa_engine() -> typing.AsyncIterator[sa.AsyncEngine]:
         pool_pre_ping=settings.db_pool_pre_ping,
         max_overflow=settings.db_max_overflow,
     )
+    engine.pool.status()
     logger.info("SQLAlchemy engine has been initialized")
     try:
         yield engine

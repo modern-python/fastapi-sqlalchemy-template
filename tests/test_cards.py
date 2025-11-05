@@ -77,7 +77,7 @@ async def test_create_cards(client: AsyncClient, db_session: AsyncSession) -> No
         json=[cards_to_create[0].model_dump(), cards_to_create[1].model_dump()],
     )
     data = response.json()
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert data["detail"] == "A record matching the supplied data already exists."
 
 

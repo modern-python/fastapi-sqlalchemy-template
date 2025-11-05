@@ -6,7 +6,7 @@ from app.settings import settings
 
 
 if __name__ == "__main__":
-    granian.Granian(  # type: ignore[attr-defined]
+    granian.Granian(
         target="app.application:build_app",
         factory=True,
         address=settings.app_host,

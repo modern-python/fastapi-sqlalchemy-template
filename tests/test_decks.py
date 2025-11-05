@@ -49,7 +49,7 @@ async def test_get_one_deck(client: AsyncClient, db_session: AsyncSession) -> No
 @pytest.mark.parametrize(
     ("name", "description", "status_code"),
     [
-        (None, None, status.HTTP_422_UNPROCESSABLE_ENTITY),
+        (None, None, status.HTTP_422_UNPROCESSABLE_CONTENT),
         ("test deck", None, status.HTTP_200_OK),
         ("test deck", "test deck description", status.HTTP_200_OK),
     ],
@@ -90,7 +90,7 @@ async def test_put_decks_wrong_body(client: AsyncClient, db_session: AsyncSessio
         f"/api/decks/{deck.id}/",
         json={"name": None, "description": None},
     )
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 async def test_put_decks_not_exist(client: AsyncClient) -> None:
