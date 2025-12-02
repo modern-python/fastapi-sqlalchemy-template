@@ -1,7 +1,12 @@
-from advanced_alchemy.exceptions import DuplicateKeyError
+from typing import TYPE_CHECKING
+
 from fastapi.responses import JSONResponse
 from starlette import status
-from starlette.requests import Request
+
+
+if TYPE_CHECKING:
+    from advanced_alchemy.exceptions import DuplicateKeyError
+    from starlette.requests import Request
 
 
 async def duplicate_key_error_handler(_: Request, exc: DuplicateKeyError) -> JSONResponse:

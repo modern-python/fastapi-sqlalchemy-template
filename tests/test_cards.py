@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
+
 from fastapi import status
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from tests import factories
+
+
+if TYPE_CHECKING:
+    from httpx import AsyncClient
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def test_get_cards_empty(client: AsyncClient, db_session: AsyncSession) -> None:
