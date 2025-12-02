@@ -14,7 +14,7 @@ class Deck(BigIntAuditBase):
 
     name: orm.Mapped[str] = orm.mapped_column(sa.String, nullable=False)
     description: orm.Mapped[str | None] = orm.mapped_column(sa.String, nullable=True)
-    cards: orm.Mapped[list["Card"]] = orm.relationship("Card", lazy="noload", uselist=True)
+    cards: orm.Mapped[list[Card]] = orm.relationship("Card", lazy="noload", uselist=True)
 
 
 class Card(BigIntAuditBase):
