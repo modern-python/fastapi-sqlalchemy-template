@@ -33,8 +33,11 @@ dev = [
     "pytest-cov",
     "pytest-asyncio",
     "asgi_lifespan",
+]
+lint = [
     "ruff",
     "mypy",
+    "end-of-file-fixer",
     "asyncpg-stubs",
 ]
 
