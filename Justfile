@@ -20,9 +20,10 @@ build:
 
 install:
     uv lock --upgrade
-    uv sync --all-extras --no-install-project --frozen
+    uv sync --all-extras --all-groups --no-install-project --frozen
 
 lint:
+    uv run end-of-file-fixer .
     uv run ruff format .
     uv run ruff check . --fix
     uv run mypy .

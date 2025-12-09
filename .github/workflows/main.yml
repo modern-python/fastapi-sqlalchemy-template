@@ -20,7 +20,7 @@ jobs:
       - uses: astral-sh/setup-uv@v3
       - run: uv python install 3.14
       - run: |
-          uv sync --all-extras --frozen --no-install-project
+          uv sync --all-extras --all-groups --frozen --no-install-project
           uv run ruff format . --check
           uv run ruff check . --no-fix
           uv run mypy .
@@ -47,7 +47,7 @@ jobs:
       - uses: astral-sh/setup-uv@v3
       - run: uv python install 3.14
       - run: |
-          uv sync --all-extras --frozen --no-install-project
+          uv sync --all-extras --all-groups --frozen --no-install-project
           uv run alembic upgrade head
           uv run pytest . --cov=. --cov-report xml
         env:
