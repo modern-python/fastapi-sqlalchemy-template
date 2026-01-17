@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from unittest import mock
 
 import modern_di
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import ioc
 
@@ -17,8 +18,10 @@ def test_main(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 async def test_session() -> None:
-    async with (
-        modern_di.AsyncContainer() as container,
-        container.build_child_container(scope=modern_di.Scope.REQUEST) as request_container,
-    ):
-        await request_container.resolve_provider(ioc.Dependencies.session)
+    container = modern_di.Container(groups=[ioc.Dependencies])
+    request_container = container.build_child_container(scope=modern_di.Scope.REQUEST)
+    try:
+        request_container.resolve(AsyncSession)
+    finally:
+        await request_container.close_async()
+        await container.close_async()

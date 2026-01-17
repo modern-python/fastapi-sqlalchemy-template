@@ -8,7 +8,9 @@ from tests import factories
 
 if TYPE_CHECKING:
     from httpx import AsyncClient
-    from sqlalchemy.ext.asyncio import AsyncSession
+
+
+pytestmark = [pytest.mark.usefixtures("set_async_session_in_base_sqlalchemy_factory")]
 
 
 async def test_get_decks_empty(client: AsyncClient) -> None:
@@ -22,8 +24,7 @@ async def test_get_decks_not_exist(client: AsyncClient) -> None:
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-async def test_get_decks(client: AsyncClient, db_session: AsyncSession) -> None:
-    factories.DeckModelFactory.__async_session__ = db_session
+async def test_get_decks(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
 
     response = await client.get("/api/decks/")
@@ -34,9 +35,7 @@ async def test_get_decks(client: AsyncClient, db_session: AsyncSession) -> None:
         assert v == getattr(deck, k)
 
 
-async def test_get_one_deck(client: AsyncClient, db_session: AsyncSession) -> None:
-    factories.DeckModelFactory.__async_session__ = db_session
-    factories.CardModelFactory.__async_session__ = db_session
+async def test_get_one_deck(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
     card = await factories.CardModelFactory.create_async(deck_id=deck.id)
     assert card.id
@@ -86,8 +85,7 @@ async def test_post_decks(
         assert description == result["description"]
 
 
-async def test_put_decks_wrong_body(client: AsyncClient, db_session: AsyncSession) -> None:
-    factories.DeckModelFactory.__async_session__ = db_session
+async def test_put_decks_wrong_body(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
 
     # update deck
@@ -113,13 +111,7 @@ async def test_put_decks_not_exist(client: AsyncClient) -> None:
         ("test deck updated", "test deck description updated"),
     ],
 )
-async def test_put_decks(
-    client: AsyncClient,
-    name: str,
-    description: str,
-    db_session: AsyncSession,
-) -> None:
-    factories.DeckModelFactory.__async_session__ = db_session
+async def test_put_decks(client: AsyncClient, name: str, description: str) -> None:
     deck = await factories.DeckModelFactory.create_async()
 
     # update deck
