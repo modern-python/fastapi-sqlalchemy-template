@@ -11,7 +11,7 @@ license = "MIT License"
 dependencies = [
     "fastapi>=0.76",
     "lite-bootstrap[fastapi-all]",
-    "modern-di-fastapi>=1",
+    "modern-di-fastapi>=2",
     "advanced-alchemy",
     "pydantic-settings",
     "granian[uvloop]",

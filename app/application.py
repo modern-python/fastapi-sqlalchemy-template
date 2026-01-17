@@ -22,7 +22,7 @@ def include_routers(app: fastapi.FastAPI) -> None:
 
 
 def build_app() -> fastapi.FastAPI:
-    di_container = modern_di.AsyncContainer(groups=[ioc.Dependencies])
+    di_container = modern_di.Container(groups=[ioc.Dependencies])
     bootstrap_config = dataclasses.replace(
         settings.api_bootstrapper_config,
         opentelemetry_instrumentors=[

@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+import pytest
 from fastapi import status
 
 from tests import factories
@@ -7,11 +8,12 @@ from tests import factories
 
 if TYPE_CHECKING:
     from httpx import AsyncClient
-    from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def test_get_cards_empty(client: AsyncClient, db_session: AsyncSession) -> None:
-    factories.DeckModelFactory.__async_session__ = db_session
+pytestmark = [pytest.mark.usefixtures("set_async_session_in_base_sqlalchemy_factory")]
+
+
+async def test_get_cards_empty(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
 
     response = await client.get(f"/api/decks/{deck.id}/cards/")
@@ -22,9 +24,7 @@ async def test_get_cards_empty(client: AsyncClient, db_session: AsyncSession) ->
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-async def test_get_cards(client: AsyncClient, db_session: AsyncSession) -> None:
-    factories.DeckModelFactory.__async_session__ = db_session
-    factories.CardModelFactory.__async_session__ = db_session
+async def test_get_cards(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
     card = await factories.CardModelFactory.create_async(deck_id=deck.id)
 
@@ -36,9 +36,7 @@ async def test_get_cards(client: AsyncClient, db_session: AsyncSession) -> None:
         assert v == getattr(card, k)
 
 
-async def test_get_card(client: AsyncClient, db_session: AsyncSession) -> None:
-    factories.DeckModelFactory.__async_session__ = db_session
-    factories.CardModelFactory.__async_session__ = db_session
+async def test_get_card(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
     card = await factories.CardModelFactory.create_async(deck_id=deck.id)
 
@@ -53,8 +51,7 @@ async def test_get_card_not_exist(client: AsyncClient) -> None:
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-async def test_create_cards(client: AsyncClient, db_session: AsyncSession) -> None:
-    factories.DeckModelFactory.__async_session__ = db_session
+async def test_create_cards(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
 
     cards_to_create = [factories.CardCreateSchemaFactory.build(), factories.CardCreateSchemaFactory.build()]
@@ -86,9 +83,7 @@ async def test_create_cards(client: AsyncClient, db_session: AsyncSession) -> No
     assert data["detail"] == "A record matching the supplied data already exists."
 
 
-async def test_update_cards(client: AsyncClient, db_session: AsyncSession) -> None:
-    factories.DeckModelFactory.__async_session__ = db_session
-    factories.CardModelFactory.__async_session__ = db_session
+async def test_update_cards(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
     card1, card2 = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
 

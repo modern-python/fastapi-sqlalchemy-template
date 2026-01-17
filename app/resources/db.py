@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import typing
 
@@ -9,9 +10,8 @@ from app.settings import settings
 logger = logging.getLogger(__name__)
 
 
-async def create_sa_engine() -> typing.AsyncIterator[sa.AsyncEngine]:
-    logger.info("Initializing SQLAlchemy engine")
-    engine = sa.create_async_engine(
+def create_sa_engine() -> sa.AsyncEngine:
+    return sa.create_async_engine(
         url=settings.db_dsn_parsed,
         echo=settings.service_debug,
         echo_pool=settings.service_debug,
@@ -19,13 +19,10 @@ async def create_sa_engine() -> typing.AsyncIterator[sa.AsyncEngine]:
         pool_pre_ping=settings.db_pool_pre_ping,
         max_overflow=settings.db_max_overflow,
     )
-    engine.pool.status()
-    logger.info("SQLAlchemy engine has been initialized")
-    try:
-        yield engine
-    finally:
-        await engine.dispose()
-        logger.info("SQLAlchemy engine has been cleaned up")
+
+
+async def close_sa_engine(engine: sa.AsyncEngine) -> None:
+    await engine.dispose()
 
 
 class CustomAsyncSession(sa.AsyncSession):
@@ -36,8 +33,10 @@ class CustomAsyncSession(sa.AsyncSession):
         return await super().close()
 
 
-async def create_session(engine: sa.AsyncEngine) -> typing.AsyncIterator[sa.AsyncSession]:
-    async with CustomAsyncSession(engine, expire_on_commit=False, autoflush=False) as session:
-        logger.info("session created")
-        yield session
-        logger.info("session closed")
+def create_session(engine: sa.AsyncEngine) -> sa.AsyncSession:
+    return CustomAsyncSession(engine, expire_on_commit=False, autoflush=False)
+
+
+async def close_session(session: sa.AsyncSession) -> None:
+    task: typing.Final = asyncio.create_task(session.close())
+    await asyncio.shield(task)
