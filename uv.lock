@@ -506,11 +506,11 @@ wheels = [
 
 [[package]]
 name = "lite-bootstrap"
-version = "0.23.0"
+version = "0.23.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f0/c0/f4a85bd683fc3165903f2bb81a911bbe84fc671ea0ffccdf4a429cafa953/lite_bootstrap-0.23.0.tar.gz", hash = "sha256:7a10556e08cf566bd7713aa5c9523c0cee378973e5eeaed2c62f0987e93a4786", size = 1816884, upload-time = "2025-12-29T12:39:00.036Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c4/f5/dd97eea7d0237f0cdf8b76369b45a940650a83eff3740c2c70cb9e48b936/lite_bootstrap-0.23.1.tar.gz", hash = "sha256:aab1f3edc9dab78af6c7f4ff2030b171f364a87a38987e16054d36a273b34019", size = 1816888, upload-time = "2026-01-19T14:21:32.849Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/6c/46423351d0e391a0e91eff98b9c0f5ee86df37018d0a9ffa113449cb42ff/lite_bootstrap-0.23.0-py3-none-any.whl", hash = "sha256:2e49dac859faf5a8f10e65cf527f9b829eb265b980ddb9f2f5b535da609dc7fe", size = 1827155, upload-time = "2025-12-29T12:38:58.392Z" },
+    { url = "https://files.pythonhosted.org/packages/89/75/5e8a8da62654010122b004c2e3ffd60aab9daee67a91a1cc466265a0ec3c/lite_bootstrap-0.23.1-py3-none-any.whl", hash = "sha256:99e420a4657812bd16bb618f953e2de7f9cdfdcca52b440a61f7faba5dd20bfd", size = 1827171, upload-time = "2026-01-19T14:21:33.981Z" },
 ]
 
 [package.optional-dependencies]
@@ -571,24 +571,24 @@ wheels = [
 
 [[package]]
 name = "modern-di"
-version = "2.1.0"
+version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d5/f3/b47f66aaab5e6ff52564d305af2ffd911f4f5a9e3d009bbfb1c645495906/modern_di-2.1.0.tar.gz", hash = "sha256:0d1ad56d17935504392cbbe674512e0e3f0ec24b3379711e60c687acb65d52dc", size = 6250, upload-time = "2026-01-16T06:39:46.637Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bc/88/ba9d4bdcca96c1689bac903d627964df61503c2bb679a481637567c114b8/modern_di-2.1.1.tar.gz", hash = "sha256:9d83e2efe21adfb6a24e6c4cdbc9422510bb8355fcf99995784825a00b97ac2f", size = 6279, upload-time = "2026-01-19T11:49:48.274Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/9d/bc076f2ea512cc13d4e4125da0dcfcbe9888b76230296ee010fdca4d9a45/modern_di-2.1.0-py3-none-any.whl", hash = "sha256:c124672949f5c8ab83b8858b92cd715eeed3e7ffc81f45a5be52be9472ba3b5e", size = 10989, upload-time = "2026-01-16T06:39:47.71Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/9f/e16985e8e494298def9470b498971186029d4183c53f13c18e33ae0756bb/modern_di-2.1.1-py3-none-any.whl", hash = "sha256:83cbf152c918ff3dcd73894d41275091ce9daae7b98351abc584565fb6ea47e9", size = 11012, upload-time = "2026-01-19T11:49:46.991Z" },
 ]
 
 [[package]]
 name = "modern-di-fastapi"
-version = "2.1.0"
+version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastapi" },
     { name = "modern-di" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2b/f2/eff31104912d111c954d80df7bdf814c8cdd61a335dc5e8bfd3f5acde19c/modern_di_fastapi-2.1.0.tar.gz", hash = "sha256:3c16dc66a5bc2ee09b4a627e94cbba82d858ca07b7f7a042f79ba3d747081f11", size = 2195, upload-time = "2026-01-16T06:39:50.585Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6b/92/fe32e00a90ead90c5ba50f54f979cdbde9ba34b78c606ca84cbf118549fe/modern_di_fastapi-2.1.1.tar.gz", hash = "sha256:53f02c2f171e933c704ce124a91798f322a8e85b9fa5ae74d7233b797da66327", size = 2197, upload-time = "2026-01-19T11:49:50.759Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6d/56/9e79fe693b4c04a9c6faf62caa136ed3846b793fba148e6872aa7bbede20/modern_di_fastapi-2.1.0-py3-none-any.whl", hash = "sha256:212ca589628d0528e4aad645827d3291bb6f8b5eef6d767740580ce1c734186c", size = 2686, upload-time = "2026-01-16T06:39:49.823Z" },
+    { url = "https://files.pythonhosted.org/packages/83/3e/2cd39edc5fbe00f4f40f62af659d25d9d745c70e521c03f25a378ceae592/modern_di_fastapi-2.1.1-py3-none-any.whl", hash = "sha256:ff1f68bb26d0f4de04403194a529bf9b4f3d3a5cbf819d232c834cc899c8bde7", size = 2686, upload-time = "2026-01-19T11:49:50.025Z" },
 ]
 
 [[package]]
