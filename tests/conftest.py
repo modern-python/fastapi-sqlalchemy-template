@@ -5,8 +5,9 @@ import pytest
 from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
 from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app import ioc
 from app.application import build_app
 from app.resources.db import create_sa_engine
 
@@ -47,7 +48,7 @@ async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[
     connection = await engine.connect()
     transaction = await connection.begin()
     await connection.begin_nested()
-    di_container.override(dependency_type=AsyncEngine, mock=connection)
+    di_container.override(ioc.Dependencies.database_engine, connection)
 
     try:
         yield AsyncSession(connection, expire_on_commit=False, autoflush=False)
