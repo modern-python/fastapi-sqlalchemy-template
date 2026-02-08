@@ -15,14 +15,10 @@ class Dependencies(Group):
     decks_repository = providers.Factory(
         scope=Scope.REQUEST,
         creator=DecksRepository,
-        bound_type=DecksRepository,
-        kwargs={"session": session, "auto_commit": True},
-        skip_creator_parsing=True,
+        kwargs={"auto_commit": True, "session": session},
     )
     cards_repository = providers.Factory(
         scope=Scope.REQUEST,
         creator=CardsRepository,
-        bound_type=CardsRepository,
-        kwargs={"session": session, "auto_commit": True},
-        skip_creator_parsing=True,
+        kwargs={"auto_commit": True, "session": session},
     )
