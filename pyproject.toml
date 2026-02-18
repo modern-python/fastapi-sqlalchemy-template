@@ -2,7 +2,7 @@
 name = "fastapi-sqlalchemy-template"
 version = "0"
 description = "Async template on FastAPI and SQLAlchemy 2"
-readme = "README.md"
+readme = "readme.md"
 requires-python = ">=3.14"
 authors = [
     { name = "Artur Shiriev", email = "me@shiriev.ru" },
