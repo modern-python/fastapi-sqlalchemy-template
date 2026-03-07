@@ -26,4 +26,4 @@ lint:
     uv run eof-fixer .
     uv run ruff format .
     uv run ruff check . --fix
-    uv run mypy .
+    uv run ty check
