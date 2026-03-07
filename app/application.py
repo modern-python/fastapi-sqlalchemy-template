@@ -1,5 +1,5 @@
 import dataclasses
-from typing import TYPE_CHECKING
+import typing
 
 import modern_di
 import modern_di_fastapi
@@ -13,7 +13,7 @@ from app.api.decks import ROUTER
 from app.settings import settings
 
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     import fastapi
 
 
@@ -27,7 +27,7 @@ def build_app() -> fastapi.FastAPI:
         settings.api_bootstrapper_config,
         opentelemetry_instrumentors=[
             SQLAlchemyInstrumentor(),
-            AsyncPGInstrumentor(capture_parameters=True),  # type: ignore[no-untyped-call]
+            AsyncPGInstrumentor(capture_parameters=True),
         ],
     )
     bootstrapper = FastAPIBootstrapper(bootstrap_config=bootstrap_config)

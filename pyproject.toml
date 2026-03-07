@@ -36,9 +36,8 @@ dev = [
 ]
 lint = [
     "ruff",
-    "mypy",
+    "ty",
     "eof-fixer",
-    "asyncpg-stubs",
 ]
 
 [tool.ruff]
@@ -70,11 +69,6 @@ isort.no-lines-before = ["standard-library", "local-folder"]
 "tests/*.py" = [
     "S101", # allow asserts
 ]
-
-[tool.mypy]
-python_version = "3.14"
-strict = true
-pretty = true
 
 [tool.pytest.ini_options]
 addopts = "--cov=. --cov-report term-missing"

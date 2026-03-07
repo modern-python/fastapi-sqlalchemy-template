@@ -23,7 +23,7 @@ jobs:
           uv sync --all-extras --all-groups --frozen --no-install-project
           uv run ruff format . --check
           uv run ruff check . --no-fix
-          uv run mypy .
+          uv run ty check
 
   pytest:
     runs-on: ubuntu-latest
