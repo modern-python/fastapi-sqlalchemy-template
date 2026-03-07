@@ -107,19 +107,6 @@ wheels = [
 ]
 
 [[package]]
-name = "asyncpg-stubs"
-version = "0.31.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "asyncpg" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/2f/28/fa8e7e310df35c59f050b64533023c5532e234eecb32510f5f70b9e8a4da/asyncpg_stubs-0.31.2.tar.gz", hash = "sha256:0cb46152f70d1f42f1e1b1dd0d9d9fa573fa896abb1796feeea18b91e113438d", size = 20675, upload-time = "2026-02-19T16:21:18.445Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/17/07/bd4dc51369d05878e6344abeabd47d55411dff16dc356a1a50a771b6ab88/asyncpg_stubs-0.31.2-py3-none-any.whl", hash = "sha256:b808913997f279687c36c6cd056d9c47b4e1421611db1f8bcd42d54956fcfbea", size = 27624, upload-time = "2026-02-19T16:21:19.321Z" },
-]
-
-[[package]]
 name = "certifi"
 version = "2026.2.25"
 source = { registry = "https://pypi.org/simple" }
@@ -282,7 +269,6 @@ dev = [
     { name = "pytest-cov" },
 ]
 lint = [
-    { name = "asyncpg-stubs" },
     { name = "eof-fixer" },
     { name = "ruff" },
     { name = "ty" },
@@ -314,7 +300,6 @@ dev = [
     { name = "pytest-cov" },
 ]
 lint = [
-    { name = "asyncpg-stubs" },
     { name = "eof-fixer" },
     { name = "ruff" },
     { name = "ty" },
