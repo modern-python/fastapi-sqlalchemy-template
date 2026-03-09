@@ -12,7 +12,7 @@ Production-ready dockerized async REST API on FastAPI with SQLAlchemy and Postgr
 - tests on `pytest` with automatic rollback after each test case
 - IOC (Inversion of Control) container built on [modern-di](https://github.com/modern-python/modern-di/)
 - Observability tools integration built on [lite-bootstrap](https://github.com/modern-python/lite-bootstrap/)
-- Linting and formatting using `ruff` and `mypy`
+- Linting and formatting using `ruff` and `ty`
 - `Alembic` for DB migrations
 
 You can clone this project or use [this template](https://github.com/modern-python/modern-python-template) for fast [micro]service creation from scratch.

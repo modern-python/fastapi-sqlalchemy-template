@@ -8,7 +8,6 @@ __pycache__/*
 .idea
 .DS_Store
 .env
-.mypy_cache
 .ruff_cache
 .pytest_cache
 .coverage

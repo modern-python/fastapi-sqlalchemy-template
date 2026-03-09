@@ -2,7 +2,6 @@
 .coverage
 .gitignore
 .idea
-.mypy_cache
 .ruff_cache
 .vscode
 .git
