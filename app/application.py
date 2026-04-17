@@ -36,6 +36,6 @@ def build_app() -> fastapi.FastAPI:
     include_routers(app)
     app.add_exception_handler(
         DuplicateKeyError,
-        exceptions.duplicate_key_error_handler,  # type: ignore[arg-type]
+        exceptions.duplicate_key_error_handler,  # ty: ignore[invalid-argument-type]
     )
     return app
