@@ -17,7 +17,7 @@ ROUTER: typing.Final = fastapi.APIRouter()
 async def list_decks(
     decks_repository: DecksRepository = FromDI(DecksRepository),
 ) -> schemas.Decks:
-    objects = await decks_repository.list()
+    objects = await decks_repository.get_many()
     return typing.cast("schemas.Decks", {"items": objects})
 
 
@@ -64,7 +64,7 @@ async def list_cards(
     deck_id: int,
     cards_repository: CardsRepository = FromDI(CardsRepository),
 ) -> schemas.Cards:
-    objects = await cards_repository.list(models.Card.deck_id == deck_id)
+    objects = await cards_repository.get_many(models.Card.deck_id == deck_id)
     return typing.cast("schemas.Cards", {"items": objects})
 
 
