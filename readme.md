@@ -21,3 +21,9 @@ You can clone this project or use [this template](https://github.com/modern-pyth
 ```bash
 just --list
 ```
+
+## Part of `modern-python`
+
+Browse the full list of templates and libraries in
+[`modern-python`](https://github.com/modern-python) — see the org profile for the
+categorized index.
