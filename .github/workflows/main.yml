@@ -55,11 +55,3 @@ jobs:
           PYTHONDONTWRITEBYTECODE: 1
           PYTHONUNBUFFERED: 1
           DB_DSN: postgresql+asyncpg://postgres:password@127.0.0.1/postgres
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4.0.1
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        with:
-          files: ./coverage.xml
-          flags: unittests
-          name: codecov-${{ matrix.python-version }}
