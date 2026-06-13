@@ -4,7 +4,6 @@
 [![CI](https://github.com/modern-python/fastapi-sqlalchemy-template/actions/workflows/main.yml/badge.svg)](https://github.com/modern-python/fastapi-sqlalchemy-template/actions/workflows/main.yml)
 [![License](https://img.shields.io/github/license/modern-python/fastapi-sqlalchemy-template.svg)](https://github.com/modern-python/fastapi-sqlalchemy-template/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/modern-python/fastapi-sqlalchemy-template)](https://github.com/modern-python/fastapi-sqlalchemy-template/stargazers)
-[![Context7](https://img.shields.io/badge/Context7-docs-blue)](https://context7.com/modern-python/fastapi-sqlalchemy-template)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
