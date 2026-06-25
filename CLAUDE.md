@@ -8,19 +8,13 @@ Python 3.14 async REST API. FastAPI + SQLAlchemy 2 (async) + PostgreSQL + Alembi
 
 ## Common commands
 
-The development workflow runs inside Docker via `just`. The `application` service mounts the repo and depends on a `db` Postgres service.
+The development workflow runs inside Docker via `just` (`just --list` / read the `Justfile` for the full recipe list). The `application` service mounts the repo and depends on a `db` Postgres service. Bare `just` runs the default pipeline (install + lint + build + test).
 
-```bash
-just              # default: install + lint + build + test
-just run          # alembic upgrade head + start app on :8000
-just sh           # shell inside the application container
-just test [args]  # downgrade to base, upgrade, then pytest <args>; brings stack down after
-just migration -m "msg"   # autogenerate alembic revision against current head
-just lint         # eof-fixer + ruff format + ruff check --fix + ty check
-just build        # docker compose build application
-just down         # docker compose down --remove-orphans
-just install      # uv lock --upgrade && uv sync --all-extras --all-groups --frozen
-```
+Things the recipe names don't make obvious:
+
+- `just test [args]` recreates a clean DB first (`alembic downgrade base` → `upgrade head`) and tears the stack down afterward; `[args]` are passed through to `pytest`.
+- `just run` applies migrations then starts the app on :8000.
+- `just lint` auto-fixes (eof-fixer + `ruff format` + `ruff check --fix` + `ty check`); CI (below) is the no-fix gate.
 
 Running a single test (inside container or with DB available):
 
