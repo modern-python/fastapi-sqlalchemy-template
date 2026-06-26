@@ -22,9 +22,9 @@ async def list_decks(
 async def get_deck(
     deck_id: int,
     decks_repository: DecksRepository = FromDI(DecksRepository),
-) -> schemas.Deck:
+) -> schemas.DeckWithCards:
     instance = await decks_repository.fetch_with_cards(deck_id)
-    return schemas.Deck.model_validate(instance)
+    return schemas.DeckWithCards.model_validate(instance)
 
 
 @ROUTER.put("/decks/{deck_id}/")

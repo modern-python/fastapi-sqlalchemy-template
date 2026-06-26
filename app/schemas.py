@@ -49,8 +49,15 @@ class DeckCreate(DeckBase):
 
 
 class Deck(DeckBase):
+    """Light deck view for lists and writes; cards are not loaded."""
+
     id: PositiveInt
-    cards: list[Card] | None
+
+
+class DeckWithCards(Deck):
+    """Deck detail view; cards are eager-loaded (selectinload) and always present."""
+
+    cards: list[Card]
 
 
 class Decks(Collection[Deck]):
