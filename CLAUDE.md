@@ -33,7 +33,7 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 1. Creates a `modern_di.Container` with the `Dependencies` group from `app/ioc.py`.
 2. Builds a `FastAPIBootstrapper` from `settings.api_bootstrapper_config`, injecting SQLAlchemy + asyncpg OpenTelemetry instrumentors.
 3. `modern_di_fastapi.setup_di(app, container)` wires DI scopes onto the FastAPI app.
-4. Includes `app.api.decks.ROUTER` under `/api`.
+4. Includes one `ROUTER` per resource (`app.api.decks.ROUTER`, `app.api.cards.ROUTER`) under `/api` via `include_routers`. Add a new resource by creating `app/api/<name>.py` with its own `APIRouter`-based `ROUTER` and registering it there.
 5. Registers `DuplicateKeyError` → 422 handler from `app/exceptions.py`.
 
 ### DI scopes (modern-di)

@@ -9,7 +9,7 @@ from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
 from app import exceptions, ioc
-from app.api.decks import ROUTER
+from app.api import cards, decks
 from app.settings import settings
 
 
@@ -18,7 +18,8 @@ if typing.TYPE_CHECKING:
 
 
 def include_routers(app: fastapi.FastAPI) -> None:
-    app.include_router(ROUTER, prefix="/api")
+    app.include_router(decks.ROUTER, prefix="/api")
+    app.include_router(cards.ROUTER, prefix="/api")
 
 
 def build_app() -> fastapi.FastAPI:
