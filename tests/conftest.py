@@ -47,11 +47,15 @@ async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[
     engine = create_sa_engine()
     connection = await engine.connect()
     transaction = await connection.begin()
-    await connection.begin_nested()
     di_container.override(ioc.Dependencies.database_engine, connection)
 
     try:
-        yield AsyncSession(connection, expire_on_commit=False, autoflush=False)
+        yield AsyncSession(
+            connection,
+            expire_on_commit=False,
+            autoflush=False,
+            join_transaction_mode="create_savepoint",
+        )
     finally:
         if connection.in_transaction():
             await transaction.rollback()
