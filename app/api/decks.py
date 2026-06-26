@@ -3,7 +3,6 @@ import typing
 import fastapi
 from advanced_alchemy.exceptions import NotFoundError
 from modern_di_fastapi import FromDI
-from sqlalchemy import orm
 from starlette import status
 
 from app import models, schemas
@@ -26,10 +25,7 @@ async def get_deck(
     deck_id: int,
     decks_repository: DecksRepository = FromDI(DecksRepository),
 ) -> schemas.Deck:
-    instance = await decks_repository.get_one_or_none(
-        models.Deck.id == deck_id,
-        load=[orm.selectinload(models.Deck.cards)],
-    )
+    instance = await decks_repository.fetch_with_cards(deck_id)
     if not instance:
         raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck is not found")
 
@@ -64,7 +60,7 @@ async def list_cards(
     deck_id: int,
     cards_repository: CardsRepository = FromDI(CardsRepository),
 ) -> schemas.Cards:
-    objects = await cards_repository.get_many(models.Card.deck_id == deck_id)
+    objects = await cards_repository.list_for_deck(deck_id)
     return typing.cast("schemas.Cards", {"items": objects})
 
 
@@ -85,9 +81,7 @@ async def create_cards(
     data: list[schemas.CardCreate],
     cards_repository: CardsRepository = FromDI(CardsRepository),
 ) -> schemas.Cards:
-    objects = await cards_repository.create_many(
-        data=[models.Card(**card.model_dump(), deck_id=deck_id) for card in data],
-    )
+    objects = await cards_repository.add_cards(deck_id, data)
     return typing.cast("schemas.Cards", {"items": objects})
 
 
@@ -97,7 +91,5 @@ async def update_cards(
     data: list[schemas.Card],
     cards_repository: CardsRepository = FromDI(CardsRepository),
 ) -> schemas.Cards:
-    objects = await cards_repository.upsert_many(
-        data=[models.Card(**card.model_dump(exclude={"deck_id"}), deck_id=deck_id) for card in data],
-    )
+    objects = await cards_repository.upsert_cards(deck_id, data)
     return typing.cast("schemas.Cards", {"items": objects})
