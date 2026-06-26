@@ -35,6 +35,16 @@ async def test_get_decks(client: AsyncClient) -> None:
         assert v == getattr(deck, k)
 
 
+async def test_list_decks_omits_cards(client: AsyncClient) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    await factories.CardModelFactory.create_async(deck_id=deck.id)
+
+    response = await client.get("/api/decks/")
+    assert response.status_code == status.HTTP_200_OK
+    item = response.json()["items"][0]
+    assert "cards" not in item
+
+
 async def test_get_one_deck(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
     card = await factories.CardModelFactory.create_async(deck_id=deck.id)
