@@ -1,9 +1,7 @@
 import typing
 
 import fastapi
-from advanced_alchemy.exceptions import NotFoundError
 from modern_di_fastapi import FromDI
-from starlette import status
 
 from app import models, schemas
 from app.repositories import CardsRepository, DecksRepository
@@ -26,9 +24,6 @@ async def get_deck(
     decks_repository: DecksRepository = FromDI(DecksRepository),
 ) -> schemas.Deck:
     instance = await decks_repository.fetch_with_cards(deck_id)
-    if not instance:
-        raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck is not found")
-
     return typing.cast("schemas.Deck", instance)
 
 
@@ -38,11 +33,7 @@ async def update_deck(
     data: schemas.DeckCreate,
     decks_repository: DecksRepository = FromDI(DecksRepository),
 ) -> schemas.Deck:
-    try:
-        instance = await decks_repository.update(data=data.model_dump(), item_id=deck_id)
-    except NotFoundError:
-        raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck is not found") from None
-
+    instance = await decks_repository.update(data=data.model_dump(), item_id=deck_id)
     return typing.cast("schemas.Deck", instance)
 
 
@@ -69,9 +60,7 @@ async def get_card(
     card_id: int,
     cards_repository: CardsRepository = FromDI(CardsRepository),
 ) -> schemas.Card:
-    instance = await cards_repository.get_one_or_none(models.Card.id == card_id)
-    if not instance:
-        raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Card is not found")
+    instance = await cards_repository.get_one(models.Card.id == card_id)
     return typing.cast("schemas.Card", instance)
 
 
