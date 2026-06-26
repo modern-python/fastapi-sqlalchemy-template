@@ -25,16 +25,16 @@ async def close_sa_engine(engine: sa.AsyncEngine) -> None:
     await engine.dispose()
 
 
-class CustomAsyncSession(sa.AsyncSession):
-    async def close(self) -> None:
-        if isinstance(self.bind, sa.AsyncConnection):
-            return self.expunge_all()
-
-        return await super().close()
-
-
 def create_session(engine: sa.AsyncEngine) -> sa.AsyncSession:
-    return CustomAsyncSession(engine, expire_on_commit=False, autoflush=False)
+    # join_transaction_mode is inert in production (the session binds to an engine); when tests bind
+    # the session to a connection already in a transaction, it makes the session own a savepoint so
+    # the outer transaction survives commits and the per-test rollback stays clean.
+    return sa.AsyncSession(
+        engine,
+        expire_on_commit=False,
+        autoflush=False,
+        join_transaction_mode="create_savepoint",
+    )
 
 
 async def close_session(session: sa.AsyncSession) -> None:
