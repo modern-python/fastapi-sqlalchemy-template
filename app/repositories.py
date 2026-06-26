@@ -17,8 +17,8 @@ class DecksRepository(SQLAlchemyAsyncRepositoryService[models.Deck]):
 
     repository_type = BaseRepository
 
-    async def fetch_with_cards(self, deck_id: int) -> models.Deck | None:
-        return await self.get_one_or_none(
+    async def fetch_with_cards(self, deck_id: int) -> models.Deck:
+        return await self.get_one(
             models.Deck.id == deck_id,
             load=[orm.selectinload(models.Deck.cards)],
         )
