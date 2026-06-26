@@ -70,5 +70,5 @@ Endpoints inject repositories with `FromDI(Repository)` from `modern_di_fastapi`
 
 - Type-ignore syntax is `# ty: ignore[error-code]` (this project uses `ty`, not mypy). See `app/application.py:39` for an example.
 - Ruff is configured with `select = ["ALL"]` and a curated ignore list in `pyproject.toml`. Don't sprinkle `# noqa`; prefer fixing or extending the project ignore list if a rule is genuinely wrong for the codebase.
-- Routes return `typing.cast("schemas.X", obj)` over ORM/dict objects rather than constructing Pydantic models — the schemas use `from_attributes=True`.
+- Routes convert ORM objects to schemas explicitly, never via `typing.cast`. Single objects: `schemas.X.model_validate(instance)`. Collections: `schemas.Xs.from_models(objects)` (the `Collection[T]` seam in `app/schemas.py`). Both rely on `from_attributes=True`.
 - Line length is 120.
