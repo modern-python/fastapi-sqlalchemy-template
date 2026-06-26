@@ -15,7 +15,7 @@ async def list_decks(
     decks_repository: DecksRepository = FromDI(DecksRepository),
 ) -> schemas.Decks:
     objects = await decks_repository.get_many()
-    return typing.cast("schemas.Decks", {"items": objects})
+    return schemas.Decks.from_models(objects)
 
 
 @ROUTER.get("/decks/{deck_id}/")
@@ -24,7 +24,7 @@ async def get_deck(
     decks_repository: DecksRepository = FromDI(DecksRepository),
 ) -> schemas.Deck:
     instance = await decks_repository.fetch_with_cards(deck_id)
-    return typing.cast("schemas.Deck", instance)
+    return schemas.Deck.model_validate(instance)
 
 
 @ROUTER.put("/decks/{deck_id}/")
@@ -34,7 +34,7 @@ async def update_deck(
     decks_repository: DecksRepository = FromDI(DecksRepository),
 ) -> schemas.Deck:
     instance = await decks_repository.update(data=data.model_dump(), item_id=deck_id)
-    return typing.cast("schemas.Deck", instance)
+    return schemas.Deck.model_validate(instance)
 
 
 @ROUTER.post("/decks/")
@@ -43,7 +43,7 @@ async def create_deck(
     decks_repository: DecksRepository = FromDI(DecksRepository),
 ) -> schemas.Deck:
     instance = await decks_repository.create(data.model_dump())
-    return typing.cast("schemas.Deck", instance)
+    return schemas.Deck.model_validate(instance)
 
 
 @ROUTER.get("/decks/{deck_id}/cards/")
@@ -52,7 +52,7 @@ async def list_cards(
     cards_repository: CardsRepository = FromDI(CardsRepository),
 ) -> schemas.Cards:
     objects = await cards_repository.list_for_deck(deck_id)
-    return typing.cast("schemas.Cards", {"items": objects})
+    return schemas.Cards.from_models(objects)
 
 
 @ROUTER.get("/cards/{card_id}/")
@@ -61,7 +61,7 @@ async def get_card(
     cards_repository: CardsRepository = FromDI(CardsRepository),
 ) -> schemas.Card:
     instance = await cards_repository.get_one(models.Card.id == card_id)
-    return typing.cast("schemas.Card", instance)
+    return schemas.Card.model_validate(instance)
 
 
 @ROUTER.post("/decks/{deck_id}/cards/")
@@ -71,7 +71,7 @@ async def create_cards(
     cards_repository: CardsRepository = FromDI(CardsRepository),
 ) -> schemas.Cards:
     objects = await cards_repository.add_cards(deck_id, data)
-    return typing.cast("schemas.Cards", {"items": objects})
+    return schemas.Cards.from_models(objects)
 
 
 @ROUTER.put("/decks/{deck_id}/cards/")
@@ -81,4 +81,4 @@ async def update_cards(
     cards_repository: CardsRepository = FromDI(CardsRepository),
 ) -> schemas.Cards:
     objects = await cards_repository.upsert_cards(deck_id, data)
-    return typing.cast("schemas.Cards", {"items": objects})
+    return schemas.Cards.from_models(objects)

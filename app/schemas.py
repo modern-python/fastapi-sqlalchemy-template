@@ -1,9 +1,23 @@
+from typing import TYPE_CHECKING, Self
+
 import pydantic
 from pydantic import BaseModel, PositiveInt
 
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+
 class Base(BaseModel):
     model_config = pydantic.ConfigDict(from_attributes=True)
+
+
+class Collection[T: Base](Base):
+    items: list[T]
+
+    @classmethod
+    def from_models(cls, objects: Iterable[object]) -> Self:
+        return cls.model_validate({"items": list(objects)})
 
 
 class CardBase(Base):
@@ -21,8 +35,8 @@ class Card(CardBase):
     deck_id: PositiveInt | None = None
 
 
-class Cards(Base):
-    items: list[Card]
+class Cards(Collection[Card]):
+    pass
 
 
 class DeckBase(Base):
@@ -39,5 +53,5 @@ class Deck(DeckBase):
     cards: list[Card] | None
 
 
-class Decks(Base):
-    items: list[Deck]
+class Decks(Collection[Deck]):
+    pass
