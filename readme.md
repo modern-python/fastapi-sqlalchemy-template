@@ -1,4 +1,10 @@
-# fastapi-sqlalchemy-template
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)"  srcset="https://raw.githubusercontent.com/modern-python/.github/main/brand/projects/fastapi-sqlalchemy-template/lockup-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/modern-python/.github/main/brand/projects/fastapi-sqlalchemy-template/lockup-light.svg">
+    <img alt="fastapi-sqlalchemy-template" src="https://raw.githubusercontent.com/modern-python/.github/main/brand/projects/fastapi-sqlalchemy-template/lockup.png" width="420">
+  </picture>
+</p>
 
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/modern-python/fastapi-sqlalchemy-template/actions/workflows/main.yml)
 [![CI](https://github.com/modern-python/fastapi-sqlalchemy-template/actions/workflows/main.yml/badge.svg)](https://github.com/modern-python/fastapi-sqlalchemy-template/actions/workflows/main.yml)
