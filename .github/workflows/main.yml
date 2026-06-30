@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v8.2.0
       - run: uv python install 3.14
+      - run: uv python pin 3.14
       - run: |
           uv sync --all-extras --all-groups --frozen --no-install-project
           uv run ruff format . --check
@@ -46,6 +47,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v8.2.0
       - run: uv python install 3.14
+      - run: uv python pin 3.14
       - run: |
           uv sync --all-extras --all-groups --frozen --no-install-project
           uv run alembic upgrade head
