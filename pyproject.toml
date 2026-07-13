@@ -1,7 +1,7 @@
 [project]
 name = "fastapi-sqlalchemy-template"
 version = "0"
-description = "Async template on FastAPI and SQLAlchemy 2"
+description = "Dockerized FastAPI + SQLAlchemy 2 + PostgreSQL app template with DI"
 readme = "readme.md"
 requires-python = ">=3.14"
 authors = [
