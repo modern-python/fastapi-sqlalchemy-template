@@ -39,8 +39,10 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 ### DI scopes (modern-di)
 
 `app/ioc.py` defines providers:
-- `database_engine` — singleton-ish `AsyncEngine` with `create_sa_engine` / `close_sa_engine` finalizer.
-- `session` — `Scope.REQUEST`, finalized by `close_session`.
+- `database_engine` — singleton-ish primary `AsyncEngine` (`create_primary_sa_engine`, `close_sa_engine` finalizer).
+- `database_replica_engine` — singleton-ish replica `AsyncEngine` built from `DB_REPLICA_DSN`, or `None` when it is unset.
+- `dynamic_engine` — `Scope.REQUEST`; `choose_sa_engine` returns the replica for `GET`/`HEAD` requests when one is configured, the primary otherwise (including when there is no request). GET handlers must not write, and a read right after a write may see replica lag.
+- `session` — `Scope.REQUEST`, bound to `dynamic_engine`, finalized by `close_session`.
 - `decks_repository`, `cards_repository` — `Scope.REQUEST`, depend on `session`, configured with `auto_commit=True` (commit happens at session close, not per call).
 
 Endpoints inject repositories with `FromDI(Repository)` from `modern_di_fastapi`. Add new providers to `Dependencies` rather than constructing services manually in routes.
@@ -49,19 +51,19 @@ Endpoints inject repositories with `FromDI(Repository)` from `modern_di_fastapi`
 
 - `app/models.py` — `BigIntAuditBase` from `advanced_alchemy` (auto `id`, `created_at`, `updated_at`). The module aliases `orm_registry.metadata` onto `orm.DeclarativeBase.metadata` so Alembic autogenerate sees both. New models go here.
 - `app/repositories.py` — Subclass `SQLAlchemyAsyncRepositoryService[Model]` with a nested `BaseRepository(SQLAlchemyAsyncRepository[Model])`. Routes use the service methods (`list`, `get_one_or_none`, `create`, `update`, `create_many`, `upsert_many`).
-- `app/resources/db.py` — `create_session` passes `join_transaction_mode="create_savepoint"`. This is inert in production (the session binds to an engine) but enables the test rollback pattern below: when a test binds the session to a connection already in a transaction, the session owns its own savepoint so the outer transaction survives commits — do not "fix" it.
+- `app/resources/db.py` — engine factories live here and are DI creators: modern-di resolves their parameter annotations at runtime, so `pyproject.toml` exempts `app/resources/` from ruff's `TC` rules. `create_session` passes `join_transaction_mode="create_savepoint"`. This is inert in production (the session binds to an engine) but enables the test rollback pattern below: when a test binds the session to a connection already in a transaction, the session owns its own savepoint so the outer transaction survives commits — do not "fix" it.
 - `migrations/env.py` swaps the asyncpg driver for the sync `postgresql` driver and uses `app.models.METADATA` as `target_metadata`.
 
 ### Settings
 
-`app/settings.py` — `pydantic_settings.BaseSettings`. Env vars are unprefixed (`DB_DSN`, `SERVICE_DEBUG`, `SERVICE_ENVIRONMENT`, `LOG_LEVEL`, `APP_HOST`, `APP_PORT`, `OPENTELEMETRY_ENDPOINT`, `SENTRY_DSN`, `CORS_ALLOWED_ORIGINS`, ...). `api_bootstrapper_config` produces a `FastAPIConfig` for `lite-bootstrap`.
+`app/settings.py` — `pydantic_settings.BaseSettings`. Env vars are unprefixed (`DB_DSN`, `DB_REPLICA_DSN`, `SERVICE_DEBUG`, `SERVICE_ENVIRONMENT`, `LOG_LEVEL`, `APP_HOST`, `APP_PORT`, `OPENTELEMETRY_ENDPOINT`, `SENTRY_DSN`, `CORS_ALLOWED_ORIGINS`, ...). `api_bootstrapper_config` produces a `FastAPIConfig` for `lite-bootstrap`.
 
 ### Tests
 
 `tests/conftest.py` provides the test isolation pattern — read it before adding fixtures:
 
 - `app` fixture builds a fresh app via `LifespanManager`.
-- `db_session` opens a connection, begins a transaction, and **overrides `Dependencies.database_engine`** with the connection itself. Each session built against that connection uses `join_transaction_mode="create_savepoint"`, so `auto_commit` releases the session's own savepoint while the outer transaction is rolled back at teardown — each test starts clean.
+- `db_session` opens a connection, begins a transaction, and **overrides `Dependencies.dynamic_engine`** with the connection itself, so reads and writes share one rolled-back transaction. Each session built against that connection uses `join_transaction_mode="create_savepoint"`, so `auto_commit` releases the session's own savepoint while the outer transaction is rolled back at teardown — each test starts clean.
 - `set_async_session_in_base_sqlalchemy_factory` wires `db_session` into `SQLAlchemyFactory.__async_session__` so `polyfactory` factories in `tests/factories.py` (`DeckModelFactory`, `CardModelFactory`) persist via the rolled-back session. Test modules that use these factories opt in with `pytestmark = [pytest.mark.usefixtures("set_async_session_in_base_sqlalchemy_factory")]`.
 
 `pytest.ini_options` sets `asyncio_mode = "auto"` — async tests do not need `@pytest.mark.asyncio`. Coverage runs by default (`--cov=. --cov-report term-missing`).

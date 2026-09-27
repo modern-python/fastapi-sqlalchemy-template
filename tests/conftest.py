@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import ioc
 from app.application import build_app
-from app.resources.db import create_sa_engine
+from app.resources.db import create_primary_sa_engine
 
 
 if typing.TYPE_CHECKING:
@@ -44,10 +44,10 @@ async def di_container(app: fastapi.FastAPI) -> typing.AsyncIterator[modern_di.C
 
 @pytest.fixture
 async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[AsyncSession]:
-    engine = create_sa_engine()
+    engine = create_primary_sa_engine()
     connection = await engine.connect()
     transaction = await connection.begin()
-    di_container.override(ioc.Dependencies.database_engine, connection)
+    di_container.override(ioc.Dependencies.dynamic_engine, connection)
 
     try:
         yield AsyncSession(
