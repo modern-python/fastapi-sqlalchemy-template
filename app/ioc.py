@@ -6,10 +6,10 @@ from app.resources.db import close_sa_engine, close_session, create_sa_engine, c
 
 class Dependencies(Group):
     database_engine = providers.Factory(
-        creator=create_sa_engine, cache_settings=providers.CacheSettings(finalizer=close_sa_engine)
+        creator=create_sa_engine, cache=providers.CacheSettings(finalizer=close_sa_engine)
     )
     session = providers.Factory(
-        scope=Scope.REQUEST, creator=create_session, cache_settings=providers.CacheSettings(finalizer=close_session)
+        scope=Scope.REQUEST, creator=create_session, cache=providers.CacheSettings(finalizer=close_session)
     )
 
     decks_repository = providers.Factory(
