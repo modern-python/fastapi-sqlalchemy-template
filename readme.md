@@ -24,6 +24,8 @@ Production-ready dockerized async REST API on FastAPI with SQLAlchemy and Postgr
 - Linting and formatting using `ruff` and `ty`
 - `Alembic` for DB migrations
 
+Authentication is intentionally omitted: pick the scheme that fits your project and add it as a FastAPI dependency.
+
 You can clone this project or use [this template](https://github.com/modern-python/modern-python-template) for fast [micro]service creation from scratch.
 
 ### After `git clone` run
