@@ -1,10 +1,8 @@
 FROM python:3.14-slim
 
-# required for psycopg2
+# libpq for psycopg, used by Alembic
 RUN apt update \
-    && apt install -y --no-install-recommends \
-        build-essential \
-        libpq-dev \
+    && apt install -y --no-install-recommends libpq5 \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
