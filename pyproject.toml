@@ -67,6 +67,9 @@ isort.lines-after-imports = 2
 isort.no-lines-before = ["standard-library", "local-folder"]
 
 [tool.ruff.lint.extend-per-file-ignores]
+"app/resources/*.py" = [
+    "TC", # modern-di reads DI creator annotations at runtime
+]
 "tests/*.py" = [
     "S101", # allow asserts
 ]
