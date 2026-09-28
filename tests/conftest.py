@@ -5,16 +5,16 @@ import pytest
 from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
 from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import ioc
 from app.application import build_app
-from app.resources.db import create_primary_sa_engine
+from app.resources.db import create_primary_sa_engine, create_session
 
 
 if typing.TYPE_CHECKING:
     import fastapi
     import modern_di
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @pytest.fixture
@@ -50,12 +50,7 @@ async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[
     di_container.override(ioc.Dependencies.dynamic_engine, connection)
 
     try:
-        yield AsyncSession(
-            connection,
-            expire_on_commit=False,
-            autoflush=False,
-            join_transaction_mode="create_savepoint",
-        )
+        yield create_session(connection)
     finally:
         if connection.in_transaction():
             await transaction.rollback()
