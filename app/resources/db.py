@@ -50,7 +50,7 @@ def choose_sa_engine(
     return primary_engine
 
 
-def create_session(engine: sa.AsyncEngine) -> sa.AsyncSession:
+def create_session(engine: sa.AsyncEngine | sa.AsyncConnection) -> sa.AsyncSession:
     # join_transaction_mode is inert in production (the session binds to an engine); when tests bind
     # the session to a connection already in a transaction, it makes the session own a savepoint so
     # the outer transaction survives commits and the per-test rollback stays clean.
