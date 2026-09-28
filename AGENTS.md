@@ -66,7 +66,7 @@ Endpoints inject repositories with `FromDI(Repository)` from `modern_di_fastapi`
 - `db_session` opens a connection, begins a transaction, and **overrides `Dependencies.dynamic_engine`** with the connection itself, so reads and writes share one rolled-back transaction. Each session built against that connection uses `join_transaction_mode="create_savepoint"`, so `auto_commit` releases the session's own savepoint while the outer transaction is rolled back at teardown — each test starts clean.
 - `set_async_session_in_base_sqlalchemy_factory` wires `db_session` into `SQLAlchemyFactory.__async_session__` so `polyfactory` factories in `tests/factories.py` (`DeckModelFactory`, `CardModelFactory`) persist via the rolled-back session. Test modules that use these factories opt in with `pytestmark = [pytest.mark.usefixtures("set_async_session_in_base_sqlalchemy_factory")]`.
 
-`pytest.ini_options` sets `asyncio_mode = "auto"` — async tests do not need `@pytest.mark.asyncio`. Coverage runs by default (`--cov=. --cov-report term-missing`).
+`pytest.ini_options` sets `asyncio_mode = "auto"` — async tests do not need `@pytest.mark.asyncio`. Coverage runs by default with `--cov-fail-under=100`, so `just test` fails unless tests cover every line of new code.
 
 ## Conventions
 
