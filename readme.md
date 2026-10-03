@@ -14,26 +14,24 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
 
-### Description
-Production-ready dockerized async REST API on FastAPI with SQLAlchemy and PostgreSQL
+## Description
+Dockerized FastAPI, SQLAlchemy 2 and PostgreSQL app template with DI.
 
-## Key Features
+## Key features
 - tests on `pytest` with automatic rollback after each test case
 - IOC (Inversion of Control) container built on [modern-di](https://github.com/modern-python/modern-di/)
 - Observability tools integration built on [lite-bootstrap](https://github.com/modern-python/lite-bootstrap/)
-- Linting and formatting using `ruff` and `ty`
+- Linting and formatting with `ruff`, type checking with `ty`
 - `Alembic` for DB migrations
 
 Authentication is intentionally omitted: pick the scheme that fits your project and add it as a FastAPI dependency.
 
-You can clone this project or use [this template](https://github.com/modern-python/modern-python-template) for fast [micro]service creation from scratch.
-
-### After `git clone` run
+## After `git clone` run
 ```bash
 just --list
 ```
 
-## 📝 [License](LICENSE)
+## 📝 [License](https://github.com/modern-python/fastapi-sqlalchemy-template/blob/main/LICENSE)
 
 ## Part of `modern-python`
 

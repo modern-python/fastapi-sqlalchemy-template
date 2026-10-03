@@ -7,7 +7,7 @@ requires-python = ">=3.14"
 authors = [
     { name = "Artur Shiriev", email = "me@shiriev.ru" },
 ]
-license = "MIT License"
+license = "MIT"
 dependencies = [
     "fastapi>=0.76",
     "lite-bootstrap[fastapi-all]",
