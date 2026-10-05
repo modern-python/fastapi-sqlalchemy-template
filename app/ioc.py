@@ -23,15 +23,7 @@ class Dependencies(Group):
         cache=providers.CacheSettings(finalizer=close_sa_engine),
         bound_type=None,
     )
-    try:
-        optional_request = providers.ContextProvider(
-            fastapi.Request,
-            scope=Scope.REQUEST,
-            bound_type=None,
-            **{"default": None},  # noqa: PIE804
-        )
-    except TypeError:  # pragma: no cover  # modern-di 3.x has no default= and passes None to nullable params
-        optional_request = providers.ContextProvider(fastapi.Request, scope=Scope.REQUEST, bound_type=None)
+    optional_request = providers.ContextProvider(fastapi.Request, scope=Scope.REQUEST, bound_type=None, default=None)
     dynamic_engine = providers.Factory(
         scope=Scope.REQUEST,
         creator=choose_sa_engine,
