@@ -1,3 +1,4 @@
+import fastapi
 from modern_di import Group, Scope, providers
 
 from app.repositories import CardsRepository, DecksRepository
@@ -22,10 +23,23 @@ class Dependencies(Group):
         cache=providers.CacheSettings(finalizer=close_sa_engine),
         bound_type=None,
     )
+    try:
+        optional_request = providers.ContextProvider(
+            fastapi.Request,
+            scope=Scope.REQUEST,
+            bound_type=None,
+            **{"default": None},  # noqa: PIE804
+        )
+    except TypeError:  # pragma: no cover  # modern-di 3.x has no default= and passes None to nullable params
+        optional_request = providers.ContextProvider(fastapi.Request, scope=Scope.REQUEST, bound_type=None)
     dynamic_engine = providers.Factory(
         scope=Scope.REQUEST,
         creator=choose_sa_engine,
-        kwargs={"primary_engine": database_engine, "replica_engine": database_replica_engine},
+        kwargs={
+            "primary_engine": database_engine,
+            "replica_engine": database_replica_engine,
+            "request": optional_request,
+        },
     )
     session = providers.Factory(
         scope=Scope.REQUEST,
