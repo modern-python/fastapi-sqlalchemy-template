@@ -285,7 +285,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.76" },
     { name = "granian", extras = ["uvloop"] },
     { name = "lite-bootstrap", extras = ["fastapi-all"] },
-    { name = "modern-di-fastapi", specifier = ">=3,<4" },
+    { name = "modern-di-fastapi", specifier = ">=4,<5" },
     { name = "opentelemetry-instrumentation-asyncpg" },
     { name = "opentelemetry-instrumentation-sqlalchemy" },
     { name = "psycopg" },
@@ -580,24 +580,24 @@ wheels = [
 
 [[package]]
 name = "modern-di"
-version = "3.5.0"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/18/7f/f526669ed4ad2a00e3b7608d70e64e1874bbaf486643bcd0778decfe8137/modern_di-3.5.0.tar.gz", hash = "sha256:835bff74608fa4db8e6a3d5db83cd1123b9cbeb75e4aede8907a7a4d8d2e4c62", size = 34111, upload-time = "2026-09-19T10:25:06.929Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/58/e3/9c92577190555fbc78de895ae30e5093290decd682cd31e170d1a01d8a71/modern_di-4.0.0.tar.gz", hash = "sha256:5554fa458dfb59ab0325a57b1e550c3e35524f4236604884529980f9dc1f5424", size = 37359, upload-time = "2026-10-09T17:33:38.946Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/7b/3477a1582d9f12c1e0ca4d9ebfc04160a4e05dd8cfd56495ff1f2c5638fd/modern_di-3.5.0-py3-none-any.whl", hash = "sha256:a105cc9a58f5443dfa98f208d28679f7b88ff1f4d51d53d44fff09e3432c0ee6", size = 47074, upload-time = "2026-09-19T10:25:05.987Z" },
+    { url = "https://files.pythonhosted.org/packages/23/0d/3bf3ef9c0fda1e44ab7ed4e6e81a24d4428d0ff85ea1a01f3ab54ec6c956/modern_di-4.0.0-py3-none-any.whl", hash = "sha256:0634d9a9e5159d92572c93090c0f9d939291c2de9b0b86de925ba7e0c91f30ce", size = 49954, upload-time = "2026-10-09T17:33:37.977Z" },
 ]
 
 [[package]]
 name = "modern-di-fastapi"
-version = "3.0.2"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastapi" },
     { name = "modern-di" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ec/29/8113db8ab40501f99306da88d683ac13a572f3399f4a26f03bfe774fb374/modern_di_fastapi-3.0.2.tar.gz", hash = "sha256:d69e96a534d18a25845084cc59c85ad5f6cbf044edde134739d0ea8e326821dc", size = 4679, upload-time = "2026-09-15T17:13:35.49Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2a/82/1cb2295813a8cd8e1709362e99f5d8c9979cfb7bdda5f32a66954aa68409/modern_di_fastapi-4.0.0.tar.gz", hash = "sha256:910ca77612606c30bc2c069a0618da8cdedab3e346211a1ce5d11ab08f2a6c36", size = 4766, upload-time = "2026-10-09T18:14:18.248Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b7/f3/a83a1c98d40ef3e51636f0ed565de1cd4fda15dfc07a30a638e4df0a00e8/modern_di_fastapi-3.0.2-py3-none-any.whl", hash = "sha256:0d46f853ad244388529aed3bd4b95a59fb516797b800fbc469ebc3311c39e203", size = 5114, upload-time = "2026-09-15T17:13:34.353Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/34/104a9c23fd56df9658ce602328262f42066179d4dfaa439f81023a58fc81/modern_di_fastapi-4.0.0-py3-none-any.whl", hash = "sha256:ad1f6b585187bf5ddf30dced5554655f89b6371fb1af265b929de22c7768cc13", size = 5182, upload-time = "2026-10-09T18:14:17.361Z" },
 ]
 
 [[package]]
