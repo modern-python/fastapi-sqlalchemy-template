@@ -5,7 +5,6 @@ import modern_di
 import modern_di_fastapi
 from advanced_alchemy.exceptions import DuplicateKeyError, NotFoundError
 from lite_bootstrap import FastAPIBootstrapper
-from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
 from app import exceptions, ioc
@@ -26,10 +25,7 @@ def build_app() -> fastapi.FastAPI:
     di_container = modern_di.Container(groups=[ioc.Dependencies])
     bootstrap_config = dataclasses.replace(
         settings.api_bootstrapper_config,
-        opentelemetry_instrumentors=[
-            SQLAlchemyInstrumentor(),
-            AsyncPGInstrumentor(capture_parameters=True),
-        ],
+        opentelemetry_instrumentors=[SQLAlchemyInstrumentor()],
     )
     bootstrapper = FastAPIBootstrapper(bootstrap_config=bootstrap_config)
     app: fastapi.FastAPI = bootstrapper.bootstrap()
