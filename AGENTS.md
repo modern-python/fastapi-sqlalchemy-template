@@ -73,7 +73,10 @@ class ListDecksUseCase:
 
 - Every query runs inside `async with self.transaction:`. A query before the block leaves the session in a failed transaction on a lost connection, and the retry then fails with `PendingRollbackError`.
 - Commit before leaving the block, reads included, and before any early return. Otherwise `__aexit__` rolls back, which expires the loaded rows.
-- A retry runs the whole use case again. If the connection drops during `COMMIT`, the write may already have landed, so a non-idempotent write such as `CreateDeckUseCase` can be applied twice.
+- A retry runs the whole use case again. If the connection drops during `COMMIT`, the write may already have landed. A write that creates rows needs something that makes the second run harmless:
+  - `CreateDeckUseCase` takes a client-generated `idempotency_key` (`schemas.DeckCreate`, unique on `decks`). It looks the key up inside the transaction and returns the existing deck when it finds one, so a retry, or a client resending the request, gets the first deck back. Two concurrent requests with one key can still both miss the lookup; the second then fails on the unique constraint as a duplicate-key error.
+  - `CreateCardsUseCase` relies on the `(deck_id, front)` unique constraint. A replay is rejected as a duplicate-key error rather than creating the cards twice.
+  - Updates (`UpdateDeckUseCase`, `UpdateCardsUseCase`) write the same values again, so a replay is harmless.
 
 `app/use_cases/` is exempt from ruff's `TC` rules because modern-di reads the dataclass field annotations at runtime.
 

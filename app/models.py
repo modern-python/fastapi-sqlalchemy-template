@@ -1,4 +1,5 @@
 import typing
+import uuid
 
 import sqlalchemy as sa
 from advanced_alchemy.base import BigIntAuditBase, orm_registry
@@ -11,7 +12,9 @@ orm.DeclarativeBase.metadata = METADATA
 
 class Deck(BigIntAuditBase):
     __tablename__ = "decks"
+    __table_args__ = (sa.UniqueConstraint("idempotency_key", name="deck_idempotency_key_uc"),)
 
+    idempotency_key: orm.Mapped[uuid.UUID] = orm.mapped_column(sa.Uuid, nullable=False)
     name: orm.Mapped[str] = orm.mapped_column(sa.String, nullable=False)
     description: orm.Mapped[str | None] = orm.mapped_column(sa.String, nullable=True)
     cards: orm.Mapped[list[Card]] = orm.relationship("Card", lazy="noload", uselist=True)

@@ -31,7 +31,7 @@ async def get_deck(
 @ROUTER.put("/decks/{deck_id}/")
 async def update_deck(
     deck_id: int,
-    data: schemas.DeckCreate,
+    data: schemas.DeckUpdate,
     update_deck_use_case: UpdateDeckUseCase = FromDI(UpdateDeckUseCase),
 ) -> schemas.Deck:
     return schemas.Deck.model_validate(await update_deck_use_case(deck_id=deck_id, data=data))
