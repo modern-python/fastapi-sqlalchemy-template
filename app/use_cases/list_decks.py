@@ -16,6 +16,6 @@ class ListDecksUseCase:
     @postgres_retry
     async def __call__(self) -> Sequence[models.Deck]:
         async with self.transaction:
-            decks: typing.Final = await self.decks_repository.get_many()
+            decks: typing.Final = await self.decks_repository.list_decks()
             await self.transaction.commit()
         return decks

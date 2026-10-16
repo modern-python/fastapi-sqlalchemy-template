@@ -45,6 +45,17 @@ async def test_list_decks_omits_cards(client: AsyncClient) -> None:
     assert "cards" not in item
 
 
+async def test_list_decks_ordered_by_id_after_update(client: AsyncClient) -> None:
+    deck1, deck2 = await factories.DeckModelFactory.create_batch_async(size=2)
+
+    response = await client.put(f"/api/decks/{deck1.id}/", json={"name": "deck1 updated"})
+    assert response.status_code == status.HTTP_200_OK
+
+    response = await client.get("/api/decks/")
+    assert response.status_code == status.HTTP_200_OK
+    assert [x["id"] for x in response.json()["items"]] == [deck1.id, deck2.id]
+
+
 async def test_get_one_deck(client: AsyncClient) -> None:
     deck = await factories.DeckModelFactory.create_async()
     card = await factories.CardModelFactory.create_async(deck_id=deck.id)
