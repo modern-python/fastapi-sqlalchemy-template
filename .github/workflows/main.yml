@@ -30,6 +30,18 @@ jobs:
 
   pytest:
     runs-on: ubuntu-latest
+    name: pytest (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: app
+            run: |
+              uv run alembic upgrade head
+              uv run pytest . --cov=. --cov-report xml
+          # pytest-alembic upgrades an empty database itself, so no `alembic upgrade` first.
+          - name: migrations
+            run: uv run pytest tests/migrations --override-ini=addopts=
     services:
       postgres:
         image: postgres:latest
@@ -52,8 +64,7 @@ jobs:
       - run: uv python pin 3.14
       - run: |
           uv sync --all-extras --all-groups --frozen --no-install-project
-          uv run alembic upgrade head
-          uv run pytest . --cov=. --cov-report xml
+          ${{ matrix.run }}
         env:
           SERVICE_ENVIRONMENT: ci
           PYTHONDONTWRITEBYTECODE: 1

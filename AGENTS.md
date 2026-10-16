@@ -13,6 +13,7 @@ The development workflow runs inside Docker via `just` (`just --list` / read the
 Things the recipe names don't make obvious:
 
 - `just test [args]` recreates a clean DB first (`alembic downgrade base` → `upgrade head`) and tears the stack down afterward; `[args]` are passed through to `pytest`.
+- `just test-migrations [args]` runs the `pytest-alembic` suite in `tests/migrations/` against an empty database: single head, upgrade, up/down consistency for every revision, and models matching the migrated schema (`alembic check` as a test). `just test` skips that directory (`--ignore` in `addopts`, `omit` in coverage) because it migrates the schema under the transaction-rollback fixture, so the recipe clears `addopts`.
 - `just run` applies migrations then starts the app on :8000.
 - `just lint` auto-fixes (eof-fixer + `ruff format` + `ruff check --fix` + `ty check`); CI (below) is the no-fix gate.
 
@@ -22,7 +23,7 @@ Running a single test (inside container or with DB available):
 uv run pytest tests/test_decks.py::test_get_decks -x
 ```
 
-CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-fix`, `ty check`, then `alembic upgrade head` and `pytest` against a Postgres service. Match this locally before pushing.
+CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-fix`, `ty check`, then two Postgres jobs: `alembic upgrade head` followed by `pytest`, and the `pytest-alembic` suite. Match this locally before pushing.
 
 ## Architecture
 
