@@ -15,6 +15,6 @@ class CreateDeckUseCase:
     @postgres_retry
     async def __call__(self, *, data: schemas.DeckCreate) -> models.Deck:
         async with self.transaction:
-            deck: typing.Final = await self.decks_repository.create(data.model_dump())
+            deck: typing.Final = await self.decks_repository.get_or_create(data)
             await self.transaction.commit()
         return deck

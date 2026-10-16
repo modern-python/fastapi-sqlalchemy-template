@@ -1,3 +1,4 @@
+import uuid
 from typing import TYPE_CHECKING, Self
 
 import pydantic
@@ -45,6 +46,10 @@ class DeckBase(Base):
 
 
 class DeckCreate(DeckBase):
+    idempotency_key: uuid.UUID
+
+
+class DeckUpdate(DeckBase):
     pass
 
 

@@ -1,3 +1,4 @@
+import uuid
 from typing import TYPE_CHECKING
 
 import pytest
@@ -89,6 +90,7 @@ async def test_post_decks(
     response = await client.post(
         "/api/decks/",
         json={
+            "idempotency_key": str(uuid.uuid4()),
             "name": name,
             "description": description,
         },
@@ -149,3 +151,21 @@ async def test_put_decks(client: AsyncClient, name: str, description: str) -> No
     result = response.json()
     assert name == result["name"]
     assert description == result["description"]
+
+
+async def test_post_decks_requires_an_idempotency_key(client: AsyncClient) -> None:
+    response = await client.post("/api/decks/", json={"name": "test deck"})
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+
+
+async def test_post_decks_twice_with_one_idempotency_key_creates_one_deck(client: AsyncClient) -> None:
+    idempotency_key = str(uuid.uuid4())
+
+    first = await client.post("/api/decks/", json={"idempotency_key": idempotency_key, "name": "first"})
+    second = await client.post("/api/decks/", json={"idempotency_key": idempotency_key, "name": "second"})
+
+    assert first.status_code == status.HTTP_200_OK
+    assert second.status_code == status.HTTP_200_OK
+    assert second.json() == first.json()
+    response = await client.get("/api/decks/")
+    assert [item["name"] for item in response.json()["items"]] == ["first"]

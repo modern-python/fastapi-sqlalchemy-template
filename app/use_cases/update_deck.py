@@ -13,7 +13,7 @@ class UpdateDeckUseCase:
     decks_repository: DecksRepository
 
     @postgres_retry
-    async def __call__(self, *, deck_id: int, data: schemas.DeckCreate) -> models.Deck:
+    async def __call__(self, *, deck_id: int, data: schemas.DeckUpdate) -> models.Deck:
         async with self.transaction:
             deck: typing.Final = await self.decks_repository.update(data=data.model_dump(), item_id=deck_id)
             await self.transaction.commit()

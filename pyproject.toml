@@ -64,6 +64,7 @@ ignore = [
     "CPY001", # Missing copyright notice at top of file
 ]
 isort.lines-after-imports = 2
+flake8-type-checking.runtime-evaluated-base-classes = ["pydantic.BaseModel", "advanced_alchemy.base.BigIntAuditBase"]
 isort.no-lines-before = ["standard-library", "local-folder"]
 
 [tool.ruff.lint.extend-per-file-ignores]

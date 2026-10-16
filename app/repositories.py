@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from advanced_alchemy.repository import SQLAlchemyAsyncRepository
 from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
 from sqlalchemy import orm
+from sqlalchemy.dialects import postgresql
 
 from app import models, schemas
 
@@ -20,6 +21,14 @@ class DecksRepository(SQLAlchemyAsyncRepositoryService[models.Deck]):
 
     async def list_decks(self) -> Sequence[models.Deck]:
         return await self.get_many(order_by=models.Deck.id.asc())
+
+    async def get_or_create(self, data: schemas.DeckCreate) -> models.Deck:
+        statement = postgresql.insert(models.Deck).values(**data.model_dump())
+        statement = statement.on_conflict_do_update(
+            index_elements=[models.Deck.idempotency_key],
+            set_={"idempotency_key": statement.excluded.idempotency_key},
+        )
+        return (await self.repository.session.scalars(statement.returning(models.Deck))).one()
 
     async def fetch_with_cards(self, deck_id: int) -> models.Deck:
         return await self.get_one(
