@@ -20,6 +20,7 @@ dependencies = [
     "psycopg",
     "sqlalchemy[asyncio]<2.1",
     "asyncpg",
+    "db-retry>=0.8.0",
     # tracing
     "opentelemetry-instrumentation-sqlalchemy",
 ]
@@ -67,6 +68,9 @@ isort.no-lines-before = ["standard-library", "local-folder"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "app/resources/*.py" = [
+    "TC", # modern-di reads DI creator annotations at runtime
+]
+"app/use_cases/*.py" = [
     "TC", # modern-di reads DI creator annotations at runtime
 ]
 "tests/*.py" = [

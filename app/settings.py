@@ -14,7 +14,7 @@ class Settings(pydantic_settings.BaseSettings):
     db_replica_dsn: str = ""
     db_pool_size: int = 5
     db_max_overflow: int = 0
-    db_pool_pre_ping: bool = True
+    db_pool_pre_ping: bool = False
 
     app_host: str = "0.0.0.0"  # noqa: S104
     app_port: int = 8000

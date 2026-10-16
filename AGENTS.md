@@ -30,7 +30,7 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 
 `app/__main__.py` boots Granian pointing at `app.application:build_app` (factory). `build_app()` in `app/application.py`:
 
-1. Creates a `modern_di.Container` with the `Dependencies` group from `app/ioc.py`.
+1. Creates a `modern_di.Container` with `ioc.ALL_GROUPS` from `app/ioc.py`.
 2. Builds a `FastAPIBootstrapper` from `settings.api_bootstrapper_config`, injecting the SQLAlchemy OpenTelemetry instrumentor.
 3. `modern_di_fastapi.setup_di(app, container)` wires DI scopes onto the FastAPI app.
 4. Includes one `ROUTER` per resource (`app.api.decks.ROUTER`, `app.api.cards.ROUTER`) under `/api` via `include_routers`. Add a new resource by creating `app/api/<name>.py` with its own `APIRouter`-based `ROUTER` and registering it there.
@@ -38,19 +38,49 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 
 ### DI scopes (modern-di)
 
-`app/ioc.py` defines providers:
+`app/ioc.py` splits providers into three groups, collected in `ALL_GROUPS`.
+
+`Database`:
 - `database_engine` — singleton-ish primary `AsyncEngine` (`create_primary_sa_engine`, `close_sa_engine` finalizer).
-- `database_read_engine` — singleton-ish read `AsyncEngine` built from `DB_REPLICA_DSN`, or from `DB_DSN` when it is unset. It runs in `AUTOCOMMIT` (no BEGIN/ROLLBACK per request, and the pre-ping is a bare `;`) and sets `default_transaction_read_only=on`, so Postgres rejects writes on it. Each statement sees its own snapshot, so a multi-query read (e.g. `fetch_with_cards`) can see a write that commits in between. Without a replica it is a second pool on the primary, so a process can hold up to `2 × db_pool_size` connections.
+- `database_read_engine` — singleton-ish read `AsyncEngine` built from `DB_REPLICA_DSN`, or from `DB_DSN` when it is unset. It runs in `AUTOCOMMIT` (no BEGIN/ROLLBACK per request) and sets `default_transaction_read_only=on`, so Postgres rejects writes on it. Each statement sees its own snapshot, so a multi-query read (e.g. `fetch_with_cards`) can see a write that commits in between. Without a replica it is a second pool on the primary, so a process can hold up to `2 × db_pool_size` connections.
 - `dynamic_engine` — `Scope.REQUEST`; `choose_sa_engine` returns the read engine for `GET`/`HEAD` requests, the primary otherwise (including when there is no request). GET handlers cannot write, and a read right after a write may see replica lag.
 - `session` — `Scope.REQUEST`, bound to `dynamic_engine`, finalized by `close_session`.
-- `decks_repository`, `cards_repository` — `Scope.REQUEST`, depend on `session`, configured with `auto_commit=True` (commit happens at session close, not per call).
+- `transaction` — `Scope.REQUEST`, a `db_retry.Transaction` over `session`. Leaving its block rolls back anything uncommitted and closes the session.
 
-Endpoints inject repositories with `FromDI(Repository)` from `modern_di_fastapi`. Add new providers to `Dependencies` rather than constructing services manually in routes.
+`Repositories` (`Scope.REQUEST`): `decks_repository` and `cards_repository`, on `Database.session` with `auto_commit=False`. The use case commits through `transaction.commit()`.
+
+`UseCases` (`Scope.REQUEST`): one provider per use case in `app/use_cases/`. modern-di fills each dataclass field by its type, so a use case needs no `kwargs`.
+
+Endpoints inject a use case with `FromDI(UseCase)` from `modern_di_fastapi`, call it, and convert the result to a schema. They never touch repositories or the session. Add new providers to the matching group rather than constructing services manually in routes.
+
+### Use cases and lost connections
+
+`pool_pre_ping` is off by default (`DB_POOL_PRE_PING`). A pooled connection that died while idle is handled by `db_retry.postgres_retry` instead, which saves a round trip on every checkout. That only works if the retried function owns its whole transaction, so every use case has this shape:
+
+```python
+@dataclasses.dataclass(kw_only=True, frozen=True, slots=True)
+class ListDecksUseCase:
+    transaction: Transaction
+    decks_repository: DecksRepository
+
+    @postgres_retry
+    async def __call__(self) -> Sequence[models.Deck]:
+        async with self.transaction:
+            decks: typing.Final = await self.decks_repository.get_many()
+            await self.transaction.commit()
+        return decks
+```
+
+- Every query runs inside `async with self.transaction:`. A query before the block leaves the session in a failed transaction on a lost connection, and the retry then fails with `PendingRollbackError`.
+- Commit before leaving the block, reads included, and before any early return. Otherwise `__aexit__` rolls back, which expires the loaded rows.
+- A retry runs the whole use case again. If the connection drops during `COMMIT`, the write may already have landed, so a non-idempotent write such as `CreateDeckUseCase` can be applied twice.
+
+`app/use_cases/` is exempt from ruff's `TC` rules because modern-di reads the dataclass field annotations at runtime.
 
 ### Database layer
 
 - `app/models.py` — `BigIntAuditBase` from `advanced_alchemy` (auto `id`, `created_at`, `updated_at`). The module aliases `orm_registry.metadata` onto `orm.DeclarativeBase.metadata` so Alembic autogenerate sees both. New models go here.
-- `app/repositories.py` — Subclass `SQLAlchemyAsyncRepositoryService[Model]` with a nested `BaseRepository(SQLAlchemyAsyncRepository[Model])`. Routes use the service methods (`list`, `get_one_or_none`, `create`, `update`, `create_many`, `upsert_many`).
+- `app/repositories.py` — Subclass `SQLAlchemyAsyncRepositoryService[Model]` with a nested `BaseRepository(SQLAlchemyAsyncRepository[Model])`. Use cases call the service methods (`get_many`, `get_one`, `create`, `update`, `create_many`, `upsert_many`).
 - `app/resources/db.py` — engine factories live here and are DI creators: modern-di resolves their parameter annotations at runtime, so `pyproject.toml` exempts `app/resources/` from ruff's `TC` rules. `create_session` passes `join_transaction_mode="create_savepoint"`. This is inert in production (the session binds to an engine) but enables the test rollback pattern below: when a test binds the session to a connection already in a transaction, the session owns its own savepoint so the outer transaction survives commits — do not "fix" it.
 - `migrations/env.py` swaps the asyncpg driver for the sync `postgresql` driver and uses `app.models.METADATA` as `target_metadata`.
 
@@ -63,7 +93,7 @@ Endpoints inject repositories with `FromDI(Repository)` from `modern_di_fastapi`
 `tests/conftest.py` provides the test isolation pattern — read it before adding fixtures:
 
 - `app` fixture builds a fresh app via `LifespanManager`.
-- `db_session` opens a connection, begins a transaction, and **overrides `Dependencies.dynamic_engine`** with the connection itself, so reads and writes share one rolled-back transaction. Each session built against that connection uses `join_transaction_mode="create_savepoint"`, so `auto_commit` releases the session's own savepoint while the outer transaction is rolled back at teardown — each test starts clean.
+- `db_session` opens a connection, begins a transaction, and **overrides `Database.dynamic_engine`** with the connection itself, so reads and writes share one rolled-back transaction. Each session built against that connection uses `join_transaction_mode="create_savepoint"`, so `transaction.commit()` releases the session's own savepoint while the outer transaction is rolled back at teardown — each test starts clean.
 - `set_async_session_in_base_sqlalchemy_factory` wires `db_session` into `SQLAlchemyFactory.__async_session__` so `polyfactory` factories in `tests/factories.py` (`DeckModelFactory`, `CardModelFactory`) persist via the rolled-back session. Test modules that use these factories opt in with `pytestmark = [pytest.mark.usefixtures("set_async_session_in_base_sqlalchemy_factory")]`.
 
 `pytest.ini_options` sets `asyncio_mode = "auto"` — async tests do not need `@pytest.mark.asyncio`. Coverage runs by default with `--cov-fail-under=100`, so `just test` fails unless tests cover every line of new code.

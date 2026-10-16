@@ -47,7 +47,7 @@ async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[
     engine = create_primary_sa_engine()
     connection = await engine.connect()
     transaction = await connection.begin()
-    di_container.override(ioc.Dependencies.dynamic_engine, connection)
+    di_container.override(ioc.Database.dynamic_engine, connection)
 
     try:
         yield create_session(connection)
