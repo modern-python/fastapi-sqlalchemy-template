@@ -119,3 +119,19 @@ async def test_update_cards(client: AsyncClient) -> None:
     for x in cards:
         assert x.pop("deck_id") == deck.id
     assert cards == updated_data
+
+
+async def test_cards_ordered_by_id_after_update(client: AsyncClient) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    card1, card2 = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
+
+    response = await client.put(
+        f"/api/decks/{deck.id}/cards/",
+        json=[{"id": card2.id, "front": "card2 updated"}, {"id": card1.id, "front": "card1 updated"}],
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert [x["id"] for x in response.json()["items"]] == [card1.id, card2.id]
+
+    response = await client.get(f"/api/decks/{deck.id}/cards/")
+    assert response.status_code == status.HTTP_200_OK
+    assert [x["id"] for x in response.json()["items"]] == [card1.id, card2.id]
