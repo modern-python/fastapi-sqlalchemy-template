@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING
 from advanced_alchemy.repository import SQLAlchemyAsyncRepository
 from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
 from sqlalchemy import orm
+from sqlalchemy.dialects import postgresql
 
 from app import models, schemas
 
 
 if TYPE_CHECKING:
-    import uuid
     from collections.abc import Sequence
 
 
@@ -18,8 +18,13 @@ class DecksRepository(SQLAlchemyAsyncRepositoryService[models.Deck]):
 
     repository_type = BaseRepository
 
-    async def fetch_by_idempotency_key(self, idempotency_key: uuid.UUID) -> models.Deck | None:
-        return await self.get_one_or_none(idempotency_key=idempotency_key)
+    async def get_or_create(self, data: schemas.DeckCreate) -> models.Deck:
+        statement = postgresql.insert(models.Deck).values(**data.model_dump())
+        statement = statement.on_conflict_do_update(
+            index_elements=[models.Deck.idempotency_key],
+            set_={"idempotency_key": statement.excluded.idempotency_key},
+        )
+        return (await self.repository.session.scalars(statement.returning(models.Deck))).one()
 
     async def fetch_with_cards(self, deck_id: int) -> models.Deck:
         return await self.get_one(

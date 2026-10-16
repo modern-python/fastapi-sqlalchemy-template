@@ -1,4 +1,5 @@
 import dataclasses
+import typing
 
 from db_retry import Transaction, postgres_retry
 
@@ -14,8 +15,6 @@ class CreateDeckUseCase:
     @postgres_retry
     async def __call__(self, *, data: schemas.DeckCreate) -> models.Deck:
         async with self.transaction:
-            deck = await self.decks_repository.fetch_by_idempotency_key(data.idempotency_key)
-            if deck is None:
-                deck = await self.decks_repository.create(data.model_dump())
+            deck: typing.Final = await self.decks_repository.get_or_create(data)
             await self.transaction.commit()
         return deck
