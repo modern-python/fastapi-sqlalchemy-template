@@ -509,14 +509,14 @@ wheels = [
 
 [[package]]
 name = "lite-bootstrap"
-version = "1.9.3"
+version = "1.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/73/64/34c80f72a567aac3ac0fabf4530d7074314019dd07075f09930239f4659f/lite_bootstrap-1.9.3.tar.gz", hash = "sha256:cacca6a721cf9657cd0801dea8fef1e361e8e2ce84c6c4e454f92f0a3d1745f5", size = 1838726, upload-time = "2026-09-27T15:52:10.859Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/33/71/645aaf63a35ef09615c03d22958ebe7244bbc5349a5e3d3c2e13886def7a/lite_bootstrap-1.13.0.tar.gz", hash = "sha256:ec5e0897fa1855f4911d0b61467b2da954500d3a8ee977eb7e71bc006090d921", size = 1843890, upload-time = "2026-10-16T11:07:05.788Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d7/42/ad1d5e1d6c29e03b222a99388b5138496ab17061cd428b21cfe76b913886/lite_bootstrap-1.9.3-py3-none-any.whl", hash = "sha256:ac929bf4aefd154a0fc1d00749b59aefb3d10c7f0b333b27b94de7579c12c409", size = 1850322, upload-time = "2026-09-27T15:52:08.291Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/8e/1a53f12b0a18a55c98cb54cefef7e1520eadb26ee0261ce6295a8041546a/lite_bootstrap-1.13.0-py3-none-any.whl", hash = "sha256:36ae7d76fed4d5c0b782e199367ab47e4d22ff2d87a578fa84112a9ded89fa22", size = 1853736, upload-time = "2026-10-16T11:07:03.922Z" },
 ]
 
 [package.optional-dependencies]
