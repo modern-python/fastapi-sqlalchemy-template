@@ -18,7 +18,7 @@ def test_main(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 async def test_session() -> None:
-    container = modern_di.Container(groups=[ioc.Dependencies])
+    container = modern_di.Container(groups=ioc.ALL_GROUPS)
     request_container = container.build_child_container(scope=modern_di.Scope.REQUEST)
     try:
         request_container.resolve(AsyncSession)

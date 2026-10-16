@@ -1,5 +1,4 @@
 import asyncio
-import inspect
 import typing
 
 import asyncpg
@@ -10,7 +9,6 @@ from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, AsyncSession
 
 from app import ioc, models, schemas
-from app.api import cards, decks
 from app.resources.db import create_primary_sa_engine, create_read_sa_engine
 
 
@@ -52,8 +50,8 @@ async def stored_ids() -> typing.AsyncIterator[StoredIds]:
 async def engines(di_container: modern_di.Container) -> typing.AsyncIterator[tuple[AsyncEngine, AsyncEngine]]:
     primary_engine: typing.Final = create_primary_sa_engine()
     read_engine: typing.Final = create_read_sa_engine()
-    di_container.override(ioc.Dependencies.database_engine, primary_engine)
-    di_container.override(ioc.Dependencies.database_read_engine, read_engine)
+    di_container.override(ioc.Database.database_engine, primary_engine)
+    di_container.override(ioc.Database.database_read_engine, read_engine)
     try:
         yield primary_engine, read_engine
     finally:
@@ -91,7 +89,7 @@ async def _terminate_backend(engine: AsyncEngine, pid: int, closed: asyncio.Even
 @pytest.fixture
 async def lost_connection(engines: tuple[AsyncEngine, AsyncEngine], request_container: modern_di.Container) -> None:
     """Leave the request session holding a primary connection whose backend was terminated."""
-    session: typing.Final = request_container.resolve_provider(ioc.Dependencies.session)
+    session: typing.Final = request_container.resolve_provider(ioc.Database.session)
     assert isinstance(session, AsyncSession)
     connection: typing.Final = await session.connection()
     primary_engine, _ = engines
@@ -133,32 +131,32 @@ async def test_endpoint_recovers_from_a_connection_lost_while_pooled(
 
 @pytest.mark.usefixtures("lost_connection")
 @pytest.mark.parametrize(
-    ("handler", "build_kwargs"),
+    ("provider", "build_kwargs"),
     [
-        (decks.list_decks, lambda _: {}),
-        (decks.get_deck, lambda ids: {"deck_id": ids.deck_id}),
-        (decks.update_deck, lambda ids: {"deck_id": ids.deck_id, "data": schemas.DeckCreate(name="renamed")}),
-        (decks.create_deck, lambda _: {"data": schemas.DeckCreate(name="new")}),
-        (cards.list_cards, lambda ids: {"deck_id": ids.deck_id}),
-        (cards.get_card, lambda ids: {"card_id": ids.card_id}),
-        (cards.create_cards, lambda ids: {"deck_id": ids.deck_id, "data": [schemas.CardCreate(front="new")]}),
+        (ioc.UseCases.list_decks_use_case, lambda _: {}),
+        (ioc.UseCases.get_deck_use_case, lambda ids: {"deck_id": ids.deck_id}),
         (
-            cards.update_cards,
+            ioc.UseCases.update_deck_use_case,
+            lambda ids: {"deck_id": ids.deck_id, "data": schemas.DeckCreate(name="renamed")},
+        ),
+        (ioc.UseCases.create_deck_use_case, lambda _: {"data": schemas.DeckCreate(name="new")}),
+        (ioc.UseCases.list_cards_use_case, lambda ids: {"deck_id": ids.deck_id}),
+        (ioc.UseCases.get_card_use_case, lambda ids: {"card_id": ids.card_id}),
+        (
+            ioc.UseCases.create_cards_use_case,
+            lambda ids: {"deck_id": ids.deck_id, "data": [schemas.CardCreate(front="new")]},
+        ),
+        (
+            ioc.UseCases.update_cards_use_case,
             lambda ids: {"deck_id": ids.deck_id, "data": [schemas.Card(id=ids.card_id, front="renamed")]},
         ),
     ],
 )
-async def test_handler_recovers_from_a_lost_connection(
+async def test_use_case_recovers_from_a_lost_connection(
     request_container: modern_di.Container,
     stored_ids: StoredIds,
-    handler: typing.Callable[..., typing.Awaitable[schemas.Base]],
+    provider: modern_di.providers.Factory[typing.Any],
     build_kwargs: typing.Callable[[StoredIds], dict[str, typing.Any]],
 ) -> None:
-    dependencies: typing.Final = {
-        "decks_repository": request_container.resolve_provider(ioc.Dependencies.decks_repository),
-        "cards_repository": request_container.resolve_provider(ioc.Dependencies.cards_repository),
-        "transaction": request_container.resolve_provider(ioc.Dependencies.transaction),
-    }
-    parameters: typing.Final = inspect.signature(handler).parameters
-    kwargs: typing.Final = {name: value for name, value in dependencies.items() if name in parameters}
-    assert isinstance(await handler(**kwargs, **build_kwargs(stored_ids)), schemas.Base)
+    use_case: typing.Final = request_container.resolve_provider(provider)
+    assert await use_case(**build_kwargs(stored_ids))

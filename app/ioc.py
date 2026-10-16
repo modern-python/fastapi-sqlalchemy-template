@@ -1,3 +1,5 @@
+import typing
+
 from db_retry import Transaction
 from modern_di import Group, Scope, providers
 
@@ -10,9 +12,17 @@ from app.resources.db import (
     create_read_sa_engine,
     create_session,
 )
+from app.use_cases.create_cards import CreateCardsUseCase
+from app.use_cases.create_deck import CreateDeckUseCase
+from app.use_cases.get_card import GetCardUseCase
+from app.use_cases.get_deck import GetDeckUseCase
+from app.use_cases.list_cards import ListCardsUseCase
+from app.use_cases.list_decks import ListDecksUseCase
+from app.use_cases.update_cards import UpdateCardsUseCase
+from app.use_cases.update_deck import UpdateDeckUseCase
 
 
-class Dependencies(Group):
+class Database(Group):
     database_engine = providers.Factory(
         creator=create_primary_sa_engine,
         cache=providers.CacheSettings(finalizer=close_sa_engine),
@@ -40,13 +50,27 @@ class Dependencies(Group):
         kwargs={"session": session},
     )
 
+
+class Repositories(Group, scope=Scope.REQUEST):
     decks_repository = providers.Factory(
-        scope=Scope.REQUEST,
         creator=DecksRepository,
-        kwargs={"auto_commit": False, "session": session},
+        kwargs={"session": Database.session, "auto_commit": False},
     )
     cards_repository = providers.Factory(
-        scope=Scope.REQUEST,
         creator=CardsRepository,
-        kwargs={"auto_commit": False, "session": session},
+        kwargs={"session": Database.session, "auto_commit": False},
     )
+
+
+class UseCases(Group, scope=Scope.REQUEST):
+    list_decks_use_case = providers.Factory(creator=ListDecksUseCase)
+    get_deck_use_case = providers.Factory(creator=GetDeckUseCase)
+    update_deck_use_case = providers.Factory(creator=UpdateDeckUseCase)
+    create_deck_use_case = providers.Factory(creator=CreateDeckUseCase)
+    list_cards_use_case = providers.Factory(creator=ListCardsUseCase)
+    get_card_use_case = providers.Factory(creator=GetCardUseCase)
+    create_cards_use_case = providers.Factory(creator=CreateCardsUseCase)
+    update_cards_use_case = providers.Factory(creator=UpdateCardsUseCase)
+
+
+ALL_GROUPS: typing.Final[list[type[Group]]] = [Database, Repositories, UseCases]

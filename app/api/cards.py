@@ -1,65 +1,47 @@
 import typing
 
 import fastapi
-from db_retry import Transaction, postgres_retry
 from modern_di_fastapi import FromDI
 
-from app import models, schemas
-from app.repositories import CardsRepository
+from app import schemas
+from app.use_cases.create_cards import CreateCardsUseCase
+from app.use_cases.get_card import GetCardUseCase
+from app.use_cases.list_cards import ListCardsUseCase
+from app.use_cases.update_cards import UpdateCardsUseCase
 
 
 ROUTER: typing.Final = fastapi.APIRouter()
 
 
 @ROUTER.get("/decks/{deck_id}/cards/")
-@postgres_retry
 async def list_cards(
     deck_id: int,
-    cards_repository: CardsRepository = FromDI(CardsRepository),
-    transaction: Transaction = FromDI(Transaction),
+    list_cards_use_case: ListCardsUseCase = FromDI(ListCardsUseCase),
 ) -> schemas.Cards:
-    async with transaction:
-        objects = await cards_repository.list_for_deck(deck_id)
-        await transaction.commit()
-    return schemas.Cards.from_models(objects)
+    return schemas.Cards.from_models(await list_cards_use_case(deck_id=deck_id))
 
 
 @ROUTER.get("/cards/{card_id}/")
-@postgres_retry
 async def get_card(
     card_id: int,
-    cards_repository: CardsRepository = FromDI(CardsRepository),
-    transaction: Transaction = FromDI(Transaction),
+    get_card_use_case: GetCardUseCase = FromDI(GetCardUseCase),
 ) -> schemas.Card:
-    async with transaction:
-        instance = await cards_repository.get_one(models.Card.id == card_id)
-        await transaction.commit()
-    return schemas.Card.model_validate(instance)
+    return schemas.Card.model_validate(await get_card_use_case(card_id=card_id))
 
 
 @ROUTER.post("/decks/{deck_id}/cards/")
-@postgres_retry
 async def create_cards(
     deck_id: int,
     data: list[schemas.CardCreate],
-    cards_repository: CardsRepository = FromDI(CardsRepository),
-    transaction: Transaction = FromDI(Transaction),
+    create_cards_use_case: CreateCardsUseCase = FromDI(CreateCardsUseCase),
 ) -> schemas.Cards:
-    async with transaction:
-        objects = await cards_repository.add_cards(deck_id, data)
-        await transaction.commit()
-    return schemas.Cards.from_models(objects)
+    return schemas.Cards.from_models(await create_cards_use_case(deck_id=deck_id, data=data))
 
 
 @ROUTER.put("/decks/{deck_id}/cards/")
-@postgres_retry
 async def update_cards(
     deck_id: int,
     data: list[schemas.Card],
-    cards_repository: CardsRepository = FromDI(CardsRepository),
-    transaction: Transaction = FromDI(Transaction),
+    update_cards_use_case: UpdateCardsUseCase = FromDI(UpdateCardsUseCase),
 ) -> schemas.Cards:
-    async with transaction:
-        objects = await cards_repository.upsert_cards(deck_id, data)
-        await transaction.commit()
-    return schemas.Cards.from_models(objects)
+    return schemas.Cards.from_models(await update_cards_use_case(deck_id=deck_id, data=data))

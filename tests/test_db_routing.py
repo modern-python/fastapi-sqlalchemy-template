@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
 @pytest.fixture
 async def primary_engine(di_container: modern_di.Container) -> typing.AsyncIterator[AsyncEngine]:
     engine = create_sa_engine(settings.db_dsn_parsed)
-    di_container.override(ioc.Dependencies.database_engine, engine)
+    di_container.override(ioc.Database.database_engine, engine)
     yield engine
     await engine.dispose()
 
@@ -27,7 +27,7 @@ async def primary_engine(di_container: modern_di.Container) -> typing.AsyncItera
 @pytest.fixture
 async def read_engine(di_container: modern_di.Container) -> typing.AsyncIterator[AsyncEngine]:
     engine = create_read_sa_engine()
-    di_container.override(ioc.Dependencies.database_read_engine, engine)
+    di_container.override(ioc.Database.database_read_engine, engine)
     yield engine
     await engine.dispose()
 
@@ -35,7 +35,7 @@ async def read_engine(di_container: modern_di.Container) -> typing.AsyncIterator
 def resolve_engine(di_container: modern_di.Container, method: str | None) -> AsyncEngine:
     context = {fastapi.Request: fastapi.Request({"type": "http", "method": method})} if method else None
     with di_container.build_child_container(scope=Scope.REQUEST, context=context) as request_container:
-        return request_container.resolve_provider(ioc.Dependencies.dynamic_engine)
+        return request_container.resolve_provider(ioc.Database.dynamic_engine)
 
 
 @pytest.mark.parametrize("method", ["GET", "HEAD"])

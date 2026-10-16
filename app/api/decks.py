@@ -1,63 +1,45 @@
 import typing
 
 import fastapi
-from db_retry import Transaction, postgres_retry
 from modern_di_fastapi import FromDI
 
 from app import schemas
-from app.repositories import DecksRepository
+from app.use_cases.create_deck import CreateDeckUseCase
+from app.use_cases.get_deck import GetDeckUseCase
+from app.use_cases.list_decks import ListDecksUseCase
+from app.use_cases.update_deck import UpdateDeckUseCase
 
 
 ROUTER: typing.Final = fastapi.APIRouter()
 
 
 @ROUTER.get("/decks/")
-@postgres_retry
 async def list_decks(
-    decks_repository: DecksRepository = FromDI(DecksRepository),
-    transaction: Transaction = FromDI(Transaction),
+    list_decks_use_case: ListDecksUseCase = FromDI(ListDecksUseCase),
 ) -> schemas.Decks:
-    async with transaction:
-        objects = await decks_repository.get_many()
-        await transaction.commit()
-    return schemas.Decks.from_models(objects)
+    return schemas.Decks.from_models(await list_decks_use_case())
 
 
 @ROUTER.get("/decks/{deck_id}/")
-@postgres_retry
 async def get_deck(
     deck_id: int,
-    decks_repository: DecksRepository = FromDI(DecksRepository),
-    transaction: Transaction = FromDI(Transaction),
+    get_deck_use_case: GetDeckUseCase = FromDI(GetDeckUseCase),
 ) -> schemas.DeckWithCards:
-    async with transaction:
-        instance = await decks_repository.fetch_with_cards(deck_id)
-        await transaction.commit()
-    return schemas.DeckWithCards.model_validate(instance)
+    return schemas.DeckWithCards.model_validate(await get_deck_use_case(deck_id=deck_id))
 
 
 @ROUTER.put("/decks/{deck_id}/")
-@postgres_retry
 async def update_deck(
     deck_id: int,
     data: schemas.DeckCreate,
-    decks_repository: DecksRepository = FromDI(DecksRepository),
-    transaction: Transaction = FromDI(Transaction),
+    update_deck_use_case: UpdateDeckUseCase = FromDI(UpdateDeckUseCase),
 ) -> schemas.Deck:
-    async with transaction:
-        instance = await decks_repository.update(data=data.model_dump(), item_id=deck_id)
-        await transaction.commit()
-    return schemas.Deck.model_validate(instance)
+    return schemas.Deck.model_validate(await update_deck_use_case(deck_id=deck_id, data=data))
 
 
 @ROUTER.post("/decks/")
-@postgres_retry
 async def create_deck(
     data: schemas.DeckCreate,
-    decks_repository: DecksRepository = FromDI(DecksRepository),
-    transaction: Transaction = FromDI(Transaction),
+    create_deck_use_case: CreateDeckUseCase = FromDI(CreateDeckUseCase),
 ) -> schemas.Deck:
-    async with transaction:
-        instance = await decks_repository.create(data.model_dump())
-        await transaction.commit()
-    return schemas.Deck.model_validate(instance)
+    return schemas.Deck.model_validate(await create_deck_use_case(data=data))

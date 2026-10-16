@@ -70,6 +70,9 @@ isort.no-lines-before = ["standard-library", "local-folder"]
 "app/resources/*.py" = [
     "TC", # modern-di reads DI creator annotations at runtime
 ]
+"app/use_cases/*.py" = [
+    "TC", # modern-di reads DI creator annotations at runtime
+]
 "tests/*.py" = [
     "S101", # allow asserts
 ]
