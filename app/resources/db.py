@@ -12,10 +12,10 @@ from app.settings import settings
 logger = logging.getLogger(__name__)
 
 
-REPLICA_METHODS: typing.Final = frozenset({"GET", "HEAD"})
+READ_METHODS: typing.Final = frozenset({"GET", "HEAD"})
 
 
-def create_sa_engine(url: URL) -> sa.AsyncEngine:
+def create_sa_engine(url: URL, *, read_only: bool = False) -> sa.AsyncEngine:
     return sa.create_async_engine(
         url=url,
         echo=settings.service_debug,
@@ -23,6 +23,8 @@ def create_sa_engine(url: URL) -> sa.AsyncEngine:
         pool_size=settings.db_pool_size,
         pool_pre_ping=settings.db_pool_pre_ping,
         max_overflow=settings.db_max_overflow,
+        isolation_level="AUTOCOMMIT" if read_only else None,
+        connect_args={"server_settings": {"default_transaction_read_only": "on"}} if read_only else {},
     )
 
 
@@ -30,23 +32,25 @@ def create_primary_sa_engine() -> sa.AsyncEngine:
     return create_sa_engine(settings.db_dsn_parsed)
 
 
-def create_replica_sa_engine() -> sa.AsyncEngine | None:
-    return create_sa_engine(make_url(settings.db_replica_dsn)) if settings.db_replica_dsn else None
+def create_read_sa_engine() -> sa.AsyncEngine:
+    return create_sa_engine(
+        make_url(settings.db_replica_dsn) if settings.db_replica_dsn else settings.db_dsn_parsed,
+        read_only=True,
+    )
 
 
-async def close_sa_engine(engine: sa.AsyncEngine | None) -> None:
-    if engine:
-        await engine.dispose()
+async def close_sa_engine(engine: sa.AsyncEngine) -> None:
+    await engine.dispose()
 
 
 def choose_sa_engine(
     *,
     primary_engine: sa.AsyncEngine,
-    replica_engine: sa.AsyncEngine | None,
+    read_engine: sa.AsyncEngine,
     request: fastapi.Request | None = None,
 ) -> sa.AsyncEngine:
-    if replica_engine and request and request.method in REPLICA_METHODS:
-        return replica_engine
+    if request and request.method in READ_METHODS:
+        return read_engine
     return primary_engine
 
 

@@ -40,8 +40,8 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 
 `app/ioc.py` defines providers:
 - `database_engine` — singleton-ish primary `AsyncEngine` (`create_primary_sa_engine`, `close_sa_engine` finalizer).
-- `database_replica_engine` — singleton-ish replica `AsyncEngine` built from `DB_REPLICA_DSN`, or `None` when it is unset.
-- `dynamic_engine` — `Scope.REQUEST`; `choose_sa_engine` returns the replica for `GET`/`HEAD` requests when one is configured, the primary otherwise (including when there is no request). GET handlers must not write, and a read right after a write may see replica lag.
+- `database_read_engine` — singleton-ish read `AsyncEngine` built from `DB_REPLICA_DSN`, or from `DB_DSN` when it is unset. It runs in `AUTOCOMMIT` (no BEGIN/ROLLBACK per request, and the pre-ping is a bare `;`) and sets `default_transaction_read_only=on`, so Postgres rejects writes on it. Each statement sees its own snapshot, so a multi-query read (e.g. `fetch_with_cards`) can see a write that commits in between. Without a replica it is a second pool on the primary, so a process can hold up to `2 × db_pool_size` connections.
+- `dynamic_engine` — `Scope.REQUEST`; `choose_sa_engine` returns the read engine for `GET`/`HEAD` requests, the primary otherwise (including when there is no request). GET handlers cannot write, and a read right after a write may see replica lag.
 - `session` — `Scope.REQUEST`, bound to `dynamic_engine`, finalized by `close_session`.
 - `decks_repository`, `cards_repository` — `Scope.REQUEST`, depend on `session`, configured with `auto_commit=True` (commit happens at session close, not per call).
 

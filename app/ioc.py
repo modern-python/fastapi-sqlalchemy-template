@@ -6,7 +6,7 @@ from app.resources.db import (
     close_sa_engine,
     close_session,
     create_primary_sa_engine,
-    create_replica_sa_engine,
+    create_read_sa_engine,
     create_session,
 )
 
@@ -17,15 +17,15 @@ class Dependencies(Group):
         cache=providers.CacheSettings(finalizer=close_sa_engine),
         bound_type=None,
     )
-    database_replica_engine = providers.Factory(
-        creator=create_replica_sa_engine,
+    database_read_engine = providers.Factory(
+        creator=create_read_sa_engine,
         cache=providers.CacheSettings(finalizer=close_sa_engine),
         bound_type=None,
     )
     dynamic_engine = providers.Factory(
         scope=Scope.REQUEST,
         creator=choose_sa_engine,
-        kwargs={"primary_engine": database_engine, "replica_engine": database_replica_engine},
+        kwargs={"primary_engine": database_engine, "read_engine": database_read_engine},
     )
     session = providers.Factory(
         scope=Scope.REQUEST,
