@@ -1,3 +1,4 @@
+from db_retry import Transaction
 from modern_di import Group, Scope, providers
 
 from app.repositories import CardsRepository, DecksRepository
@@ -33,14 +34,19 @@ class Dependencies(Group):
         cache=providers.CacheSettings(finalizer=close_session),
         kwargs={"engine": dynamic_engine},
     )
+    transaction = providers.Factory(
+        scope=Scope.REQUEST,
+        creator=Transaction,
+        kwargs={"session": session},
+    )
 
     decks_repository = providers.Factory(
         scope=Scope.REQUEST,
         creator=DecksRepository,
-        kwargs={"auto_commit": True, "session": session},
+        kwargs={"auto_commit": False, "session": session},
     )
     cards_repository = providers.Factory(
         scope=Scope.REQUEST,
         creator=CardsRepository,
-        kwargs={"auto_commit": True, "session": session},
+        kwargs={"auto_commit": False, "session": session},
     )

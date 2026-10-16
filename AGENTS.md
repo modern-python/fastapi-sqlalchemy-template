@@ -40,12 +40,35 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 
 `app/ioc.py` defines providers:
 - `database_engine` — singleton-ish primary `AsyncEngine` (`create_primary_sa_engine`, `close_sa_engine` finalizer).
-- `database_read_engine` — singleton-ish read `AsyncEngine` built from `DB_REPLICA_DSN`, or from `DB_DSN` when it is unset. It runs in `AUTOCOMMIT` (no BEGIN/ROLLBACK per request, and the pre-ping is a bare `;`) and sets `default_transaction_read_only=on`, so Postgres rejects writes on it. Each statement sees its own snapshot, so a multi-query read (e.g. `fetch_with_cards`) can see a write that commits in between. Without a replica it is a second pool on the primary, so a process can hold up to `2 × db_pool_size` connections.
+- `database_read_engine` — singleton-ish read `AsyncEngine` built from `DB_REPLICA_DSN`, or from `DB_DSN` when it is unset. It runs in `AUTOCOMMIT` (no BEGIN/ROLLBACK per request) and sets `default_transaction_read_only=on`, so Postgres rejects writes on it. Each statement sees its own snapshot, so a multi-query read (e.g. `fetch_with_cards`) can see a write that commits in between. Without a replica it is a second pool on the primary, so a process can hold up to `2 × db_pool_size` connections.
 - `dynamic_engine` — `Scope.REQUEST`; `choose_sa_engine` returns the read engine for `GET`/`HEAD` requests, the primary otherwise (including when there is no request). GET handlers cannot write, and a read right after a write may see replica lag.
 - `session` — `Scope.REQUEST`, bound to `dynamic_engine`, finalized by `close_session`.
-- `decks_repository`, `cards_repository` — `Scope.REQUEST`, depend on `session`, configured with `auto_commit=True` (commit happens at session close, not per call).
+- `transaction` — `Scope.REQUEST`, a `db_retry.Transaction` over `session`. Leaving its block rolls back anything uncommitted and closes the session.
+- `decks_repository`, `cards_repository` — `Scope.REQUEST`, depend on `session`, configured with `auto_commit=False`. The handler commits through `transaction.commit()`.
 
-Endpoints inject repositories with `FromDI(Repository)` from `modern_di_fastapi`. Add new providers to `Dependencies` rather than constructing services manually in routes.
+Endpoints inject repositories and `Transaction` with `FromDI(...)` from `modern_di_fastapi`. Add new providers to `Dependencies` rather than constructing services manually in routes.
+
+### Lost connections
+
+`pool_pre_ping` is off by default (`DB_POOL_PRE_PING`). A pooled connection that died while idle is handled by `db_retry.postgres_retry` instead, which saves a round trip on every checkout. That only works if the retried function owns its whole transaction, so every handler that touches the database has this shape:
+
+```python
+@ROUTER.get("/decks/")
+@postgres_retry
+async def list_decks(
+    decks_repository: DecksRepository = FromDI(DecksRepository),
+    transaction: Transaction = FromDI(Transaction),
+) -> schemas.Decks:
+    async with transaction:
+        objects = await decks_repository.get_many()
+        await transaction.commit()
+    return schemas.Decks.from_models(objects)
+```
+
+- `@postgres_retry` goes under the route decorator.
+- Every query runs inside `async with transaction:`. A query before the block leaves the session in a failed transaction on a lost connection, and the retry then fails with `PendingRollbackError`.
+- Commit before leaving the block, reads included, and before any early return. Otherwise `__aexit__` rolls back, which expires the loaded rows.
+- A retry runs the whole handler again. If the connection drops during `COMMIT`, the write may already have landed, so a non-idempotent write such as `create_deck` can be applied twice.
 
 ### Database layer
 
@@ -63,8 +86,10 @@ Endpoints inject repositories with `FromDI(Repository)` from `modern_di_fastapi`
 `tests/conftest.py` provides the test isolation pattern — read it before adding fixtures:
 
 - `app` fixture builds a fresh app via `LifespanManager`.
-- `db_session` opens a connection, begins a transaction, and **overrides `Dependencies.dynamic_engine`** with the connection itself, so reads and writes share one rolled-back transaction. Each session built against that connection uses `join_transaction_mode="create_savepoint"`, so `auto_commit` releases the session's own savepoint while the outer transaction is rolled back at teardown — each test starts clean.
+- `db_session` opens a connection, begins a transaction, and **overrides `Dependencies.dynamic_engine`** with the connection itself, so reads and writes share one rolled-back transaction. Each session built against that connection uses `join_transaction_mode="create_savepoint"`, so `transaction.commit()` releases the session's own savepoint while the outer transaction is rolled back at teardown — each test starts clean.
 - `set_async_session_in_base_sqlalchemy_factory` wires `db_session` into `SQLAlchemyFactory.__async_session__` so `polyfactory` factories in `tests/factories.py` (`DeckModelFactory`, `CardModelFactory`) persist via the rolled-back session. Test modules that use these factories opt in with `pytestmark = [pytest.mark.usefixtures("set_async_session_in_base_sqlalchemy_factory")]`.
+
+`tests/test_connection_loss.py` overrides both engines with fresh ones and terminates a backend with `pg_terminate_backend`: `lost_pooled_connection` kills an idle pooled connection on each engine and goes through the HTTP client, `lost_connection` kills the connection a request session already holds and calls the handler directly. These tests commit for real, so `stored_ids` truncates `decks` and `cards` before and after. Each retry sleeps 1 to 2 seconds, which is most of the suite's run time.
 
 `pytest.ini_options` sets `asyncio_mode = "auto"` — async tests do not need `@pytest.mark.asyncio`. Coverage runs by default with `--cov-fail-under=100`, so `just test` fails unless tests cover every line of new code.
 

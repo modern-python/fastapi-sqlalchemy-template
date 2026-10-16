@@ -20,6 +20,7 @@ dependencies = [
     "psycopg",
     "sqlalchemy[asyncio]<2.1",
     "asyncpg",
+    "db-retry>=0.8.0",
     # tracing
     "opentelemetry-instrumentation-sqlalchemy",
 ]
