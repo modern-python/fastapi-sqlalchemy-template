@@ -41,6 +41,7 @@ class Settings(pydantic_settings.BaseSettings):
             service_environment=self.service_environment,
             service_debug=self.service_debug,
             opentelemetry_endpoint=self.opentelemetry_endpoint,
+            opentelemetry_exclude_spans=["receive", "send"],
             sentry_dsn=self.sentry_dsn,
             cors_allowed_origins=self.cors_allowed_origins,
             cors_allowed_methods=self.cors_allowed_methods,
