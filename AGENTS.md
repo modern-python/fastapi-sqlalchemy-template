@@ -43,7 +43,7 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 
 `Database`:
 - `database_engine` — singleton-ish primary `AsyncEngine` (`create_primary_sa_engine`, `close_sa_engine` finalizer).
-- `database_read_engine` — singleton-ish read `AsyncEngine` built from `DB_REPLICA_DSN`, or from `DB_DSN` when it is unset. It runs in `AUTOCOMMIT` (no BEGIN/ROLLBACK per request) and sets `default_transaction_read_only=on`, so Postgres rejects writes on it. Each statement sees its own snapshot, so a multi-query read (e.g. `fetch_with_cards`) can see a write that commits in between. Without a replica it is a second pool on the primary, so a process can hold up to `2 × db_pool_size` connections.
+- `database_read_engine` — singleton-ish read `AsyncEngine` built from `DB_REPLICA_DSN`, or from `DB_DSN` when it is unset. It runs in `AUTOCOMMIT` (no BEGIN/ROLLBACK per request) and sets `default_transaction_read_only=on`, so Postgres rejects writes on it. Each statement sees its own snapshot, so a read that runs several queries can see a write that commits in between. Load related rows in the same query (`fetch_with_cards` uses `joinedload`). Without a replica it is a second pool on the primary, so a process can hold up to `2 × db_pool_size` connections.
 - `dynamic_engine` — `Scope.REQUEST`; `choose_sa_engine` returns the read engine for `GET`/`HEAD` requests, the primary otherwise (including when there is no request). GET handlers cannot write, and a read right after a write may see replica lag.
 - `session` — `Scope.REQUEST`, bound to `dynamic_engine`, finalized by `close_session`.
 - `transaction` — `Scope.REQUEST`, a `db_retry.Transaction` over `session`. Leaving its block rolls back anything uncommitted and closes the session.
@@ -84,7 +84,7 @@ class ListDecksUseCase:
 ### Database layer
 
 - `app/models.py` — `BigIntAuditBase` from `advanced_alchemy` (auto `id`, `created_at`, `updated_at`). The module aliases `orm_registry.metadata` onto `orm.DeclarativeBase.metadata` so Alembic autogenerate sees both. New models go here.
-- `app/repositories.py` — Subclass `SQLAlchemyAsyncRepositoryService[Model]` with a nested `BaseRepository(SQLAlchemyAsyncRepository[Model])`. Use cases call the service methods (`get_many`, `get_one`, `create`, `update`, `create_many`, `upsert_many`).
+- `app/repositories.py` — Subclass `SQLAlchemyAsyncRepositoryService[Model]` with a nested `BaseRepository(SQLAlchemyAsyncRepository[Model])`. Use cases call the service methods (`get_many`, `get_one`, `create_many`) for reads and plain inserts. Writes that advanced-alchemy would spread over several round trips are one statement on the session instead: its `update` reads the row twice and refreshes it after the flush, and `upsert_many` selects the rows before and after writing them. `update_deck` sends `UPDATE ... RETURNING`, and `get_or_create` and `upsert_cards` send `INSERT ... ON CONFLICT ... RETURNING`. A statement that can hit a unique constraint runs inside `wrap_sqlalchemy_exception` so that it still raises `DuplicateKeyError`.
 - `app/resources/db.py` — engine factories live here and are DI creators: modern-di resolves their parameter annotations at runtime, so `pyproject.toml` exempts `app/resources/` from ruff's `TC` rules. `create_session` passes `join_transaction_mode="create_savepoint"`. This is inert in production (the session binds to an engine) but enables the test rollback pattern below: when a test binds the session to a connection already in a transaction, the session owns its own savepoint so the outer transaction survives commits — do not "fix" it.
 - `migrations/env.py` swaps the asyncpg driver for the sync `postgresql` driver and uses `app.models.METADATA` as `target_metadata`.
 
@@ -106,7 +106,7 @@ class ListDecksUseCase:
 
 - Ruff is configured with `select = ["ALL"]` and a curated ignore list in `pyproject.toml`. Don't sprinkle `# noqa`; prefer fixing or extending the project ignore list if a rule is genuinely wrong for the codebase.
 - Routes convert ORM objects to schemas explicitly, never via `typing.cast`. Single objects: `schemas.X.model_validate(instance)`. Collections: `schemas.Xs.from_models(objects)` (the `Collection[T]` seam in `app/schemas.py`). Both rely on `from_attributes=True`.
-- Deck responses are deliberately two-shaped: `list_decks`/`create_deck`/`update_deck` return the light `schemas.Deck` (no `cards`), while `get_deck` returns `schemas.DeckWithCards`. The split mirrors loading — lists/writes use `noload` (no cards query), detail uses `selectinload` via `fetch_with_cards` — so the type states exactly what each endpoint loads.
+- Deck responses are deliberately two-shaped: `list_decks`/`create_deck`/`update_deck` return the light `schemas.Deck` (no `cards`), while `get_deck` returns `schemas.DeckWithCards`. The split mirrors loading — lists/writes use `noload` (no cards query), detail uses `joinedload` via `fetch_with_cards` — so the type states exactly what each endpoint loads.
 - Line length is 120.
 
 ## Agent skills

@@ -5,6 +5,7 @@ import pytest
 from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
 from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
+from sqlalchemy import event
 
 from app import ioc
 from app.application import build_app
@@ -14,7 +15,11 @@ from app.resources.db import create_primary_sa_engine, create_session
 if typing.TYPE_CHECKING:
     import fastapi
     import modern_di
+    from sqlalchemy.engine import Connection
     from sqlalchemy.ext.asyncio import AsyncSession
+
+
+SAVEPOINT_PREFIXES: typing.Final = ("SAVEPOINT", "RELEASE SAVEPOINT", "ROLLBACK TO SAVEPOINT")
 
 
 @pytest.fixture
@@ -68,3 +73,20 @@ async def set_async_session_in_base_sqlalchemy_factory(
         yield
     finally:
         SQLAlchemyFactory.__async_session__ = None
+
+
+@pytest.fixture
+def statements(db_session: AsyncSession) -> typing.Iterator[list[str]]:
+    sync_connection: typing.Final = typing.cast("Connection", db_session.sync_session.bind)
+    recorded: typing.Final[list[str]] = []
+
+    def record(*args: object) -> None:
+        statement: typing.Final = typing.cast("str", args[2])
+        if not statement.startswith(SAVEPOINT_PREFIXES):
+            recorded.append(statement)
+
+    event.listen(sync_connection, "before_cursor_execute", record)
+    try:
+        yield recorded
+    finally:
+        event.remove(sync_connection, "before_cursor_execute", record)
