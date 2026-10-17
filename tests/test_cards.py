@@ -321,3 +321,15 @@ async def test_card_endpoints_reject_ids_out_of_bigint_range(
 ) -> None:
     response = await client.request(method, path, json=body, params=params)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+
+
+async def test_update_cards_swaps_fronts(client: AsyncClient) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    card1, card2 = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
+
+    response = await client.put(
+        f"/api/decks/{deck.id}/cards/",
+        json=[{"id": card1.id, "front": card2.front}, {"id": card2.id, "front": card1.front}],
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert [x["front"] for x in response.json()["items"]] == [card2.front, card1.front]

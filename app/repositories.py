@@ -75,9 +75,17 @@ class CardsRepository(SQLAlchemyAsyncRepositoryService[models.Card]):
     async def update_cards(self, deck_id: int, cards: list[schemas.CardUpdate]) -> Sequence[models.Card]:
         if not cards:
             return []
+        ids: typing.Final = sa.bindparam("ids", [card.id for card in cards], type_=postgresql.ARRAY(sa.BigInteger))
+        locked: typing.Final = (
+            sa.select(models.Card.id)
+            .where(models.Card.id == sa.any_(ids), models.Card.deck_id == deck_id)
+            .order_by(models.Card.id)
+            .with_for_update()
+            .cte("locked")
+        )
         updates: typing.Final = (
             sa.func.unnest(
-                sa.bindparam("ids", [card.id for card in cards], type_=postgresql.ARRAY(sa.BigInteger)),
+                ids,
                 sa.bindparam("fronts", [card.front for card in cards], type_=postgresql.ARRAY(sa.String)),
                 sa.bindparam("backs", [card.back for card in cards], type_=postgresql.ARRAY(sa.String)),
                 sa.bindparam("hints", [card.hint for card in cards], type_=postgresql.ARRAY(sa.String)),
@@ -92,7 +100,7 @@ class CardsRepository(SQLAlchemyAsyncRepositoryService[models.Card]):
         )
         statement: typing.Final = (
             sa.update(models.Card)
-            .where(models.Card.id == updates.c.id, models.Card.deck_id == deck_id)
+            .where(models.Card.id == updates.c.id, models.Card.id == locked.c.id, models.Card.deck_id == deck_id)
             .values(front=updates.c.front, back=updates.c.back, hint=updates.c.hint)
             .returning(models.Card)
         )
