@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14"
 
 [[package]]
@@ -281,6 +281,7 @@ dev = [
     { name = "httpx" },
     { name = "polyfactory" },
     { name = "pytest" },
+    { name = "pytest-alembic" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
 ]
@@ -312,6 +313,7 @@ dev = [
     { name = "httpx" },
     { name = "polyfactory" },
     { name = "pytest" },
+    { name = "pytest-alembic" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
 ]
@@ -975,6 +977,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e4/47/b9efed96c114afcfa3c9d3fe98a76a1d14c74a9e266d397cf6eb64be5e01/pytest-9.1.1.tar.gz", hash = "sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313", size = 1636369, upload-time = "2026-06-19T10:58:32.857Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl", hash = "sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c", size = 386536, upload-time = "2026-06-19T10:58:31.347Z" },
+]
+
+[[package]]
+name = "pytest-alembic"
+version = "0.13.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "alembic" },
+    { name = "pytest" },
+    { name = "sqlalchemy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/00/99/272ace37071006a0050abf7b6940c6cfdcf58e18f27385be668f6a934ee0/pytest_alembic-0.13.1.tar.gz", hash = "sha256:96a54ec76d4704fffb433880c5a84f5c3ea5980bb3f6509d868fef40e6e9a79f", size = 39777, upload-time = "2026-10-02T16:21:52.261Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5b/57/19e2e43140c04be1219f408fe840226c0f4d01550c9d5357f7ee6c86aa73/pytest_alembic-0.13.1-py3-none-any.whl", hash = "sha256:141b410c2d338d98401981dc4f8a848ea46c2c5c46dae106f1bcbed33dccdc47", size = 46278, upload-time = "2026-10-02T16:21:51.261Z" },
 ]
 
 [[package]]

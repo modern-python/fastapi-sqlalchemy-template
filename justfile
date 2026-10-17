@@ -9,6 +9,9 @@ sh:
 test *args: down && down
     docker compose run application sh -c "sleep 1 && uv run alembic downgrade base && uv run alembic upgrade head && uv run pytest {{ args }}"
 
+test-migrations *args: down && down
+    docker compose run application sh -c "sleep 1 && uv run pytest tests/migrations --override-ini=addopts= {{ args }}"
+
 run:
     docker compose run --service-ports application sh -c "sleep 1 && uv run alembic upgrade head && uv run python -m app"
 

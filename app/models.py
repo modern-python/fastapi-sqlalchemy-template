@@ -27,4 +27,4 @@ class Card(BigIntAuditBase):
     front: orm.Mapped[str] = orm.mapped_column(sa.String, nullable=False)
     back: orm.Mapped[str | None] = orm.mapped_column(sa.String, nullable=True)
     hint: orm.Mapped[str | None] = orm.mapped_column(sa.String, nullable=True)
-    deck_id: orm.Mapped[int] = orm.mapped_column(sa.Integer, sa.ForeignKey("decks.id"))
+    deck_id: orm.Mapped[int] = orm.mapped_column(sa.BigInteger, sa.ForeignKey("decks.id"))

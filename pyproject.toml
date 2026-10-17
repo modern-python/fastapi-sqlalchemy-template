@@ -33,6 +33,7 @@ dev = [
     "pytest-cov",
     "pytest-asyncio",
     "asgi_lifespan",
+    "pytest-alembic",
 ]
 lint = [
     "ruff",
@@ -79,7 +80,7 @@ isort.no-lines-before = ["standard-library", "local-folder"]
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov=. --cov-report term-missing --cov-fail-under=100"
+addopts = "--cov=. --cov-report term-missing --cov-fail-under=100 --ignore=tests/migrations"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
@@ -90,3 +91,4 @@ exclude_also = [
 
 [tool.coverage.run]
 concurrency = ["thread", "greenlet"]
+omit = ["tests/migrations/*"]
