@@ -47,6 +47,7 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 - `dynamic_engine` — `Scope.REQUEST`; `choose_sa_engine` returns the read engine for `GET`/`HEAD` requests, the primary otherwise (including when there is no request). GET handlers cannot write, and a read right after a write may see replica lag.
 - `session` — `Scope.REQUEST`, bound to `dynamic_engine`, finalized by `close_session`.
 - `transaction` — `Scope.REQUEST`, a `db_retry.Transaction` over `session`. Leaving its block rolls back anything uncommitted and closes the session.
+- `autocommit_transaction` — the same `Transaction`, opened at `AUTOCOMMIT` (`autocommit_isolation_level`). `CreateDeckUseCase` and `UpdateDeckUseCase` use it because each sends exactly one statement, which Postgres runs atomically on its own. The asyncpg adapter then sends no BEGIN or COMMIT, so those writes cost one round trip instead of three. A use case with two or more statements, or one that relies on rolling back after a check, as `UpdateCardsUseCase` does, keeps `transaction`. The `db_session` fixture overrides `autocommit_isolation_level` to `None`, because switching the shared test connection to `AUTOCOMMIT` would roll back its outer transaction. `tests/test_autocommit_writes.py` runs both use cases against a real engine instead.
 
 `Repositories` (`Scope.REQUEST`): `decks_repository` and `cards_repository`, on `Database.session` with `auto_commit=False`. The use case commits through `transaction.commit()`.
 

@@ -5,6 +5,7 @@ from modern_di import Group, Scope, providers
 
 from app.repositories import CardsRepository, DecksRepository
 from app.resources.db import (
+    autocommit_isolation_level,
     choose_sa_engine,
     close_sa_engine,
     close_session,
@@ -49,6 +50,13 @@ class Database(Group):
         creator=Transaction,
         kwargs={"session": session},
     )
+    autocommit_isolation_level = providers.Factory(creator=autocommit_isolation_level, bound_type=None)
+    autocommit_transaction = providers.Factory(
+        scope=Scope.REQUEST,
+        creator=Transaction,
+        bound_type=None,
+        kwargs={"session": session, "isolation_level": autocommit_isolation_level},
+    )
 
 
 class Repositories(Group, scope=Scope.REQUEST):
@@ -65,8 +73,12 @@ class Repositories(Group, scope=Scope.REQUEST):
 class UseCases(Group, scope=Scope.REQUEST):
     list_decks_use_case = providers.Factory(creator=ListDecksUseCase)
     get_deck_use_case = providers.Factory(creator=GetDeckUseCase)
-    update_deck_use_case = providers.Factory(creator=UpdateDeckUseCase)
-    create_deck_use_case = providers.Factory(creator=CreateDeckUseCase)
+    update_deck_use_case = providers.Factory(
+        creator=UpdateDeckUseCase, kwargs={"transaction": Database.autocommit_transaction}
+    )
+    create_deck_use_case = providers.Factory(
+        creator=CreateDeckUseCase, kwargs={"transaction": Database.autocommit_transaction}
+    )
     list_cards_use_case = providers.Factory(creator=ListCardsUseCase)
     get_card_use_case = providers.Factory(creator=GetCardUseCase)
     create_cards_use_case = providers.Factory(creator=CreateCardsUseCase)
