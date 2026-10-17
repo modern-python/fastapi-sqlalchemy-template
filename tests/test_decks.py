@@ -25,7 +25,7 @@ async def test_get_decks_empty(client: AsyncClient) -> None:
 
 
 async def test_get_decks_not_exist(client: AsyncClient) -> None:
-    response = await client.get("/api/decks/0/")
+    response = await client.get("/api/decks/999/")
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
@@ -85,6 +85,32 @@ async def test_get_one_deck_loads_cards_in_one_query(client: AsyncClient, statem
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["cards"]) == 2  # noqa: PLR2004
     assert len(statements) == 1
+
+
+async def test_get_one_deck_orders_cards_by_id(client: AsyncClient) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    card1, card2 = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
+    response = await client.put(f"/api/decks/{deck.id}/cards/", json=[{"id": card1.id, "front": "moved"}])
+    assert response.status_code == status.HTTP_200_OK
+
+    response = await client.get(f"/api/decks/{deck.id}/")
+    assert response.status_code == status.HTTP_200_OK
+    assert [x["id"] for x in response.json()["cards"]] == [card1.id, card2.id]
+
+
+@pytest.mark.parametrize(
+    ("method", "path", "params"),
+    [
+        ("get", f"/api/decks/{2**63}/", None),
+        ("put", f"/api/decks/{2**63}/", None),
+        ("get", "/api/decks/", {"after": 2**63}),
+    ],
+)
+async def test_deck_endpoints_reject_ids_out_of_bigint_range(
+    client: AsyncClient, method: str, path: str, params: dict[str, int] | None
+) -> None:
+    response = await client.request(method, path, json={"name": "x"}, params=params)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 @pytest.mark.parametrize(

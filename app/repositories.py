@@ -75,17 +75,25 @@ class CardsRepository(SQLAlchemyAsyncRepositoryService[models.Card]):
     async def update_cards(self, deck_id: int, cards: list[schemas.CardUpdate]) -> Sequence[models.Card]:
         if not cards:
             return []
-        updates: typing.Final = sa.values(
-            sa.column("id", sa.BigInteger),
-            sa.column("front", sa.String),
-            sa.column("back", sa.String),
-            sa.column("hint", sa.String),
-            name="updates",
-        ).data([(card.id, card.front, card.back, card.hint) for card in cards])
+        updates: typing.Final = (
+            sa.func.unnest(
+                sa.bindparam("ids", [card.id for card in cards], type_=postgresql.ARRAY(sa.BigInteger)),
+                sa.bindparam("fronts", [card.front for card in cards], type_=postgresql.ARRAY(sa.String)),
+                sa.bindparam("backs", [card.back for card in cards], type_=postgresql.ARRAY(sa.String)),
+                sa.bindparam("hints", [card.hint for card in cards], type_=postgresql.ARRAY(sa.String)),
+            )
+            .table_valued(
+                sa.column("id", sa.BigInteger),
+                sa.column("front", sa.String),
+                sa.column("back", sa.String),
+                sa.column("hint", sa.String),
+            )
+            .render_derived(name="updates")
+        )
         statement: typing.Final = (
             sa.update(models.Card)
             .where(models.Card.id == updates.c.id, models.Card.deck_id == deck_id)
-            .values(front=updates.c.front, back=updates.c.back, hint=updates.c.hint, updated_at=sa.func.now())
+            .values(front=updates.c.front, back=updates.c.back, hint=updates.c.hint)
             .returning(models.Card)
         )
         with wrap_sqlalchemy_exception(error_messages=DEFAULT_ERROR_MESSAGE_TEMPLATES, dialect_name="postgresql"):

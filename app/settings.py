@@ -1,4 +1,8 @@
+import typing
+
+import pydantic
 import pydantic_settings
+from granian.log import LogLevels, log_levels_map
 from lite_bootstrap import FastAPIConfig
 from sqlalchemy.engine.url import URL, make_url
 
@@ -8,7 +12,7 @@ class Settings(pydantic_settings.BaseSettings):
     service_version: str = "1.0.0"
     service_environment: str = "local"
     service_debug: bool = False
-    log_level: str = "info"
+    log_level: typing.Annotated[LogLevels, pydantic.BeforeValidator(str.lower)] = LogLevels.info
 
     db_dsn: str = "postgresql+asyncpg://postgres:password@db/postgres"
     db_replica_dsn: str = ""
@@ -47,6 +51,7 @@ class Settings(pydantic_settings.BaseSettings):
             cors_allowed_methods=self.cors_allowed_methods,
             cors_allowed_headers=self.cors_allowed_headers,
             cors_exposed_headers=self.cors_exposed_headers,
+            logging_log_level=log_levels_map[self.log_level],
             logging_buffer_capacity=self.logging_buffer_capacity,
             swagger_offline_docs=self.swagger_offline_docs,
         )

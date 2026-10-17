@@ -69,6 +69,9 @@ flake8-type-checking.runtime-evaluated-base-classes = ["pydantic.BaseModel", "ad
 isort.no-lines-before = ["standard-library", "local-folder"]
 
 [tool.ruff.lint.extend-per-file-ignores]
+"app/api/*.py" = [
+    "TC", # FastAPI reads route annotations at runtime
+]
 "app/resources/*.py" = [
     "TC", # modern-di reads DI creator annotations at runtime
 ]

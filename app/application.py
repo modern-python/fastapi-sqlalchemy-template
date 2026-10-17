@@ -3,7 +3,7 @@ import typing
 
 import modern_di
 import modern_di_fastapi
-from advanced_alchemy.exceptions import DuplicateKeyError, NotFoundError
+from advanced_alchemy.exceptions import DuplicateKeyError, ForeignKeyError, NotFoundError
 from lite_bootstrap import FastAPIBootstrapper
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
@@ -37,6 +37,10 @@ def build_app() -> fastapi.FastAPI:
     )
     app.add_exception_handler(
         NotFoundError,
+        exceptions.not_found_error_handler,  # ty: ignore[invalid-argument-type]
+    )
+    app.add_exception_handler(
+        ForeignKeyError,
         exceptions.not_found_error_handler,  # ty: ignore[invalid-argument-type]
     )
     return app
