@@ -5,7 +5,7 @@ import pytest
 import sqlalchemy as sa
 from fastapi import status
 
-from app import models
+from app import models, schemas
 from tests import factories
 
 
@@ -23,9 +23,6 @@ async def test_get_cards_empty(client: AsyncClient) -> None:
     response = await client.get(f"/api/decks/{deck.id}/cards/")
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["items"]) == 0
-
-    response = await client.get("/api/cards/0/")
-    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 async def test_get_cards(client: AsyncClient) -> None:
@@ -267,4 +264,60 @@ async def test_list_cards_rejects_bad_page_params(client: AsyncClient, params: d
     deck = await factories.DeckModelFactory.create_async()
 
     response = await client.get(f"/api/decks/{deck.id}/cards/", params=params)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+
+
+async def test_create_cards_in_a_missing_deck(client: AsyncClient) -> None:
+    response = await client.post("/api/decks/999/cards/", json=[{"front": "orphan"}])
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.parametrize("method", ["post", "put"])
+async def test_card_writes_reject_too_many_cards(client: AsyncClient, statements: list[str], method: str) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    statements.clear()
+
+    cards = [{"id": i, "front": str(i)} for i in range(1, schemas.MAX_CARDS_PER_REQUEST + 2)]
+    response = await client.request(method, f"/api/decks/{deck.id}/cards/", json=cards)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    assert statements == []
+
+
+async def test_update_cards_sends_the_same_sql_for_any_number_of_cards(
+    client: AsyncClient, statements: list[str]
+) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    card1, card2 = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
+    statements.clear()
+
+    response = await client.put(f"/api/decks/{deck.id}/cards/", json=[{"id": card1.id, "front": "one"}])
+    assert response.status_code == status.HTTP_200_OK
+    response = await client.put(
+        f"/api/decks/{deck.id}/cards/",
+        json=[{"id": card1.id, "front": "first"}, {"id": card2.id, "front": "second"}],
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert [x["front"] for x in response.json()["items"]] == ["first", "second"]
+    assert len(statements) == 2  # noqa: PLR2004
+    assert statements[0] == statements[1]
+
+
+@pytest.mark.parametrize(
+    ("method", "path", "body", "params"),
+    [
+        ("get", f"/api/cards/{2**63}/", None, None),
+        ("get", f"/api/decks/{2**63}/cards/", None, None),
+        ("get", "/api/decks/1/cards/", None, {"after": 2**63}),
+        ("post", f"/api/decks/{2**63}/cards/", [{"front": "x"}], None),
+        ("put", "/api/decks/1/cards/", [{"id": 2**63, "front": "x"}], None),
+    ],
+)
+async def test_card_endpoints_reject_ids_out_of_bigint_range(
+    client: AsyncClient,
+    method: str,
+    path: str,
+    body: list[dict[str, int | str]] | None,
+    params: dict[str, int] | None,
+) -> None:
+    response = await client.request(method, path, json=body, params=params)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT

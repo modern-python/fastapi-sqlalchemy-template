@@ -5,7 +5,7 @@ from starlette import status
 
 
 if TYPE_CHECKING:
-    from advanced_alchemy.exceptions import DuplicateKeyError, NotFoundError
+    from advanced_alchemy.exceptions import DuplicateKeyError, ForeignKeyError, NotFoundError
     from starlette.requests import Request
 
 
@@ -16,7 +16,7 @@ async def duplicate_key_error_handler(_: Request, exc: DuplicateKeyError) -> JSO
     )
 
 
-async def not_found_error_handler(_: Request, __: NotFoundError) -> JSONResponse:
+async def not_found_error_handler(_: Request, __: NotFoundError | ForeignKeyError) -> JSONResponse:
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
         content={"detail": "Not found"},

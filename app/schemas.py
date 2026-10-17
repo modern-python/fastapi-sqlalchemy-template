@@ -2,7 +2,7 @@ import uuid
 from typing import TYPE_CHECKING, Annotated, Final, Protocol, Self
 
 import pydantic
-from pydantic import BaseModel, PositiveInt
+from pydantic import BaseModel, Field, PositiveInt
 
 
 if TYPE_CHECKING:
@@ -11,6 +11,10 @@ if TYPE_CHECKING:
 
 DEFAULT_PAGE_LIMIT: Final = 50
 MAX_PAGE_LIMIT: Final = 100
+MAX_CARDS_PER_REQUEST: Final = 1000
+MAX_ID: Final = 2**63 - 1
+
+Id = Annotated[int, Field(gt=0, le=MAX_ID)]
 
 
 class HasId(Protocol):
@@ -52,7 +56,7 @@ class CardCreate(CardBase):
 
 
 class CardUpdate(CardBase):
-    id: PositiveInt
+    id: Id
 
 
 def _ensure_unique_ids(cards: list[CardUpdate]) -> list[CardUpdate]:
@@ -62,7 +66,10 @@ def _ensure_unique_ids(cards: list[CardUpdate]) -> list[CardUpdate]:
     return cards
 
 
-CardUpdates = Annotated[list[CardUpdate], pydantic.AfterValidator(_ensure_unique_ids)]
+CardCreates = Annotated[list[CardCreate], Field(max_length=MAX_CARDS_PER_REQUEST)]
+CardUpdates = Annotated[
+    list[CardUpdate], Field(max_length=MAX_CARDS_PER_REQUEST), pydantic.AfterValidator(_ensure_unique_ids)
+]
 
 
 class Card(CardUpdate):
@@ -97,7 +104,7 @@ class Deck(DeckBase):
 
 
 class DeckWithCards(Deck):
-    """Deck detail view; cards are eager-loaded (selectinload) and always present."""
+    """Deck detail view; cards are eager-loaded (joinedload) and always present."""
 
     cards: list[Card]
 

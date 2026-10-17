@@ -4,6 +4,7 @@ import fastapi
 from modern_di_fastapi import FromDI
 
 from app import schemas
+from app.api import PathId
 from app.use_cases.create_cards import CreateCardsUseCase
 from app.use_cases.get_card import GetCardUseCase
 from app.use_cases.list_cards import ListCardsUseCase
@@ -15,8 +16,8 @@ ROUTER: typing.Final = fastapi.APIRouter()
 
 @ROUTER.get("/decks/{deck_id}/cards/")
 async def list_cards(
-    deck_id: int,
-    after: typing.Annotated[int | None, fastapi.Query(gt=0)] = None,
+    deck_id: PathId,
+    after: typing.Annotated[int | None, fastapi.Query(gt=0, le=schemas.MAX_ID)] = None,
     limit: typing.Annotated[int, fastapi.Query(ge=1, le=schemas.MAX_PAGE_LIMIT)] = schemas.DEFAULT_PAGE_LIMIT,
     list_cards_use_case: ListCardsUseCase = FromDI(ListCardsUseCase),
 ) -> schemas.CardsPage:
@@ -26,7 +27,7 @@ async def list_cards(
 
 @ROUTER.get("/cards/{card_id}/")
 async def get_card(
-    card_id: int,
+    card_id: PathId,
     get_card_use_case: GetCardUseCase = FromDI(GetCardUseCase),
 ) -> schemas.Card:
     return schemas.Card.model_validate(await get_card_use_case(card_id=card_id))
@@ -34,8 +35,8 @@ async def get_card(
 
 @ROUTER.post("/decks/{deck_id}/cards/")
 async def create_cards(
-    deck_id: int,
-    data: list[schemas.CardCreate],
+    deck_id: PathId,
+    data: schemas.CardCreates,
     create_cards_use_case: CreateCardsUseCase = FromDI(CreateCardsUseCase),
 ) -> schemas.Cards:
     return schemas.Cards.from_models(await create_cards_use_case(deck_id=deck_id, data=data))
@@ -43,7 +44,7 @@ async def create_cards(
 
 @ROUTER.put("/decks/{deck_id}/cards/")
 async def update_cards(
-    deck_id: int,
+    deck_id: PathId,
     data: schemas.CardUpdates,
     update_cards_use_case: UpdateCardsUseCase = FromDI(UpdateCardsUseCase),
 ) -> schemas.Cards:

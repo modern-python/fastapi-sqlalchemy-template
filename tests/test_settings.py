@@ -1,3 +1,7 @@
+import logging
+
+from granian.log import LogLevels
+
 from app.settings import Settings
 
 
@@ -12,3 +16,10 @@ def test_api_bootstrapper_config_reads_instance_not_global() -> None:
 
 def test_pool_pre_ping_is_off_by_default() -> None:
     assert Settings().db_pool_pre_ping is False
+
+
+def test_log_level_is_case_insensitive_and_reaches_app_logging() -> None:
+    custom = Settings(log_level="WARNING")
+
+    assert custom.log_level == LogLevels.warning
+    assert custom.api_bootstrapper_config.logging_log_level == logging.WARNING

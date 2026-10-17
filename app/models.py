@@ -17,12 +17,15 @@ class Deck(BigIntAuditBase):
     idempotency_key: orm.Mapped[uuid.UUID] = orm.mapped_column(sa.Uuid, nullable=False)
     name: orm.Mapped[str] = orm.mapped_column(sa.String, nullable=False)
     description: orm.Mapped[str | None] = orm.mapped_column(sa.String, nullable=True)
-    cards: orm.Mapped[list[Card]] = orm.relationship("Card", lazy="noload", uselist=True)
+    cards: orm.Mapped[list[Card]] = orm.relationship("Card", lazy="noload", uselist=True, order_by="Card.id")
 
 
 class Card(BigIntAuditBase):
     __tablename__ = "cards"
-    __table_args__ = (sa.UniqueConstraint("deck_id", "front", name="card_deck_id_front_uc"),)
+    __table_args__ = (
+        sa.UniqueConstraint("deck_id", "front", name="card_deck_id_front_uc"),
+        sa.Index("ix_cards_deck_id_id", "deck_id", "id"),
+    )
 
     front: orm.Mapped[str] = orm.mapped_column(sa.String, nullable=False)
     back: orm.Mapped[str | None] = orm.mapped_column(sa.String, nullable=True)
