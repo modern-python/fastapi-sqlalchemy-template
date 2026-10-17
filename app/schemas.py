@@ -1,5 +1,5 @@
 import uuid
-from typing import TYPE_CHECKING, Final, Protocol, Self
+from typing import TYPE_CHECKING, Annotated, Final, Protocol, Self
 
 import pydantic
 from pydantic import BaseModel, PositiveInt
@@ -53,6 +53,16 @@ class CardCreate(CardBase):
 
 class CardUpdate(CardBase):
     id: PositiveInt
+
+
+def _ensure_unique_ids(cards: list[CardUpdate]) -> list[CardUpdate]:
+    if len({card.id for card in cards}) != len(cards):
+        msg = "card ids must be unique"
+        raise ValueError(msg)
+    return cards
+
+
+CardUpdates = Annotated[list[CardUpdate], pydantic.AfterValidator(_ensure_unique_ids)]
 
 
 class Card(CardUpdate):
