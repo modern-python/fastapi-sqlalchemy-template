@@ -3,6 +3,7 @@ import logging
 import typing
 
 import fastapi
+from sqlalchemy.engine.interfaces import IsolationLevel
 from sqlalchemy.engine.url import URL, make_url
 from sqlalchemy.ext import asyncio as sa
 
@@ -37,6 +38,10 @@ def create_read_sa_engine() -> sa.AsyncEngine:
         make_url(settings.db_replica_dsn) if settings.db_replica_dsn else settings.db_dsn_parsed,
         read_only=True,
     )
+
+
+def autocommit_isolation_level() -> IsolationLevel | None:
+    return "AUTOCOMMIT"
 
 
 async def close_sa_engine(engine: sa.AsyncEngine) -> None:
