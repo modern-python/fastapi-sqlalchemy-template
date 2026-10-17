@@ -135,3 +135,11 @@ async def test_cards_ordered_by_id_after_update(client: AsyncClient) -> None:
     response = await client.get(f"/api/decks/{deck.id}/cards/")
     assert response.status_code == status.HTTP_200_OK
     assert [x["id"] for x in response.json()["items"]] == [card1.id, card2.id]
+
+
+async def test_openapi_card_deck_id_required(client: AsyncClient) -> None:
+    response = await client.get("/openapi.json")
+    assert response.status_code == status.HTTP_200_OK
+    card_schema = response.json()["components"]["schemas"]["Card"]
+    assert "deck_id" in card_schema["required"]
+    assert "null" not in {x.get("type") for x in card_schema["properties"]["deck_id"].get("anyOf", [])}
