@@ -1,13 +1,17 @@
+import datetime
 from typing import TYPE_CHECKING
 
 import pytest
+import sqlalchemy as sa
 from fastapi import status
 
+from app import models
 from tests import factories
 
 
 if TYPE_CHECKING:
     from httpx import AsyncClient
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 pytestmark = [pytest.mark.usefixtures("set_async_session_in_base_sqlalchemy_factory")]
@@ -135,6 +139,47 @@ async def test_cards_ordered_by_id_after_update(client: AsyncClient) -> None:
     response = await client.get(f"/api/decks/{deck.id}/cards/")
     assert response.status_code == status.HTTP_200_OK
     assert [x["id"] for x in response.json()["items"]] == [card1.id, card2.id]
+
+
+async def test_update_cards_sends_one_statement(client: AsyncClient, statements: list[str]) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    card1, card2 = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
+    statements.clear()
+
+    response = await client.put(
+        f"/api/decks/{deck.id}/cards/",
+        json=[{"id": card1.id, "front": "card1 updated"}, {"id": card2.id, "front": "card2 updated"}],
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert [x["front"] for x in response.json()["items"]] == ["card1 updated", "card2 updated"]
+    assert len(statements) == 1
+
+
+async def test_update_cards_moves_updated_at(client: AsyncClient, db_session: AsyncSession) -> None:
+    long_ago = datetime.datetime(2000, 1, 1, tzinfo=datetime.UTC)
+    deck = await factories.DeckModelFactory.create_async()
+    card = await factories.CardModelFactory.create_async(deck_id=deck.id, updated_at=long_ago)
+
+    response = await client.put(f"/api/decks/{deck.id}/cards/", json=[{"id": card.id, "front": "updated"}])
+    assert response.status_code == status.HTTP_200_OK
+    updated_at = (await db_session.scalars(sa.select(models.Card.updated_at).where(models.Card.id == card.id))).one()
+    assert updated_at > long_ago
+
+
+async def test_update_cards_with_no_cards(client: AsyncClient) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+
+    response = await client.put(f"/api/decks/{deck.id}/cards/", json=[])
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"items": []}
+
+
+async def test_update_cards_to_a_duplicate_front(client: AsyncClient) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    card1, card2 = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
+
+    response = await client.put(f"/api/decks/{deck.id}/cards/", json=[{"id": card2.id, "front": card1.front}])
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 async def test_openapi_card_deck_id_required(client: AsyncClient) -> None:

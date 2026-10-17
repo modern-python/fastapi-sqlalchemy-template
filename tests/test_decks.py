@@ -1,14 +1,18 @@
+import datetime
 import uuid
 from typing import TYPE_CHECKING
 
 import pytest
+import sqlalchemy as sa
 from fastapi import status
 
+from app import models
 from tests import factories
 
 
 if TYPE_CHECKING:
     from httpx import AsyncClient
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 pytestmark = [pytest.mark.usefixtures("set_async_session_in_base_sqlalchemy_factory")]
@@ -70,6 +74,17 @@ async def test_get_one_deck(client: AsyncClient) -> None:
         if k == "cards":
             continue
         assert v == getattr(deck, k)
+
+
+async def test_get_one_deck_loads_cards_in_one_query(client: AsyncClient, statements: list[str]) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
+    statements.clear()
+
+    response = await client.get(f"/api/decks/{deck.id}/")
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()["cards"]) == 2  # noqa: PLR2004
+    assert len(statements) == 1
 
 
 @pytest.mark.parametrize(
@@ -169,3 +184,23 @@ async def test_post_decks_twice_with_one_idempotency_key_creates_one_deck(client
     assert second.json() == first.json()
     response = await client.get("/api/decks/")
     assert [item["name"] for item in response.json()["items"]] == ["first"]
+
+
+async def test_put_decks_sends_one_statement(client: AsyncClient, statements: list[str]) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    statements.clear()
+
+    response = await client.put(f"/api/decks/{deck.id}/", json={"name": "renamed", "description": None})
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"id": deck.id, "name": "renamed", "description": None}
+    assert len(statements) == 1
+
+
+async def test_put_decks_moves_updated_at(client: AsyncClient, db_session: AsyncSession) -> None:
+    long_ago = datetime.datetime(2000, 1, 1, tzinfo=datetime.UTC)
+    deck = await factories.DeckModelFactory.create_async(updated_at=long_ago)
+
+    response = await client.put(f"/api/decks/{deck.id}/", json={"name": "renamed", "description": None})
+    assert response.status_code == status.HTTP_200_OK
+    updated_at = (await db_session.scalars(sa.select(models.Deck.updated_at).where(models.Deck.id == deck.id))).one()
+    assert updated_at > long_ago

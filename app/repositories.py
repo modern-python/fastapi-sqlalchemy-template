@@ -1,7 +1,10 @@
 import operator
+import typing
 from typing import TYPE_CHECKING
 
-from advanced_alchemy.repository import SQLAlchemyAsyncRepository
+import sqlalchemy as sa
+from advanced_alchemy.exceptions import NotFoundError, wrap_sqlalchemy_exception
+from advanced_alchemy.repository import DEFAULT_ERROR_MESSAGE_TEMPLATES, SQLAlchemyAsyncRepository
 from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
 from sqlalchemy import orm
 from sqlalchemy.dialects import postgresql
@@ -33,8 +36,18 @@ class DecksRepository(SQLAlchemyAsyncRepositoryService[models.Deck]):
     async def fetch_with_cards(self, deck_id: int) -> models.Deck:
         return await self.get_one(
             models.Deck.id == deck_id,
-            load=[orm.selectinload(models.Deck.cards)],
+            load=[orm.joinedload(models.Deck.cards)],
+            uniquify=True,
         )
+
+    async def update_deck(self, deck_id: int, data: schemas.DeckUpdate) -> models.Deck:
+        statement: typing.Final = (
+            sa.update(models.Deck).where(models.Deck.id == deck_id).values(**data.model_dump()).returning(models.Deck)
+        )
+        deck: typing.Final = (await self.repository.session.scalars(statement)).one_or_none()
+        if deck is None:
+            raise NotFoundError
+        return deck
 
 
 class CardsRepository(SQLAlchemyAsyncRepositoryService[models.Card]):
@@ -50,7 +63,19 @@ class CardsRepository(SQLAlchemyAsyncRepositoryService[models.Card]):
         return await self.create_many([models.Card(**card.model_dump(), deck_id=deck_id) for card in cards])
 
     async def upsert_cards(self, deck_id: int, cards: list[schemas.CardUpdate]) -> Sequence[models.Card]:
-        upserted = await self.upsert_many(
-            [models.Card(**card.model_dump(), deck_id=deck_id) for card in cards],
+        if not cards:
+            return []
+        statement = postgresql.insert(models.Card).values([{**card.model_dump(), "deck_id": deck_id} for card in cards])
+        statement = statement.on_conflict_do_update(
+            index_elements=[models.Card.id],
+            set_={
+                "front": statement.excluded.front,
+                "back": statement.excluded.back,
+                "hint": statement.excluded.hint,
+                "deck_id": statement.excluded.deck_id,
+                "updated_at": sa.func.now(),
+            },
         )
+        with wrap_sqlalchemy_exception(error_messages=DEFAULT_ERROR_MESSAGE_TEMPLATES, dialect_name="postgresql"):
+            upserted: typing.Final = (await self.repository.session.scalars(statement.returning(models.Card))).all()
         return sorted(upserted, key=operator.attrgetter("id"))
