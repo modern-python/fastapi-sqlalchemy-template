@@ -16,7 +16,7 @@ if typing.TYPE_CHECKING:
     import fastapi
     import modern_di
     from sqlalchemy.engine import Connection
-    from sqlalchemy.ext.asyncio import AsyncSession
+    from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 
 SAVEPOINT_PREFIXES: typing.Final = ("SAVEPOINT", "RELEASE SAVEPOINT", "ROLLBACK TO SAVEPOINT")
@@ -92,3 +92,14 @@ def statements(db_session: AsyncSession) -> typing.Iterator[list[str]]:
         yield recorded
     finally:
         event.remove(sync_connection, "before_cursor_execute", record)
+
+
+@pytest.fixture
+async def committing_engine(di_container: modern_di.Container) -> typing.AsyncIterator[AsyncEngine]:
+    engine = create_primary_sa_engine()
+    di_container.override(ioc.Database.dynamic_engine, engine)
+    try:
+        yield engine
+    finally:
+        di_container.reset_override(ioc.Database.dynamic_engine)
+        await engine.dispose()

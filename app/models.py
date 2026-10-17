@@ -23,7 +23,7 @@ class Deck(BigIntAuditBase):
 class Card(BigIntAuditBase):
     __tablename__ = "cards"
     __table_args__ = (
-        sa.UniqueConstraint("deck_id", "front", name="card_deck_id_front_uc"),
+        sa.UniqueConstraint("deck_id", "front", name="card_deck_id_front_uc", deferrable=True, initially="IMMEDIATE"),
         sa.Index("ix_cards_deck_id_id", "deck_id", "id"),
     )
 
