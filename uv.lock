@@ -205,15 +205,15 @@ wheels = [
 
 [[package]]
 name = "db-retry"
-version = "0.8.0"
+version = "0.8.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asyncpg" },
     { name = "sqlalchemy", extra = ["asyncio"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cb/78/71a71ccabcd09175e4351c655b0d1439a6207f9401ce8df4189fa8bfcc84/db_retry-0.8.0.tar.gz", hash = "sha256:dccdc281422f8d01acc2b4f39e622d4a97e03b23adf3d3bf66b61c680c235b71", size = 8737, upload-time = "2026-10-16T15:55:58.283Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c6/b1/e00347fb2f3dbbff67cbc4fec36f1fc30355dadb62a4f99f539ca8325e0c/db_retry-0.8.1.tar.gz", hash = "sha256:12cfcbaa851f46567723b97875d9990b3747a04b41db93909b43f43f9aa5b1d9", size = 9198, upload-time = "2026-10-17T07:45:22.517Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d0/1c/3becec5f059559f88c2b4e343673509bac363ebb255743d144da7af35f95/db_retry-0.8.0-py3-none-any.whl", hash = "sha256:edaf2aed767082eb84a6d22b8d79001d0f2c86d68853dda46a623c94fe819ad3", size = 9338, upload-time = "2026-10-16T15:55:57.339Z" },
+    { url = "https://files.pythonhosted.org/packages/02/7f/65efee5727d4a5d3d29b7300a1f165d872c46a4cceb828819a0f13fc9217/db_retry-0.8.1-py3-none-any.whl", hash = "sha256:95e2346d6ea5ae29964f1059128a623665f4e6046f477fc7e2970cf1969dda91", size = 9782, upload-time = "2026-10-17T07:45:21.458Z" },
 ]
 
 [[package]]
@@ -296,7 +296,7 @@ requires-dist = [
     { name = "advanced-alchemy" },
     { name = "alembic" },
     { name = "asyncpg" },
-    { name = "db-retry", specifier = ">=0.8.0" },
+    { name = "db-retry", specifier = ">=0.8.1" },
     { name = "fastapi", specifier = ">=0.76" },
     { name = "granian", extras = ["uvloop"] },
     { name = "lite-bootstrap", extras = ["fastapi-all"] },
