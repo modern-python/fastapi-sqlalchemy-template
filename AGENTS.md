@@ -65,9 +65,9 @@ class ListDecksUseCase:
     decks_repository: DecksRepository
 
     @postgres_retry
-    async def __call__(self) -> Sequence[models.Deck]:
+    async def __call__(self, *, after: int | None, limit: int) -> Sequence[models.Deck]:
         async with self.transaction:
-            decks: typing.Final = await self.decks_repository.get_many()
+            decks: typing.Final = await self.decks_repository.list_decks(after=after, limit=limit)
             await self.transaction.commit()
         return decks
 ```
@@ -106,6 +106,7 @@ class ListDecksUseCase:
 
 - Ruff is configured with `select = ["ALL"]` and a curated ignore list in `pyproject.toml`. Don't sprinkle `# noqa`; prefer fixing or extending the project ignore list if a rule is genuinely wrong for the codebase.
 - Routes convert ORM objects to schemas explicitly, never via `typing.cast`. Single objects: `schemas.X.model_validate(instance)`. Collections: `schemas.Xs.from_models(objects)` (the `Collection[T]` seam in `app/schemas.py`). Both rely on `from_attributes=True`.
+- List endpoints page by id (keyset). They take `limit` (1 to `schemas.MAX_PAGE_LIMIT`, default `schemas.DEFAULT_PAGE_LIMIT`) and `after`, the last id the client has seen, and return a `Page[T]` subclass (`schemas.DecksPage`, `schemas.CardsPage`) with `items` and `next_after`. The repository filters `id > after` and fetches `limit + 1` rows ordered by id. `Page.from_models(rows, limit=limit)` drops the extra row and sets `next_after` to the last returned id when that row existed, or `null` on the last page. Don't page with OFFSET: Postgres reads and discards every skipped row.
 - Deck responses are deliberately two-shaped: `list_decks`/`create_deck`/`update_deck` return the light `schemas.Deck` (no `cards`), while `get_deck` returns `schemas.DeckWithCards`. The split mirrors loading — lists/writes use `noload` (no cards query), detail uses `joinedload` via `fetch_with_cards` — so the type states exactly what each endpoint loads.
 - Line length is 120.
 

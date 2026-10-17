@@ -204,3 +204,49 @@ async def test_put_decks_moves_updated_at(client: AsyncClient, db_session: Async
     assert response.status_code == status.HTTP_200_OK
     updated_at = (await db_session.scalars(sa.select(models.Deck.updated_at).where(models.Deck.id == deck.id))).one()
     assert updated_at > long_ago
+
+
+async def test_list_decks_first_page(client: AsyncClient) -> None:
+    decks = await factories.DeckModelFactory.create_batch_async(size=3)
+
+    response = await client.get("/api/decks/", params={"limit": 2})
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert [x["id"] for x in data["items"]] == [decks[0].id, decks[1].id]
+    assert data["next_after"] == decks[1].id
+
+
+async def test_list_decks_after_cursor(client: AsyncClient) -> None:
+    decks = await factories.DeckModelFactory.create_batch_async(size=3)
+
+    response = await client.get("/api/decks/", params={"limit": 2, "after": decks[1].id})
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert [x["id"] for x in data["items"]] == [decks[2].id]
+    assert data["next_after"] is None
+
+
+async def test_list_decks_exactly_limit_has_no_next_page(client: AsyncClient) -> None:
+    decks = await factories.DeckModelFactory.create_batch_async(size=2)
+
+    response = await client.get("/api/decks/", params={"limit": 2})
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert [x["id"] for x in data["items"]] == [x.id for x in decks]
+    assert data["next_after"] is None
+
+
+async def test_list_decks_default_limit(client: AsyncClient) -> None:
+    decks = await factories.DeckModelFactory.create_batch_async(size=51)
+
+    response = await client.get("/api/decks/")
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert [x["id"] for x in data["items"]] == [x.id for x in decks[:50]]
+    assert data["next_after"] == decks[49].id
+
+
+@pytest.mark.parametrize("params", [{"limit": 0}, {"limit": 101}, {"after": 0}, {"after": "x"}])
+async def test_list_decks_rejects_bad_page_params(client: AsyncClient, params: dict[str, int | str]) -> None:
+    response = await client.get("/api/decks/", params=params)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT

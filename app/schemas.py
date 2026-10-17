@@ -1,12 +1,20 @@
 import uuid
-from typing import TYPE_CHECKING, Annotated, Self
+from typing import TYPE_CHECKING, Annotated, Final, Protocol, Self
 
 import pydantic
 from pydantic import BaseModel, PositiveInt
 
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
+
+
+DEFAULT_PAGE_LIMIT: Final = 50
+MAX_PAGE_LIMIT: Final = 100
+
+
+class HasId(Protocol):
+    id: int
 
 
 class Base(BaseModel):
@@ -19,6 +27,18 @@ class Collection[T: Base](Base):
     @classmethod
     def from_models(cls, objects: Iterable[object]) -> Self:
         return cls.model_validate({"items": list(objects)})
+
+
+class Page[T: Base](Base):
+    items: list[T]
+    next_after: PositiveInt | None
+
+    @classmethod
+    def from_models(cls, objects: Sequence[HasId], *, limit: int) -> Self:
+        has_next: Final = len(objects) > limit
+        return cls.model_validate(
+            {"items": list(objects[:limit]), "next_after": objects[limit - 1].id if has_next else None}
+        )
 
 
 class CardBase(Base):
@@ -53,6 +73,10 @@ class Cards(Collection[Card]):
     pass
 
 
+class CardsPage(Page[Card]):
+    pass
+
+
 class DeckBase(Base):
     name: str
     description: str | None = None
@@ -78,5 +102,5 @@ class DeckWithCards(Deck):
     cards: list[Card]
 
 
-class Decks(Collection[Deck]):
+class DecksPage(Page[Deck]):
     pass

@@ -16,9 +16,12 @@ ROUTER: typing.Final = fastapi.APIRouter()
 @ROUTER.get("/decks/{deck_id}/cards/")
 async def list_cards(
     deck_id: int,
+    after: typing.Annotated[int | None, fastapi.Query(gt=0)] = None,
+    limit: typing.Annotated[int, fastapi.Query(ge=1, le=schemas.MAX_PAGE_LIMIT)] = schemas.DEFAULT_PAGE_LIMIT,
     list_cards_use_case: ListCardsUseCase = FromDI(ListCardsUseCase),
-) -> schemas.Cards:
-    return schemas.Cards.from_models(await list_cards_use_case(deck_id=deck_id))
+) -> schemas.CardsPage:
+    cards: typing.Final = await list_cards_use_case(deck_id=deck_id, after=after, limit=limit)
+    return schemas.CardsPage.from_models(cards, limit=limit)
 
 
 @ROUTER.get("/cards/{card_id}/")
