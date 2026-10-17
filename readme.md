@@ -43,7 +43,9 @@ This keeps one trace in ten, and follows the caller's decision when a request ar
 
 The template also turns off the ASGI `send` and `receive` spans (`opentelemetry_exclude_spans` in `app/settings.py`), so each request records its server span and database spans only. With every request traced, that raised throughput by 5 to 8% in the same benchmark. Remove the setting if you need those spans.
 
-## 📝 [License](https://github.com/modern-python/fastapi-sqlalchemy-template/blob/main/LICENSE)
+## Links
+
+- [License](https://github.com/modern-python/fastapi-sqlalchemy-template/blob/main/LICENSE)
 
 ## Part of `modern-python`
 
