@@ -70,7 +70,7 @@ async def test_create_cards(client: AsyncClient) -> None:
     response = await client.get(f"/api/decks/{deck.id}/cards/")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
-    assert created_data == data
+    assert created_data["items"] == data["items"]
     assert len(data["items"]) == len(cards_to_create)
     for k, v in cards_to_create[0].model_dump().items():
         assert data["items"][0][k] == v
@@ -188,3 +188,30 @@ async def test_openapi_card_deck_id_required(client: AsyncClient) -> None:
     card_schema = response.json()["components"]["schemas"]["Card"]
     assert "deck_id" in card_schema["required"]
     assert "null" not in {x.get("type") for x in card_schema["properties"]["deck_id"].get("anyOf", [])}
+
+
+async def test_list_cards_pages_by_id_within_deck(client: AsyncClient) -> None:
+    deck, other_deck = await factories.DeckModelFactory.create_batch_async(size=2)
+    first, second = await factories.CardModelFactory.create_batch_async(size=2, deck_id=deck.id)
+    await factories.CardModelFactory.create_async(deck_id=other_deck.id)
+    third = await factories.CardModelFactory.create_async(deck_id=deck.id)
+
+    response = await client.get(f"/api/decks/{deck.id}/cards/", params={"limit": 2})
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert [x["id"] for x in data["items"]] == [first.id, second.id]
+    assert data["next_after"] == second.id
+
+    response = await client.get(f"/api/decks/{deck.id}/cards/", params={"limit": 2, "after": data["next_after"]})
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert [x["id"] for x in data["items"]] == [third.id]
+    assert data["next_after"] is None
+
+
+@pytest.mark.parametrize("params", [{"limit": 0}, {"limit": 101}, {"after": 0}])
+async def test_list_cards_rejects_bad_page_params(client: AsyncClient, params: dict[str, int | str]) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+
+    response = await client.get(f"/api/decks/{deck.id}/cards/", params=params)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT

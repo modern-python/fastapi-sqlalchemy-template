@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from advanced_alchemy.exceptions import NotFoundError, wrap_sqlalchemy_exception
+from advanced_alchemy.filters import LimitOffset
 from advanced_alchemy.repository import DEFAULT_ERROR_MESSAGE_TEMPLATES, SQLAlchemyAsyncRepository
 from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
 from sqlalchemy import orm
@@ -22,8 +23,12 @@ class DecksRepository(SQLAlchemyAsyncRepositoryService[models.Deck]):
 
     repository_type = BaseRepository
 
-    async def list_decks(self) -> Sequence[models.Deck]:
-        return await self.get_many(order_by=models.Deck.id.asc())
+    async def list_decks(self, *, after: int | None, limit: int) -> Sequence[models.Deck]:
+        return await self.get_many(
+            *([] if after is None else [models.Deck.id > after]),
+            LimitOffset(limit=limit + 1, offset=0),
+            order_by=models.Deck.id.asc(),
+        )
 
     async def get_or_create(self, data: schemas.DeckCreate) -> models.Deck:
         statement = postgresql.insert(models.Deck).values(**data.model_dump())
@@ -56,8 +61,13 @@ class CardsRepository(SQLAlchemyAsyncRepositoryService[models.Card]):
 
     repository_type = BaseRepository
 
-    async def list_for_deck(self, deck_id: int) -> Sequence[models.Card]:
-        return await self.get_many(models.Card.deck_id == deck_id, order_by=models.Card.id.asc())
+    async def list_for_deck(self, deck_id: int, *, after: int | None, limit: int) -> Sequence[models.Card]:
+        return await self.get_many(
+            models.Card.deck_id == deck_id,
+            *([] if after is None else [models.Card.id > after]),
+            LimitOffset(limit=limit + 1, offset=0),
+            order_by=models.Card.id.asc(),
+        )
 
     async def add_cards(self, deck_id: int, cards: list[schemas.CardCreate]) -> Sequence[models.Card]:
         return await self.create_many([models.Card(**card.model_dump(), deck_id=deck_id) for card in cards])
