@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from fastapi.responses import JSONResponse
+from sqlalchemy import exc as sa_exc
 from starlette import status
 
 
@@ -20,4 +21,13 @@ async def not_found_error_handler(_: Request, __: NotFoundError | ForeignKeyErro
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
         content={"detail": "Not found"},
+    )
+
+
+async def database_unavailable_handler(_: Request, exc: Exception) -> JSONResponse:
+    if not isinstance(exc, sa_exc.TimeoutError) and not isinstance(exc.__cause__, sa_exc.TimeoutError):
+        raise exc
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={"detail": "Database unavailable"},
     )

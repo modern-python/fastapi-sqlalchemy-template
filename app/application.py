@@ -3,9 +3,10 @@ import typing
 
 import modern_di
 import modern_di_fastapi
-from advanced_alchemy.exceptions import DuplicateKeyError, ForeignKeyError, NotFoundError
+from advanced_alchemy.exceptions import DuplicateKeyError, ForeignKeyError, NotFoundError, RepositoryError
 from lite_bootstrap import FastAPIBootstrapper
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from sqlalchemy import exc as sa_exc
 
 from app import exceptions, ioc
 from app.api import cards, decks
@@ -43,4 +44,6 @@ def build_app() -> fastapi.FastAPI:
         ForeignKeyError,
         exceptions.not_found_error_handler,  # ty: ignore[invalid-argument-type]
     )
+    app.add_exception_handler(sa_exc.TimeoutError, exceptions.database_unavailable_handler)
+    app.add_exception_handler(RepositoryError, exceptions.database_unavailable_handler)
     return app

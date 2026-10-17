@@ -6,6 +6,7 @@ import modern_di
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import ioc
+from app.settings import settings
 
 
 if TYPE_CHECKING:
@@ -13,8 +14,16 @@ if TYPE_CHECKING:
 
 
 def test_main(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("granian.Granian", mock.Mock())
+    granian = mock.Mock()
+    monkeypatch.setattr("granian.Granian", granian)
+    monkeypatch.setattr(settings, "app_workers", 4)
+    monkeypatch.setattr(settings, "db_pool_size", 5)
+    monkeypatch.setattr(settings, "db_max_overflow", 2)
+
     runpy.run_module("app.__main__", run_name="__main__")
+
+    assert granian.call_args.kwargs["workers"] == 4  # noqa: PLR2004
+    assert granian.call_args.kwargs["backpressure"] == 7  # noqa: PLR2004
 
 
 async def test_session() -> None:

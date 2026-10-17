@@ -35,7 +35,7 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 2. Builds a `FastAPIBootstrapper` from `settings.api_bootstrapper_config`, injecting the SQLAlchemy OpenTelemetry instrumentor.
 3. `modern_di_fastapi.setup_di(app, container)` wires DI scopes onto the FastAPI app.
 4. Includes one `ROUTER` per resource (`app.api.decks.ROUTER`, `app.api.cards.ROUTER`) under `/api` via `include_routers`. Add a new resource by creating `app/api/<name>.py` with its own `APIRouter`-based `ROUTER` and registering it there.
-5. Registers `DuplicateKeyError` → 422 handler from `app/exceptions.py`.
+5. Registers handlers from `app/exceptions.py`: `DuplicateKeyError` → 422, `NotFoundError` and `ForeignKeyError` → 404, and `sqlalchemy.exc.TimeoutError` and `RepositoryError` → `database_unavailable_handler`, which returns 503 for a pool timeout and re-raises anything else.
 
 ### DI scopes (modern-di)
 
@@ -54,6 +54,10 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 `UseCases` (`Scope.REQUEST`): one provider per use case in `app/use_cases/`. modern-di fills each dataclass field by its type, so a use case needs no `kwargs`.
 
 Endpoints inject a use case with `FromDI(UseCase)` from `modern_di_fastapi`, call it, and convert the result to a schema. They never touch repositories or the session. Add new providers to the matching group rather than constructing services manually in routes.
+
+### Pool and server sizing
+
+`DB_POOL_SIZE` (positive) and `DB_MAX_OVERFLOW` (non-negative) size the pool, and `app/__main__.py` sets Granian's `backpressure` to their sum, so each worker accepts only as many requests at once as it has connections. Requests beyond that wait in Granian's socket backlog instead of queueing on the pool. `APP_WORKERS` sets the Granian worker count, and each worker has its own pool. `DB_POOL_TIMEOUT` (default 30 s) bounds the wait for a connection, and a timeout returns 503 through `exceptions.database_unavailable_handler`. advanced-alchemy wraps the timeout in a `RepositoryError`, so the handler is also registered for `RepositoryError` and re-raises anything not caused by a pool timeout. `DB_POOL_RECYCLE` defaults to SQLAlchemy's `-1` (never). Set it below the idle timeout of any proxy or load balancer in front of Postgres, so a connection it dropped is not handed out and retried after a 1-2 s backoff.
 
 ### Use cases and lost connections
 
@@ -91,7 +95,7 @@ class ListDecksUseCase:
 
 ### Settings
 
-`app/settings.py` — `pydantic_settings.BaseSettings`. Env vars are unprefixed (`DB_DSN`, `DB_REPLICA_DSN`, `SERVICE_DEBUG`, `SERVICE_ENVIRONMENT`, `LOG_LEVEL`, `APP_HOST`, `APP_PORT`, `OPENTELEMETRY_ENDPOINT`, `SENTRY_DSN`, `CORS_ALLOWED_ORIGINS`, ...). `api_bootstrapper_config` produces a `FastAPIConfig` for `lite-bootstrap`. `LOG_LEVEL` is case-insensitive and sets both Granian's log level and the app's root logger.
+`app/settings.py` — `pydantic_settings.BaseSettings`. Env vars are unprefixed (`DB_DSN`, `DB_REPLICA_DSN`, `SERVICE_DEBUG`, `SERVICE_ENVIRONMENT`, `LOG_LEVEL`, `APP_HOST`, `APP_PORT`, `OPENTELEMETRY_ENDPOINT`, `SENTRY_DSN`, `CORS_ALLOWED_ORIGINS`, `APP_WORKERS`, `DB_POOL_TIMEOUT`, `DB_POOL_RECYCLE`, ...). `api_bootstrapper_config` produces a `FastAPIConfig` for `lite-bootstrap`. `LOG_LEVEL` is case-insensitive and sets both Granian's log level and the app's root logger.
 
 ### Tests
 
