@@ -16,12 +16,15 @@ class Settings(pydantic_settings.BaseSettings):
 
     db_dsn: str = "postgresql+asyncpg://postgres:password@db/postgres"
     db_replica_dsn: str = ""
-    db_pool_size: int = 5
-    db_max_overflow: int = 0
+    db_pool_size: pydantic.PositiveInt = 5
+    db_max_overflow: pydantic.NonNegativeInt = 0
     db_pool_pre_ping: bool = False
+    db_pool_timeout: float = 30
+    db_pool_recycle: int = -1
 
     app_host: str = "0.0.0.0"  # noqa: S104
     app_port: int = 8000
+    app_workers: int = 1
 
     opentelemetry_endpoint: str = ""
     sentry_dsn: str = ""

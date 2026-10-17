@@ -10,6 +10,8 @@ if __name__ == "__main__":
         factory=True,
         address=settings.app_host,
         port=settings.app_port,
+        workers=settings.app_workers,
+        backpressure=settings.db_pool_size + settings.db_max_overflow,
         interface=Interfaces.ASGI,
         log_level=settings.log_level,
         loop=Loops.uvloop,

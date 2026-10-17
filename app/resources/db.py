@@ -24,6 +24,8 @@ def create_sa_engine(url: URL, *, read_only: bool = False) -> sa.AsyncEngine:
         pool_size=settings.db_pool_size,
         pool_pre_ping=settings.db_pool_pre_ping,
         max_overflow=settings.db_max_overflow,
+        pool_timeout=settings.db_pool_timeout,
+        pool_recycle=settings.db_pool_recycle,
         isolation_level="AUTOCOMMIT" if read_only else None,
         connect_args={"server_settings": {"default_transaction_read_only": "on"}} if read_only else {},
     )
