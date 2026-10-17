@@ -41,7 +41,7 @@ async def create_cards(
 @ROUTER.put("/decks/{deck_id}/cards/")
 async def update_cards(
     deck_id: int,
-    data: list[schemas.CardUpdate],
+    data: schemas.CardUpdates,
     update_cards_use_case: UpdateCardsUseCase = FromDI(UpdateCardsUseCase),
 ) -> schemas.Cards:
     return schemas.Cards.from_models(await update_cards_use_case(deck_id=deck_id, data=data))

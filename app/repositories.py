@@ -62,20 +62,24 @@ class CardsRepository(SQLAlchemyAsyncRepositoryService[models.Card]):
     async def add_cards(self, deck_id: int, cards: list[schemas.CardCreate]) -> Sequence[models.Card]:
         return await self.create_many([models.Card(**card.model_dump(), deck_id=deck_id) for card in cards])
 
-    async def upsert_cards(self, deck_id: int, cards: list[schemas.CardUpdate]) -> Sequence[models.Card]:
+    async def update_cards(self, deck_id: int, cards: list[schemas.CardUpdate]) -> Sequence[models.Card]:
         if not cards:
             return []
-        statement = postgresql.insert(models.Card).values([{**card.model_dump(), "deck_id": deck_id} for card in cards])
-        statement = statement.on_conflict_do_update(
-            index_elements=[models.Card.id],
-            set_={
-                "front": statement.excluded.front,
-                "back": statement.excluded.back,
-                "hint": statement.excluded.hint,
-                "deck_id": statement.excluded.deck_id,
-                "updated_at": sa.func.now(),
-            },
+        updates: typing.Final = sa.values(
+            sa.column("id", sa.BigInteger),
+            sa.column("front", sa.String),
+            sa.column("back", sa.String),
+            sa.column("hint", sa.String),
+            name="updates",
+        ).data([(card.id, card.front, card.back, card.hint) for card in cards])
+        statement: typing.Final = (
+            sa.update(models.Card)
+            .where(models.Card.id == updates.c.id, models.Card.deck_id == deck_id)
+            .values(front=updates.c.front, back=updates.c.back, hint=updates.c.hint, updated_at=sa.func.now())
+            .returning(models.Card)
         )
         with wrap_sqlalchemy_exception(error_messages=DEFAULT_ERROR_MESSAGE_TEMPLATES, dialect_name="postgresql"):
-            upserted: typing.Final = (await self.repository.session.scalars(statement.returning(models.Card))).all()
-        return sorted(upserted, key=operator.attrgetter("id"))
+            updated: typing.Final = (await self.repository.session.scalars(statement)).all()
+        if len(updated) != len(cards):
+            raise NotFoundError
+        return sorted(updated, key=operator.attrgetter("id"))

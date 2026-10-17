@@ -182,6 +182,59 @@ async def test_update_cards_to_a_duplicate_front(client: AsyncClient) -> None:
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
+async def test_update_cards_does_not_move_a_card_from_another_deck(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    deck, other_deck = await factories.DeckModelFactory.create_batch_async(size=2)
+    card = await factories.CardModelFactory.create_async(deck_id=other_deck.id)
+
+    response = await client.put(f"/api/decks/{deck.id}/cards/", json=[{"id": card.id, "front": "moved"}])
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    stored = (
+        await db_session.execute(sa.select(models.Card.deck_id, models.Card.front).where(models.Card.id == card.id))
+    ).one()
+    assert stored == (other_deck.id, card.front)
+
+
+async def test_update_cards_with_an_unknown_id_inserts_nothing(client: AsyncClient, db_session: AsyncSession) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    card = await factories.CardModelFactory.create_async(deck_id=deck.id)
+
+    response = await client.put(f"/api/decks/{deck.id}/cards/", json=[{"id": card.id + 1, "front": "via put"}])
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert (await db_session.scalars(sa.select(models.Card.front).where(models.Card.deck_id == deck.id))).all() == [
+        card.front
+    ]
+
+    response = await client.post(f"/api/decks/{deck.id}/cards/", json=[{"front": "via post"}])
+    assert response.status_code == status.HTTP_200_OK
+
+
+async def test_update_cards_with_one_unknown_id_updates_nothing(client: AsyncClient, db_session: AsyncSession) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    card = await factories.CardModelFactory.create_async(deck_id=deck.id)
+
+    response = await client.put(
+        f"/api/decks/{deck.id}/cards/",
+        json=[{"id": card.id, "front": "updated"}, {"id": card.id + 1, "front": "unknown"}],
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert (await db_session.scalars(sa.select(models.Card.front).where(models.Card.id == card.id))).one() == card.front
+
+
+async def test_update_cards_rejects_duplicate_ids(client: AsyncClient, statements: list[str]) -> None:
+    deck = await factories.DeckModelFactory.create_async()
+    card = await factories.CardModelFactory.create_async(deck_id=deck.id)
+    statements.clear()
+
+    response = await client.put(
+        f"/api/decks/{deck.id}/cards/",
+        json=[{"id": card.id, "front": "first"}, {"id": card.id, "front": "second"}],
+    )
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    assert statements == []
+
+
 async def test_openapi_card_deck_id_required(client: AsyncClient) -> None:
     response = await client.get("/openapi.json")
     assert response.status_code == status.HTTP_200_OK
