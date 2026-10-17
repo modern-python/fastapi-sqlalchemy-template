@@ -14,7 +14,7 @@ class UpdateCardsUseCase:
     cards_repository: CardsRepository
 
     @postgres_retry
-    async def __call__(self, *, deck_id: int, data: list[schemas.Card]) -> Sequence[models.Card]:
+    async def __call__(self, *, deck_id: int, data: list[schemas.CardUpdate]) -> Sequence[models.Card]:
         async with self.transaction:
             cards: typing.Final = await self.cards_repository.upsert_cards(deck_id, data)
             await self.transaction.commit()

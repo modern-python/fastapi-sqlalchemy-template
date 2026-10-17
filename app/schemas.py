@@ -31,9 +31,12 @@ class CardCreate(CardBase):
     pass
 
 
-class Card(CardBase):
+class CardUpdate(CardBase):
     id: PositiveInt
-    deck_id: PositiveInt | None = None
+
+
+class Card(CardUpdate):
+    deck_id: PositiveInt
 
 
 class Cards(Collection[Card]):

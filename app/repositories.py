@@ -49,8 +49,8 @@ class CardsRepository(SQLAlchemyAsyncRepositoryService[models.Card]):
     async def add_cards(self, deck_id: int, cards: list[schemas.CardCreate]) -> Sequence[models.Card]:
         return await self.create_many([models.Card(**card.model_dump(), deck_id=deck_id) for card in cards])
 
-    async def upsert_cards(self, deck_id: int, cards: list[schemas.Card]) -> Sequence[models.Card]:
+    async def upsert_cards(self, deck_id: int, cards: list[schemas.CardUpdate]) -> Sequence[models.Card]:
         upserted = await self.upsert_many(
-            [models.Card(**card.model_dump(exclude={"deck_id"}), deck_id=deck_id) for card in cards],
+            [models.Card(**card.model_dump(), deck_id=deck_id) for card in cards],
         )
         return sorted(upserted, key=operator.attrgetter("id"))
