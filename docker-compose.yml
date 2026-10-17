@@ -20,7 +20,7 @@ services:
       ["uv", "run", "python", "-m", "app"]
 
   db:
-    image: postgres:14
+    image: postgres:17
     restart: always
     environment:
       - POSTGRES_PASSWORD=password
