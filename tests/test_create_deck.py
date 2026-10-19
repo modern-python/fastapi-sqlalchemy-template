@@ -7,7 +7,8 @@ from db_retry import Transaction
 
 from app import models, schemas
 from app.repositories import DecksRepository
-from app.resources.db import create_primary_sa_engine, create_session
+from app.resources.db import create_sa_engine, create_session
+from app.settings import settings
 from app.use_cases.create_deck import CreateDeckUseCase
 
 
@@ -26,7 +27,7 @@ async def _wait_until_blocked_on_a_lock(engine: AsyncEngine, pid: int) -> None:
 
 
 async def test_create_deck_returns_the_deck_a_concurrent_request_created_with_the_same_key() -> None:
-    engine: typing.Final = create_primary_sa_engine()
+    engine: typing.Final = create_sa_engine(settings=settings, url=settings.db_dsn_parsed)
     idempotency_key: typing.Final = uuid.uuid4()
     try:
         async with engine.connect() as concurrent_request:

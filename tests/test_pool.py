@@ -6,8 +6,8 @@ from advanced_alchemy.exceptions import RepositoryError
 from fastapi import status
 
 from app import ioc
-from app.resources.db import create_primary_sa_engine
-from app.settings import settings
+from app.resources.db import create_sa_engine
+from app.settings import Settings
 from tests import factories
 
 
@@ -26,13 +26,10 @@ if typing.TYPE_CHECKING:
 async def test_exhausted_pool_returns_503(
     client: AsyncClient,
     di_container: modern_di.Container,
-    monkeypatch: pytest.MonkeyPatch,
     request_kwargs: dict[str, typing.Any],
 ) -> None:
-    monkeypatch.setattr(settings, "db_pool_size", 1)
-    monkeypatch.setattr(settings, "db_max_overflow", 0)
-    monkeypatch.setattr(settings, "db_pool_timeout", 0.1)
-    engine: typing.Final = create_primary_sa_engine()
+    pool_settings: typing.Final = Settings(db_pool_size=1, db_max_overflow=0, db_pool_timeout=0.1)
+    engine: typing.Final = create_sa_engine(settings=pool_settings, url=pool_settings.db_dsn_parsed)
     di_container.override(ioc.Database.dynamic_engine, engine)
     try:
         async with engine.connect():

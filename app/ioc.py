@@ -9,10 +9,11 @@ from app.resources.db import (
     choose_sa_engine,
     close_sa_engine,
     close_session,
-    create_primary_sa_engine,
-    create_read_sa_engine,
+    create_sa_engine,
     create_session,
+    read_engine_url,
 )
+from app.settings import Settings
 from app.use_cases.create_cards import CreateCardsUseCase
 from app.use_cases.create_deck import CreateDeckUseCase
 from app.use_cases.get_card import GetCardUseCase
@@ -23,16 +24,22 @@ from app.use_cases.update_cards import UpdateCardsUseCase
 from app.use_cases.update_deck import UpdateDeckUseCase
 
 
+class Config(Group):
+    settings = providers.Factory(creator=Settings, cache=True)
+
+
 class Database(Group):
     database_engine = providers.Factory(
-        creator=create_primary_sa_engine,
+        creator=create_sa_engine,
         cache=providers.CacheSettings(finalizer=close_sa_engine),
         bound_type=None,
+        kwargs={"settings": Config.settings, "url": Config.settings.derive(lambda s: s.db_dsn_parsed)},
     )
     database_read_engine = providers.Factory(
-        creator=create_read_sa_engine,
+        creator=create_sa_engine,
         cache=providers.CacheSettings(finalizer=close_sa_engine),
         bound_type=None,
+        kwargs={"settings": Config.settings, "url": Config.settings.derive(read_engine_url), "read_only": True},
     )
     dynamic_engine = providers.Factory(
         scope=Scope.REQUEST,
@@ -85,4 +92,4 @@ class UseCases(Group, scope=Scope.REQUEST):
     update_cards_use_case = providers.Factory(creator=UpdateCardsUseCase)
 
 
-ALL_GROUPS: typing.Final[list[type[Group]]] = [Database, Repositories, UseCases]
+ALL_GROUPS: typing.Final[list[type[Group]]] = [Config, Database, Repositories, UseCases]

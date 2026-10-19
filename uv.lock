@@ -268,6 +268,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "granian", extra = ["uvloop"] },
     { name = "lite-bootstrap", extra = ["fastapi-all"] },
+    { name = "modern-di" },
     { name = "modern-di-fastapi" },
     { name = "opentelemetry-instrumentation-sqlalchemy" },
     { name = "psycopg" },
@@ -300,6 +301,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.76" },
     { name = "granian", extras = ["uvloop"] },
     { name = "lite-bootstrap", extras = ["fastapi-all"] },
+    { name = "modern-di", specifier = ">=4.3.0,<5" },
     { name = "modern-di-fastapi", specifier = ">=4,<5" },
     { name = "opentelemetry-instrumentation-sqlalchemy" },
     { name = "psycopg" },
@@ -595,11 +597,11 @@ wheels = [
 
 [[package]]
 name = "modern-di"
-version = "4.0.0"
+version = "4.3.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/58/e3/9c92577190555fbc78de895ae30e5093290decd682cd31e170d1a01d8a71/modern_di-4.0.0.tar.gz", hash = "sha256:5554fa458dfb59ab0325a57b1e550c3e35524f4236604884529980f9dc1f5424", size = 37359, upload-time = "2026-10-09T17:33:38.946Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/56/c5/93cc4d790047ac77e0eaa332adb3e2fb43726169614e926f5ea7953aa0b1/modern_di-4.3.0.tar.gz", hash = "sha256:8436f37f308a45265adce77833a187748f2c4e3929a15f997337da2d7d046733", size = 44914, upload-time = "2026-10-19T12:53:28.21Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/23/0d/3bf3ef9c0fda1e44ab7ed4e6e81a24d4428d0ff85ea1a01f3ab54ec6c956/modern_di-4.0.0-py3-none-any.whl", hash = "sha256:0634d9a9e5159d92572c93090c0f9d939291c2de9b0b86de925ba7e0c91f30ce", size = 49954, upload-time = "2026-10-09T17:33:37.977Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/87/8fa15e799ca5b01c1e1d6415523f1e956cabecddf41a2da4a4839065a56e/modern_di-4.3.0-py3-none-any.whl", hash = "sha256:d058ce95c5313e4d05ab9d389f3667f872cfcc5fbadc5926ee8c1b83ca6d7bb4", size = 56143, upload-time = "2026-10-19T12:53:27.084Z" },
 ]
 
 [[package]]
