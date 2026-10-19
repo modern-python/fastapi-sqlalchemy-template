@@ -9,7 +9,8 @@ from sqlalchemy import event
 
 from app import ioc
 from app.application import build_app
-from app.resources.db import create_primary_sa_engine, create_session
+from app.resources.db import create_sa_engine, create_session
+from app.settings import settings
 
 
 if typing.TYPE_CHECKING:
@@ -49,7 +50,7 @@ async def di_container(app: fastapi.FastAPI) -> typing.AsyncIterator[modern_di.C
 
 @pytest.fixture
 async def db_session(di_container: modern_di.Container) -> typing.AsyncIterator[AsyncSession]:
-    engine = create_primary_sa_engine()
+    engine = create_sa_engine(settings=settings, url=settings.db_dsn_parsed)
     connection = await engine.connect()
     transaction = await connection.begin()
     di_container.override(ioc.Database.dynamic_engine, connection)
@@ -96,7 +97,7 @@ def statements(db_session: AsyncSession) -> typing.Iterator[list[str]]:
 
 @pytest.fixture
 async def committing_engine(di_container: modern_di.Container) -> typing.AsyncIterator[AsyncEngine]:
-    engine = create_primary_sa_engine()
+    engine = create_sa_engine(settings=settings, url=settings.db_dsn_parsed)
     di_container.override(ioc.Database.dynamic_engine, engine)
     try:
         yield engine

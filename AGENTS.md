@@ -39,10 +39,13 @@ CI (`.github/workflows/main.yml`) runs `ruff format --check`, `ruff check --no-f
 
 ### DI scopes (modern-di)
 
-`app/ioc.py` splits providers into three groups, collected in `ALL_GROUPS`.
+`app/ioc.py` splits providers into four groups, collected in `ALL_GROUPS`.
+
+`Config`:
+- `settings`: cached `Settings`, overridable in tests (see Settings below).
 
 `Database`:
-- `database_engine`: singleton-ish primary `AsyncEngine` (`create_primary_sa_engine`, `close_sa_engine` finalizer).
+- `database_engine`: singleton-ish primary `AsyncEngine` (`create_sa_engine` with the URL from `Config.settings.derive(...)`, `close_sa_engine` finalizer).
 - `database_read_engine`: singleton-ish read `AsyncEngine` built from `DB_REPLICA_DSN`, or from `DB_DSN` when it is unset. It runs in `AUTOCOMMIT` (no BEGIN/ROLLBACK per request) and sets `default_transaction_read_only=on`, so Postgres rejects writes on it. Each statement sees its own snapshot, so a read that runs several queries can see a write that commits in between. Load related rows in the same query (`fetch_with_cards` uses `joinedload`). Without a replica it is a second pool on the primary, so a process can hold up to `2 × db_pool_size` connections.
 - `dynamic_engine`: `Scope.REQUEST`; `choose_sa_engine` returns the read engine for `GET`/`HEAD` requests, the primary otherwise (including when there is no request). GET handlers cannot write, and a read right after a write may see replica lag.
 - `session`: `Scope.REQUEST`, bound to `dynamic_engine`, finalized by `close_session`.
@@ -95,7 +98,7 @@ class ListDecksUseCase:
 
 ### Settings
 
-`app/settings.py`: `pydantic_settings.BaseSettings`. Env vars are unprefixed (`DB_DSN`, `DB_REPLICA_DSN`, `SERVICE_DEBUG`, `SERVICE_ENVIRONMENT`, `LOG_LEVEL`, `APP_HOST`, `APP_PORT`, `OPENTELEMETRY_ENDPOINT`, `SENTRY_DSN`, `CORS_ALLOWED_ORIGINS`, `APP_WORKERS`, `DB_POOL_TIMEOUT`, `DB_POOL_RECYCLE`, ...). `api_bootstrapper_config` produces a `FastAPIConfig` for `lite-bootstrap`. `LOG_LEVEL` is case-insensitive and sets both Granian's log level and the app's root logger.
+`app/settings.py`: `pydantic_settings.BaseSettings`. Env vars are unprefixed (`DB_DSN`, `DB_REPLICA_DSN`, `SERVICE_DEBUG`, `SERVICE_ENVIRONMENT`, `LOG_LEVEL`, `APP_HOST`, `APP_PORT`, `OPENTELEMETRY_ENDPOINT`, `SENTRY_DSN`, `CORS_ALLOWED_ORIGINS`, `APP_WORKERS`, `DB_POOL_TIMEOUT`, `DB_POOL_RECYCLE`, ...). `api_bootstrapper_config` produces a `FastAPIConfig` for `lite-bootstrap`. `LOG_LEVEL` is case-insensitive and sets both Granian's log level and the app's root logger. Components get settings from the container through `ioc.Config.settings`. The engines take the whole object and get their URL from `Config.settings.derive(...)`, so a test can change their config with `container.override(ioc.Config.settings, Settings(...))` on a container that has not built the engines yet, since the engines are cached. `app/__main__.py`, `migrations/env.py` and `build_app` read the module-level `settings` instead, because they run outside the container or before it exists.
 
 ### Tests
 

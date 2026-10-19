@@ -7,7 +7,7 @@ from sqlalchemy.engine.interfaces import IsolationLevel
 from sqlalchemy.engine.url import URL, make_url
 from sqlalchemy.ext import asyncio as sa
 
-from app.settings import settings
+from app.settings import Settings
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 READ_METHODS: typing.Final = frozenset({"GET", "HEAD"})
 
 
-def create_sa_engine(url: URL, *, read_only: bool = False) -> sa.AsyncEngine:
+def create_sa_engine(*, settings: Settings, url: URL, read_only: bool = False) -> sa.AsyncEngine:
     return sa.create_async_engine(
         url=url,
         echo=settings.service_debug,
@@ -31,15 +31,8 @@ def create_sa_engine(url: URL, *, read_only: bool = False) -> sa.AsyncEngine:
     )
 
 
-def create_primary_sa_engine() -> sa.AsyncEngine:
-    return create_sa_engine(settings.db_dsn_parsed)
-
-
-def create_read_sa_engine() -> sa.AsyncEngine:
-    return create_sa_engine(
-        make_url(settings.db_replica_dsn) if settings.db_replica_dsn else settings.db_dsn_parsed,
-        read_only=True,
-    )
+def read_engine_url(settings: Settings) -> URL:
+    return make_url(settings.db_replica_dsn) if settings.db_replica_dsn else settings.db_dsn_parsed
 
 
 def autocommit_isolation_level() -> IsolationLevel | None:
