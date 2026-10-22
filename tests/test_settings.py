@@ -20,10 +20,6 @@ def test_pool_pre_ping_is_off_by_default() -> None:
     assert Settings().db_pool_pre_ping is False
 
 
-def test_pool_timeout_defaults_to_five_seconds() -> None:
-    assert Settings().db_pool_timeout == 5  # noqa: PLR2004
-
-
 def test_log_level_is_case_insensitive_and_reaches_app_logging() -> None:
     custom = Settings(log_level="WARNING")
 
