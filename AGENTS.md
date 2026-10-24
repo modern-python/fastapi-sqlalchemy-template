@@ -62,6 +62,10 @@ Endpoints inject a use case with `FromDI(UseCase)` from `modern_di_fastapi`, cal
 
 `DB_POOL_SIZE` (positive) and `DB_MAX_OVERFLOW` (non-negative) size the pool, and a request that finds it empty waits for a connection. Granian's `backpressure` is left at its default: it limits open connections per worker, idle keep-alive ones included, so setting it to the pool size makes new connections wait while the app is idle. `APP_WORKERS` sets the Granian worker count, and each worker has its own pool. `DB_POOL_TIMEOUT` (default 5 s) bounds the wait for a connection, and a timeout returns 503 through `exceptions.database_unavailable_handler`. advanced-alchemy wraps the timeout in a `RepositoryError`, so the handler is also registered for `RepositoryError` and re-raises anything not caused by a pool timeout. `DB_POOL_RECYCLE` defaults to SQLAlchemy's `-1` (never). Set it below the idle timeout of any proxy or load balancer in front of Postgres, so a connection it dropped is not handed out and retried after a 1-2 s backoff.
 
+### Telemetry cost
+
+OpenTelemetry is on when `OPENTELEMETRY_ENDPOINT` is set, Sentry when `SENTRY_DSN` is set, and both run on every request. On litestar-sqlalchemy-template, which wires them through lite-bootstrap the same way, each added about 0.3 ms of CPU per request with one Granian worker, and the two together cut read throughput by about 40%; this template has not been measured. OTel traces every request by default. To sample, set `OTEL_TRACES_SAMPLER=parentbased_traceidratio` and `OTEL_TRACES_SAMPLER_ARG` to the ratio; lite-bootstrap leaves the sampler unset, so the OTel SDK reads these. On the Litestar template a ratio of 0.1 removed about half of OTel's cost, because unsampled requests skip the span exporter and most span work but still go through the ASGI middleware and the SQLAlchemy hooks.
+
 ### Use cases and lost connections
 
 `pool_pre_ping` is off by default (`DB_POOL_PRE_PING`). A pooled connection that died while idle is handled by `db_retry.postgres_retry` instead, which saves a round trip on every checkout. That only works if the retried function owns its whole transaction, so every use case has this shape:
