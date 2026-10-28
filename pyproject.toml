@@ -30,12 +30,11 @@ dependencies = [
 dev = [
     "polyfactory",
     "httpx",
-    # <9.2 until pytest-alembic supports it: https://github.com/schireson/pytest-alembic/issues/292
-    "pytest<9.2",
+    "pytest",
     "pytest-cov",
     "pytest-asyncio",
     "asgi_lifespan",
-    "pytest-alembic",
+    "pytest-alembic>=0.13.2",
 ]
 lint = [
     "ruff",
