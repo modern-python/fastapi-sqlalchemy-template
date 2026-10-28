@@ -314,8 +314,8 @@ dev = [
     { name = "asgi-lifespan" },
     { name = "httpx" },
     { name = "polyfactory" },
-    { name = "pytest", specifier = "<9.2" },
-    { name = "pytest-alembic" },
+    { name = "pytest" },
+    { name = "pytest-alembic", specifier = ">=0.13.2" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
 ]
@@ -967,7 +967,7 @@ wheels = [
 
 [[package]]
 name = "pytest"
-version = "9.1.1"
+version = "9.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
@@ -976,23 +976,23 @@ dependencies = [
     { name = "pluggy" },
     { name = "pygments" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e4/47/b9efed96c114afcfa3c9d3fe98a76a1d14c74a9e266d397cf6eb64be5e01/pytest-9.1.1.tar.gz", hash = "sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313", size = 1636369, upload-time = "2026-06-19T10:58:32.857Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/42/bb4641652e58dedeac2ec51abc1f8cae4fee4ec63899a0999016229a0f2a/pytest-9.2.0.tar.gz", hash = "sha256:97c4f3b1f3c7414aa36465e09b8220f1d03627993bd51b1282e193753c80557b", size = 1797555, upload-time = "2026-10-27T21:30:20.728Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl", hash = "sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c", size = 386536, upload-time = "2026-06-19T10:58:31.347Z" },
+    { url = "https://files.pythonhosted.org/packages/51/39/1f5d8c8877a0fa327db959c19341d4be61660de1ab6b7391f9eb805bcd67/pytest-9.2.0-py3-none-any.whl", hash = "sha256:07acdcf88ec174f907dc01af70bf52d49b014bbab03faeeade31c96b18c2e588", size = 411776, upload-time = "2026-10-27T21:30:19.131Z" },
 ]
 
 [[package]]
 name = "pytest-alembic"
-version = "0.13.1"
+version = "0.13.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alembic" },
     { name = "pytest" },
     { name = "sqlalchemy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/00/99/272ace37071006a0050abf7b6940c6cfdcf58e18f27385be668f6a934ee0/pytest_alembic-0.13.1.tar.gz", hash = "sha256:96a54ec76d4704fffb433880c5a84f5c3ea5980bb3f6509d868fef40e6e9a79f", size = 39777, upload-time = "2026-10-02T16:21:52.261Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f4/f3/cc81c095bdac643b22424e3a906845c547884efbd28188c9e63929501b5a/pytest_alembic-0.13.2.tar.gz", hash = "sha256:b91d09dd1fe6345c0c4b5e78d22e012b8edb3e43800df5e64a98b87e85751505", size = 41668, upload-time = "2026-10-28T16:55:55.875Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/57/19e2e43140c04be1219f408fe840226c0f4d01550c9d5357f7ee6c86aa73/pytest_alembic-0.13.1-py3-none-any.whl", hash = "sha256:141b410c2d338d98401981dc4f8a848ea46c2c5c46dae106f1bcbed33dccdc47", size = 46278, upload-time = "2026-10-02T16:21:51.261Z" },
+    { url = "https://files.pythonhosted.org/packages/93/ec/fd63ae8c7180ab368249836a499e32a11a39f9b7bbfd5e55780ceb981873/pytest_alembic-0.13.2-py3-none-any.whl", hash = "sha256:8e966cc1ce185f00aa5632bd7fc9b1d8527e45e373eaab281a47d461f3a95fc5", size = 46360, upload-time = "2026-10-28T16:55:54.87Z" },
 ]
 
 [[package]]
