@@ -314,7 +314,7 @@ dev = [
     { name = "asgi-lifespan" },
     { name = "httpx" },
     { name = "polyfactory" },
-    { name = "pytest" },
+    { name = "pytest", specifier = "<9.2" },
     { name = "pytest-alembic" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
